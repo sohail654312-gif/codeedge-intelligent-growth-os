@@ -56,7 +56,7 @@ The deterministic suite covers:
 - Repaired automation state separately so completed work is not re-executed.
 
 ## CI note
-The CI workflow is committed and ready to run on pushes/PRs. At the time this evidence was recorded, GitHub had not yet exposed a workflow run for this repository, so completion is based on the successful deterministic local verification above rather than a claimed CI run.
+The CI workflow is committed. GitHub Actions run `36718072318` failed before a runner was assigned: GitHub reported `runner_id: 0` and `steps: []`, so no checkout/install/typecheck/test command actually executed. The connected API does not expose the exact account-level quota/billing reason. This is therefore classified as external CI infrastructure, not a CIGO code failure. Completion remains based on the successful deterministic local `npm run verify` result above.
 
 ## Boundary confirmation
 No protected/reference repository was modified. All implementation changes are confined to `sohail654312-gif/codeedge-intelligent-growth-os`.
