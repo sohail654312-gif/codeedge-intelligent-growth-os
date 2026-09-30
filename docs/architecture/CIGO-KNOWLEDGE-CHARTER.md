@@ -383,29 +383,22 @@ When implementation is required, completion needs:
 
 ## Autonomous builder protocol
 
-Three staggered builders currently operate at approximately:
-- Builder A: :05
-- Builder B: :25
-- Builder C: :45
+CIGO currently uses a **single-writer recovery model**. Multi-builder scheduling and repository mutex/lease logic are suspended until the build path demonstrates stable consecutive block completion.
 
-They are identical workers, not independent competing developers.
-
-Each run must:
+Each execution run must:
 1. read STATE
 2. read this charter
 3. inspect committed reality
-4. reconcile stale state
+4. reconcile stale state without erasing commits
 5. repair previous errors first
 6. continue only remaining work
 7. test/verify
-8. record evidence
-9. update STATE first
-10. mirror HANDOFF second
+8. commit coherent implementation/evidence
+9. re-fetch and update STATE using the latest blob SHA
+10. mirror HANDOFF only after STATE succeeds
 11. advance when safe
 
-Use a fresh lock to prevent conflicting builders. A fresh lock must not be overwritten.
-
----
+Do not pre-write STATE merely to acquire a lock. Git commits are durable progress evidence. If implementation commits succeed but a later STATE write fails, the next run must recover those commits and reconcile STATE rather than repeating the implementation.
 
 ## State authority
 
