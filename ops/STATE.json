@@ -27,5 +27,8 @@
   "repo_status": "WRITABLE",
   "authoritative_handoff": "GITHUB",
   "google_doc_role": "OPTIONAL_HUMAN_READABLE_MIRROR",
-  "ci_note": "CI workflow is committed; GitHub Actions had not exposed a run at completion time, so completion evidence relies on successful deterministic local verification rather than a claimed CI run."
+  "ci_note": "CIGO CI workflow is committed. GitHub Actions run 36718072318 failed before runner assignment: runner_id=0 and steps=[], so no repository command executed. Exact account-level/quota/billing cause is not exposed by the connected API. This is tracked as an external CI infrastructure warning; deterministic local verification remains PASS (typecheck, build, 9/9 tests).",
+  "infrastructure_warnings": [
+    "GitHub Actions currently fails before runner assignment (latest observed run 36718072318: runner_id=0, steps=[]). Do not interpret this as a CIGO code/test failure."
+  ]
 }
