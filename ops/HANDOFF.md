@@ -5,23 +5,38 @@
 - CURRENT_MAJOR_PART: 2 — Data Access, Integration & Evidence Layer
 - CURRENT_BLOCK: Operational Read Contracts + Evidence Ingestion Boundary
 - CURRENT_TASK_ID: CIGO-P2-BLOCK1
-- ATTEMPT_COUNT: 0
+- ATTEMPT_COUNT: 1
 - STATUS: READY_FOR_EXECUTOR
 - LOCK: NONE
-- PLANNER_DECISION: Part 1 is complete. Begin Part 2 with provider-neutral, read-only operational data-access contracts and a deterministic evidence-ingestion kernel before any live adapter is attempted.
-- NEXT_ACTION: Executor should implement CIGO-P2-BLOCK1 completely, preserve Part 1 invariants, verify existing + new tests, and record evidence.
-- EXECUTOR_RESULT: None yet
+- PLANNER_DECISION: Supervisor reconciled repository evidence after Executor attempt 1. Preserve the committed read contracts and continue only the remaining Part 2 Block 1 work.
+- NEXT_ACTION: Executor should perform continuation attempt 2 from commit `bcce5e9f49e94da4a2ab63a00b3fe41712cca968`, complete the remaining integration/evidence kernel, docs, tests and evidence, then write STATE first.
+- EXECUTOR_RESULT: Attempt 1 partially completed `src/integration/contracts.ts` but failed to persist the attempt/result into STATE.
 - BLOCKERS: None
-- REPOSITORY_STATUS: Writable
+- REPOSITORY_STATUS: Writable canonical CIGO repo
 
-## Part 1 Closure
+## Preserved Attempt 1 Evidence
 
-Part 1 is repository-backed and complete: Product Constitution, Capability Ownership Matrix, Canonical Domain Model, Business Truth Architecture, passing typecheck/build, 9/9 deterministic truth tests, and completion evidence.
+- `src/integration/contracts.ts`
+- commit: `bcce5e9f49e94da4a2ab63a00b3fe41712cca968`
+- This is a real execution attempt and must not be reset to attempt 0 or re-created blindly.
 
-## NEXT_PROMPT
+## Continuation Attempt 2
 
-The authoritative full execution prompt is stored in ops/STATE.json under next_prompt. Part 2 Block 1 implements the read-only integration/evidence boundary with source-reader contracts, workspace enforcement, source references, cursor/freshness/partial-result semantics, deterministic evidence normalization/fingerprinting, an in-memory demo adapter, tests, docs and completion evidence.
+The authoritative continuation prompt is stored in `ops/STATE.json` under `next_prompt`.
 
-## Workflow Rule
+Remaining scope includes:
+- SourceReader contract + in-memory adapter
+- evidence normalization/fingerprinting/validation
+- integration exports
+- architecture docs
+- deterministic Part 2 tests
+- package/test wiring if needed
+- completion evidence
 
-ops/STATE.json is authoritative. Executor may run only when state is READY_FOR_EXECUTOR. Protected/reference repositories remain read-only.
+## Hardened State Rule
+
+`ops/STATE.json` is authoritative for workflow control and must be updated FIRST. After a successful STATE update, re-fetch and verify it before updating this HANDOFF mirror.
+
+If a STATE write fails, HANDOFF must not be changed.
+
+Protected/reference repositories remain read-only. Google Docs remains optional mirror-only context.
