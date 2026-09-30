@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "npm run build && node --test dist/test/truth.test.js",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "npm run build && node --test test/truth.test.mjs",
+    "verify": "npm run typecheck && npm test"
   },
   "devDependencies": {
     "typescript": "^5.9.2"
