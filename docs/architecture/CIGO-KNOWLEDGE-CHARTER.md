@@ -202,6 +202,13 @@ The AI Voice Agent / AI Receptionist integration point is mandatory and must rem
 
 ## Strategy-source guidance
 
+Verified Library strategy sources available to CIGO automation when file/library access is available:
+- `Codeedge_Volume_III_Business_Strategy_Edition_300p.pdf`
+- `Codeedge_Volume_III_English_Strategist_Edition_360p.pdf`
+- `Codeedge_Volume_III_Urdu_Strategist_Edition_360p.pdf`
+
+Search these exact Library filenames when strategy-book evidence is materially relevant to the current task. Do not require reading all 300/360 pages for every run; retrieve only the relevant sections.
+
 Use the Codeedge strategy books when accessible, including:
 - the 300-page Business Strategist / business-strategy material
 - the 360-page advanced / ultra Strategist material
