@@ -1,0 +1,5 @@
+# CIGO-P8-BLOCK3 completion evidence
+
+Final Builder `01693969e16e5a8dee5dfef0979ad250401a3e11`. Source `src/action/denial-lifecycle.ts` commit `8184e3fe89cdd9f88a74be9036f10f18692511e0`; test `test/denial-lifecycle.test.mjs` initial `1d9b6da67526113ca1a91192bcb539489e08c9f7`, corrected adversarial conflicting replay final Builder; test wiring `package.json` `3182a92300dc49964592fcae52b6832e17aacac5`; architecture `docs/architecture/PART8-DENIAL-LIFECYCLE.md` `c3864c6ad0ae3b8430bd09bc515bfaff7689ca7e`. First exact-SHA CI `36856998376` failed one incorrect test expectation for an identical replay; after correction final exact-SHA CI run `36857055565` job `110351941244` COMPLETED SUCCESS typecheck/build, 101/101 passed, 0 failed. LOCAL_RUN NOT_RUN. Scoped PASS `ops/review/CIGO-P8-BLOCK3-verdict.md` commit `362e9346f788c18e458e7e74391cba7cdbbcc02b`.
+
+The result is SIMULATED_DENIAL_ONLY, NOT_DURABLE: not actual audit evidence, independently authorized human approval, durable idempotency, Business OS dispatch, provider effects or production readiness. Three modes parity and protected repos preserved. CIGO scheduled automations remain disabled.
