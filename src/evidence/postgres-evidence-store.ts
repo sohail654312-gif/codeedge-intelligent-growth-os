@@ -15,6 +15,8 @@ function parseReceipt(value: unknown): DurableIntakeReceipt {
  if (typeof r.workspaceId!=="string" || !r.workspaceId.trim() || typeof r.idempotencyKey!=="string" || !r.idempotencyKey.trim() || typeof r.requestDigest!=="string" || !r.requestDigest.trim() || r.status!=="COMMITTED" || !Array.isArray(r.fingerprints) || !r.fingerprints.length || !r.fingerprints.every(x=>typeof x==="string" && x.length>0) || new Set(r.fingerprints).size!==r.fingerprints.length) throw new Error("INVALID_DURABLE_RECEIPT");
  return r as DurableIntakeReceipt;
 }
+function isSerializationFailure(error:unknown):boolean {return typeof error==="object" && error!==null && "code" in error && error.code==="40001";}
+function sameReceipt(a:DurableIntakeReceipt,b:DurableIntakeReceipt):boolean {return a.workspaceId===b.workspaceId && a.idempotencyKey===b.idempotencyKey && a.requestDigest===b.requestDigest && a.status===b.status && a.fingerprints.length===b.fingerprints.length && a.fingerprints.every((v,i)=>v===b.fingerprints[i]);}
 export class PostgresEvidenceStore implements TransactionalEvidenceStore {
  constructor(private readonly pool: PgPool) {}
  async lookupIntake(workspaceId: WorkspaceId,idempotencyKey: string): Promise<DurableIntakeReceipt|undefined> {
@@ -31,13 +33,14 @@ export class PostgresEvidenceStore implements TransactionalEvidenceStore {
   try {found=await this.lookupIntake(input.workspaceId,input.idempotencyKey);} catch {throw new Error("DURABLE_COMMIT_OUTCOME_UNKNOWN");}
   if (!found) throw new Error("DURABLE_COMMIT_OUTCOME_UNKNOWN");
   const expected:DurableIntakeReceipt={workspaceId:input.workspaceId,idempotencyKey:input.idempotencyKey,requestDigest:input.requestDigest,fingerprints:input.observations.map(o=>o.fingerprint),status:"COMMITTED"};
-  if (JSON.stringify(found)!==JSON.stringify(expected)) throw new Error("IDEMPOTENCY_CONFLICT");
+  if (found.workspaceId!==expected.workspaceId || found.idempotencyKey!==expected.idempotencyKey || found.requestDigest!==expected.requestDigest || found.status!==expected.status || found.fingerprints.length!==expected.fingerprints.length || found.fingerprints.some((v,i)=>v!==expected.fingerprints[i])) throw new Error("IDEMPOTENCY_CONFLICT");
   return found;
  }
  async commitIntake(input:Input):Promise<DurableIntakeReceipt> {
   if (!input.workspaceId || !input.idempotencyKey?.trim() || !input.requestDigest || !input.observations.length ||
       input.observations.some(o=>o.workspaceId!==input.workspaceId || o.verification!=="UNVERIFIED")) throw new Error("INVALID_DURABLE_INTAKE");
   const receipt:DurableIntakeReceipt={workspaceId:input.workspaceId,idempotencyKey:input.idempotencyKey,requestDigest:input.requestDigest,fingerprints:input.observations.map(o=>o.fingerprint),status:"COMMITTED"};
+  for(let attempt=0;attempt<3;attempt++) {
   const client=await this.pool.connect();let commitAttempted=false;
   try {
    await client.query("BEGIN ISOLATION LEVEL SERIALIZABLE");
@@ -49,7 +52,7 @@ export class PostgresEvidenceStore implements TransactionalEvidenceStore {
      "SELECT request_digest,result FROM cigo.intake_requests WHERE workspace_id=$1 AND idempotency_key=$2",
      [input.workspaceId,input.idempotencyKey]);
     if (!existing.rows[0] || existing.rows[0].request_digest!==input.requestDigest ||
-      JSON.stringify(parseReceipt(existing.rows[0].result))!==JSON.stringify(receipt)) throw new Error("IDEMPOTENCY_CONFLICT");
+      !sameReceipt(parseReceipt(existing.rows[0].result),receipt)) throw new Error("IDEMPOTENCY_CONFLICT");
     commitAttempted=true;await client.query("COMMIT");return parseReceipt(existing.rows[0].result);
    }
    for (const row of input.observations) {
@@ -62,13 +65,13 @@ export class PostgresEvidenceStore implements TransactionalEvidenceStore {
      VALUES ($1,$2,$3,'INTAKE_COMMITTED',$4)`,[input.workspaceId,input.idempotencyKey,input.idempotencyKey,input.requestDigest]);
    commitAttempted=true;await client.query("COMMIT");return receipt;
   } catch (error) {
-   if (commitAttempted) {
-    // The connection used for COMMIT is no longer authoritative. Release it first in finally;
-    // caller can explicitly reconcile with a fresh trusted connection via reconcileIntake.
-    throw new Error("DURABLE_COMMIT_OUTCOME_UNKNOWN",{cause:error});
-   }
+   if (commitAttempted) throw new Error("DURABLE_COMMIT_OUTCOME_UNKNOWN",{cause:error});
    try {await client.query("ROLLBACK");} catch { /* original error is authoritative */ }
+   if (isSerializationFailure(error) && attempt<2) continue;
+   if (isSerializationFailure(error)) throw new Error("DURABLE_SERIALIZATION_RETRY_EXHAUSTED");
    throw error;
   } finally {client.release();}
+  }
+  throw new Error("DURABLE_SERIALIZATION_RETRY_EXHAUSTED");
  }
 }
