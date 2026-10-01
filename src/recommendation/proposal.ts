@@ -46,7 +46,7 @@ export function proposeRecommendation(context: AuthorizedWorkspaceContext, analy
       i.status!=="AVAILABLE" || i.value===null || !Array.isArray(i.evidenceFingerprints) || !i.evidenceFingerprints.length ||
       i.evidenceFingerprints.some((fp: string)=>!validText(fp))) ||
     !uniqueTexts(analysis.evidenceFingerprints,100) ||
-    !analysis.insights.every(i=>i.evidenceFingerprints.every(fp=>analysis.evidenceFingerprints.includes(fp))) ||
+    !analysis.insights.every(i=>i.evidenceFingerprints.every((fp: string)=>analysis.evidenceFingerprints.includes(fp))) ||
     !Array.isArray(analysis.limitations) || !analysis.limitations.includes("SOURCE_UNVERIFIED") ||
     !validText(analysis.asOf)) throw new Error("UNSAFE_RECOMMENDATION_ANALYSIS");
   if (!request || !validText(request.proposalId) || !validText(request.title) || !validText(request.rationale) ||
