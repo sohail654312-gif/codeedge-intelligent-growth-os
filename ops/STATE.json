@@ -3,10 +3,10 @@
   "product": "Codeedge Intelligent Growth OS",
   "repository": "sohail654312-gif/codeedge-intelligent-growth-os",
   "execution_model": "SINGLE_WRITER_RECOVERY",
-  "current_major_part": 2,
-  "current_major_part_name": "Data Access, Integration & Evidence Layer",
-  "current_block": "Part 2 Closure and Production Adapter Readiness Assessment",
-  "current_task_id": "CIGO-P2-CLOSURE",
+  "current_major_part": 3,
+  "current_major_part_name": "Business Memory and Knowledge Model",
+  "current_block": "Tenant-scoped Memory Contracts and Evidence Lineage",
+  "current_task_id": "CIGO-P3-BLOCK1",
   "attempt_count": 0,
   "status": "READY_FOR_EXECUTOR",
   "completed": [
@@ -17,19 +17,22 @@
     "Part 2 partial implementation (NOT BLOCK VERIFIED): src/evidence/validation.ts @ b4cf5cef3cca2adfa2d4ac65b090ba7fde90e1c7",
     "CIGO-P2-BLOCK1 implementation merged at 8737d7cda8d633bcad24d8f96ba4623ec274d159; exact-SHA independent PASS verdict committed at a35e226cdcf9bc67532ca98ccf56503c561cb97a",
     "CIGO-P2-BLOCK2 verified at da777e1d4d07e9fbae4e1582c4730f0b25a556d6; independent PASS 0deb151194c1b394c39a3e0fed43007a7c34577e; evidence ops/evidence/CIGO-P2-BLOCK2.md",
-    "CIGO-P2-BLOCK3 verified final implementation 5b9b655cc864f5b16d785aa540769d974f3ebe49; PASS verdict 56e3311f77bf6cc2d9a569c4d25b01a6d730f9f5; evidence ops/evidence/CIGO-P2-BLOCK3.md"
+    "CIGO-P2-BLOCK3 verified final implementation 5b9b655cc864f5b16d785aa540769d974f3ebe49; PASS verdict 56e3311f77bf6cc2d9a569c4d25b01a6d730f9f5; evidence ops/evidence/CIGO-P2-BLOCK3.md",
+    "Part2 deterministic in-memory foundation scoped closure: docs/architecture/PART2-CLOSURE-PRODUCTION-GATES.md @ 76115b1bba0d41f85f0025704c444fc96156a61c; PASS verdict @ 6bfa358f4d61d73e6c7516b3e2844f013e38aeab; evidence ops/evidence/CIGO-P2-COMPLETION.md @ f99e3528f189768285f65a4132f1e57d26c3be85. NOT production-ready."
   ],
   "remaining": [
-    "Audit Part2 contracts, ledger and orchestration against Part2 acceptance and constitution; distinguish verified in-memory scope from deferred production adapters.",
-    "Document production reader and persistence prerequisites, threat model, source authority and migration boundaries without modifying Business OS or MVP.",
-    "Create Part2 closure verdict/evidence only if acceptance is met; otherwise scope a targeted Block4 for actual gaps.",
-    "Then scope Part3 Business Memory and Knowledge Model; require exact-SHA CI and independent verification for implementation."
+    "Define tenant-scoped memory item types and explicit FACT/ASSUMPTION/ANALYSIS boundaries with source evidence fingerprint lineage and verification gate.",
+    "Implement deterministic in-memory memory store with append-only supersession, no implicit UNVERIFIED evidence to FACT promotion, authorization checks and clone-on-read.",
+    "Add tests for cross-tenant isolation, missing/foreign lineage, unverified evidence, dedupe/revision and replay; update test wiring and architecture docs.",
+    "Run exact-SHA typecheck/build/all suites; independent PASS verdict, evidence, STATE-first/HANDOFF mirror."
   ],
   "last_verified_commit": "5b9b655cc864f5b16d785aa540769d974f3ebe49",
-  "test_status": "Block3 GitHub Actions run 36832153593 job 110270998093 SUCCESS exact SHA 5b9b655cc864f5b16d785aa540769d974f3ebe49; verdict reports typecheck/build and 29/29 tests; LOCAL_RUN NOT_RUN. Independent PASS commit 56e3311f77bf6cc2d9a569c4d25b01a6d730f9f5.",
+  "test_status": "Part2 Blocks1–3 exact-SHA CI independently PASS; Block3 final SHA 5b9b655cc864f5b16d785aa540769d974f3ebe49 run 36832153593 29/29 tests per verdict. Scoped documentation-only Part2 closure; no fresh tests; LOCAL_RUN NOT_RUN; production NOT VERIFIED.",
   "blockers": [],
-  "deferred_backlog": [],
-  "next_action": "MANUAL MODE, automations disabled. Assess Part2 closure, explicitly record production integration gaps, then scope Part3 only on evidence; do not claim live connectivity.",
+  "deferred_backlog": [
+    "PART2 PRODUCTION GATE: server-side authentication/authorization composition and revocation; live least-privilege Business OS read-model adapter and cursor/credential isolation; durable transactional tenant-isolated evidence storage, migration/restore/concurrency; adversarial conformance, monitoring and deployment evidence. See docs/architecture/PART2-CLOSURE-PRODUCTION-GATES.md. Not implemented/verified."
+  ],
+  "next_action": "MANUAL MODE, all CIGO scheduled automations disabled. Implement Part3 Block1 deterministic tenant-scoped memory contracts and evidence lineage, no automatic fact promotion. Preserve Part2 production gates as deferred backlog.",
   "coordination_rules": [
     "One active writer during recovery.",
     "Git commits are durable progress evidence; reconcile STATE to committed reality.",
@@ -41,5 +44,5 @@
   "authoritative_handoff": "GITHUB",
   "google_doc_role": "OPTIONAL_MIRROR_ONLY",
   "latest_implementation_commit": "5b9b655cc864f5b16d785aa540769d974f3ebe49",
-  "reconciliation_note": "Part1 and Part2 Blocks1–3 verified. Part2 overall closure pending; no production connectivity claim."
+  "reconciliation_note": "Part2 foundation scoped closed; production integration/deployment expressly deferred. Part3 Block1 not yet implemented."
 }
