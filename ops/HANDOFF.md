@@ -6,6 +6,8 @@ Part1 verified; Part2 deterministic in-memory foundation scoped closed; Part3 Bl
 
 Part4 Block2 final implementation `fbebe4a2bd3f077ff76cc6d72043ff25396b3e01`, exact-SHA CI run `36838510879` job `110291659761` SUCCESS, 45 tests passed, 0 failed. First CI failed TS7006 and was corrected. Scoped PASS `b7e7939ce067972fdf587ef916bdcad16ab4557e`; evidence `ops/evidence/CIGO-P4-BLOCK2.md` commit `3ee356b5217f3a3c7419d0d6040e9d9edf4c0096`. LOCAL_RUN NOT_RUN.
 
-Current task `CIGO-P4-BLOCK3` — Cross-Domain Evidence-Grounded Intelligence, READY_FOR_EXECUTOR attempt 0. Implement bounded tenant-bound read-only analysis across approved projections preserving per-domain provenance/period/units/uncertainty, reject incompatible/conflicting evidence, no FACT promotion or causal claims, test and document, exact-SHA CI then scoped verdict/evidence and STATE-before-HANDOFF.
+Part4 Block3 final implementation `113c5433a674eddb4ec4df002de614912634e580`, exact-SHA CI `36839330414` job `110294360391` SUCCESS, 49 tests passed, 0 failed. Scoped PASS `b23ed995e6a74eec460cd2d40d3a502a608e5f64`; evidence `ops/evidence/CIGO-P4-BLOCK3.md` commit `781c8c89da55c6c7b3af3031558d1dadbcce2186`. LOCAL_RUN NOT_RUN.
 
-Production auth/revocation, independent evidence verification, durable persistence, live Business OS read-model integration, monitoring and deployment remain deferred. All scheduled CIGO automations DISABLED.
+Current task `CIGO-P4-BLOCK4` — Adversarial Evaluation and Scoped Part4 Closure, READY_FOR_EXECUTOR attempt 0. Audit Blocks1–3, test adversarial source boundaries and provenance, document Part4 closure/Part5 dependencies, exact-SHA CI, scoped verdict/evidence, STATE before HANDOFF. Part4 is NOT yet formally closed.
+
+Production auth/revocation, independently authorized evidence verification, durable persistence, live Business OS read-model integration, monitoring and deployment remain deferred. All scheduled CIGO automations DISABLED.
