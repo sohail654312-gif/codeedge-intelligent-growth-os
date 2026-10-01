@@ -23,3 +23,5 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Verify
         run: npm run verify
+      - name: High-severity dependency audit
+        run: npm run security:dependencies
