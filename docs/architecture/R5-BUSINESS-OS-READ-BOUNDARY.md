@@ -1,0 +1,14 @@
+# R5 — G3 Business OS read-model boundary (scoped implementation, NOT live integration)
+
+CIGO reads an external operational projection; Business OS remains system of record. This commit adds `BusinessOsReadModelReader` with a **trusted server composition root** and versioned `BusinessOsReadModelPort` v1. No network URL, provider SDK, tenant credential, query, raw cursor or authorization decision is accepted from caller input. The adapter must be constructed by trusted server code with a workspace-bound port, authorization callback and authenticated cursor codec. It is not wired to real Business OS or production credentials.
+
+## Required production port obligations
+- Port: Business OS-owned, versioned, read-only least-privilege projection, fixed allowlisted resource kinds, scoped tenant credential and endpoint selected on server, parameterized queries; no CIGO writes to Business OS.
+- Auth: resolve actor/session/workspace/membership/RBAC on server for **each page**, enforce revocation/expiry and authorized resource kind. `AuthorizedWorkspaceContext` in the existing request is structurally caller-supplied and **not proof of identity**. The injected `TrustedReadAuthorization` must reject spoofed actors regardless of request values.
+- Cursor codec: use a server-held MAC/AEAD or unpredictable server registry binding token to workspace, source, resource, limit, credential/session and expiry; do not use client-supplied raw upstream cursor. This scoped contract binds workspace, resource and limit; production session binding/expiry must be implemented by the trusted codec/composition root before acceptance.
+- Read port: enforce bounded upstream timeout, rate limit, retries/backoff and circuit breaker, least privilege, credential rotation, cursor expiry, snapshot semantics and partial-result provenance. Generic errors must never include secrets, URLs or foreign row values.
+- Validation: rejects cross-workspace/source/kind records, quarantines invalid records with generic errors, bounds page size and cursor, clones returned values; PARTIAL is not proof of complete coverage. Neither intake nor FACT promotion nor operational effect is authorized by this read.
+- Demo/Sandbox: use equivalent v1 projection contract with fake seeded tenants and non-effect adapters; verify parity separately.
+
+## Scope and outstanding acceptance
+Adversarial deterministic tests in `test/r5-business-os-read-model.test.mjs` are wired into `npm run verify`. No real Business OS API, real membership, credential, HTTP timeout/rate-limit, cursor cryptography, cross-system source signature, deployment or pilot proof is claimed. G3 remains OPEN pending owner-approved integration and distinct review. Protected Business OS/MVP/website untouched; no production or provider calls. R4/G6 remains independently OPEN.
