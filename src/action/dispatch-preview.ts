@@ -23,7 +23,7 @@ export function previewDeniedBusinessOsDispatch(context:AuthorizedWorkspaceConte
  !text(preflight.proposalId)||!text(preflight.planId)||!timestamp(preflight.asOf)||
  !["DEMO","SANDBOX","PRODUCTION"].includes(preflight.mode)||!text(preflight.domainService)||!text(preflight.operation)||!text(preflight.rationale)||
  !unique(preflight.evidenceFingerprints)||!unique(preflight.uncertainty)||
- !["SOURCE_UNVERIFIED","REVIEW_NOT_ATTESTED","PENDING_REVIEW_IS_NOT_APPROVAL","NO_EXECUTION_AUTHORITY"].every(t=>preflight.uncertainty.includes(t))||
+ !["SOURCE_UNVERIFIED","COPILOT_CONTENT_NOT_INDEPENDENTLY_VERIFIED","REVIEW_NOT_ATTESTED","PENDING_REVIEW_IS_NOT_APPROVAL","NO_EXECUTION_AUTHORITY"].every(t=>preflight.uncertainty.includes(t))||
  preflight.policy!=="DENY_UNVERIFIED"||preflight.humanApproval!=="NOT_ATTESTED"||preflight.sourceVerification!=="NOT_AUTHENTICATED"||
  preflight.effect!=="NONE"||preflight.approved!==false||preflight.actionable!==false||preflight.executable!==false||preflight.verifiedFact!==false||
  !Array.isArray(preflight.gates)||preflight.gates.length!==REQUIRED_DISPATCH_GATES.length||
