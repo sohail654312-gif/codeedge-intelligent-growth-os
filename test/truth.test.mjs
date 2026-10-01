@@ -148,7 +148,9 @@ test("assumptions remain assumptions until verified evidence explicitly promotes
     /VERIFIED_EVIDENCE_REQUIRED/,
   );
 
-  const promoted = promoteAssumption(assumption, [evidence()]);
+  assert.throws(() => promoteAssumption(assumption, [evidence()]), /VERIFIED_EVIDENCE_REQUIRED/);
+  const trusted = { isVerifiedEvidence: (item, subject) => item.id === evidence().id && item.workspaceId === subject.workspaceId, isAuthorizedApproval: () => false };
+  const promoted = promoteAssumption(assumption, [evidence()], trusted);
   assert.equal(promoted.truthClass, "FACT");
   assert.equal(promoted.evidence[0].verification, "VERIFIED");
 });
@@ -178,4 +180,14 @@ test("domain kernel contains no direct provider implementations", () => {
       );
     }
   }
+});
+
+
+test("R1 rejects forged VERIFIED and untrusted approval by default", () => {
+  const forged = record();
+  assert.ok(validateTruthRecord(forged).errors.includes("FACT_VERIFICATION_REQUIRED"));
+  const decision = record({ truthClass: "DECISION", sourceSystem: "CIGO", ownership: "CIGO_OWNED", evidence: [], authority: { actorId: "human:claimed", actorType: "HUMAN", approved: true, approvedAt: now, evidenceReference: "claim:1" } });
+  assert.ok(validateTruthRecord(decision).errors.includes("TRUSTED_APPROVAL_REQUIRED"));
+  assert.ok(validateTruthRecord(decision, { isVerifiedEvidence: () => false, isAuthorizedApproval: () => false }).errors.includes("TRUSTED_APPROVAL_REQUIRED"));
+  assert.equal(validateTruthRecord(forged, { isVerifiedEvidence: (item, subject) => item.workspaceId === subject.workspaceId && item.id === evidence().id, isAuthorizedApproval: () => false }).ok, true);
 });
