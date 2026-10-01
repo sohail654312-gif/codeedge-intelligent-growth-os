@@ -41,7 +41,7 @@ export class PostgresEvidenceStore implements TransactionalEvidenceStore {
      [input.workspaceId,input.idempotencyKey]);
     if (!existing.rows[0] || existing.rows[0].request_digest!==input.requestDigest ||
       JSON.stringify(parseReceipt(existing.rows[0].result))!==JSON.stringify(receipt)) throw new Error("IDEMPOTENCY_CONFLICT");
-    await client.query("COMMIT");commitAttempted=true;return parseReceipt(existing.rows[0].result);
+    commitAttempted=true;await client.query("COMMIT");return parseReceipt(existing.rows[0].result);
    }
    for (const row of input.observations) {
     const o=row.observation;
