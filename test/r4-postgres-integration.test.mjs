@@ -18,3 +18,16 @@ test("R4C real PostgreSQL: forced RLS denies unprovisioned application role", {s
   await assert.rejects(store.commitIntake({workspaceId:"workspace:unprovisioned",idempotencyKey:"deny-test",requestDigest:"deny",observations:[{workspaceId:"workspace:unprovisioned",fingerprint:"deny",observation:{workspaceId:"workspace:unprovisioned",sourceSystem:"BUSINESS_OS",externalReference:"deny",resourceKind:"lead",value:{},observedAt:"2026-10-01T00:00:00Z"},verification:"UNVERIFIED"}]}));
  } finally {await pool.end();}
 });
+
+test("R4F disposable PostgreSQL schema security introspection", {skip:!enabled && "Requires explicitly confirmed disposable PostgreSQL"},async()=>{
+ const {default:pg}=await import("pg");const pool=new pg.Pool({connectionString:url,max:2});
+ try {
+  const role=await pool.query("SELECT current_user AS name, rolbypassrls AS bypass, rolsuper AS super FROM pg_roles WHERE rolname=current_user");
+  assert.equal(role.rows[0].bypass,false);assert.equal(role.rows[0].super,false);
+  const tables=await pool.query("SELECT c.relname,c.relrowsecurity,c.relforcerowsecurity,pg_get_userbyid(c.relowner) AS owner FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='cigo' AND c.relname=ANY($1::text[])",[["evidence","intake_requests","audit_events"]]);
+  assert.equal(tables.rows.length,3);for(const row of tables.rows){assert.equal(row.relrowsecurity,true);assert.equal(row.relforcerowsecurity,true);assert.notEqual(row.owner,role.rows[0].name);}
+  const privileges=await pool.query("SELECT has_table_privilege(current_user,'cigo.evidence','UPDATE') AS upd,has_table_privilege(current_user,'cigo.evidence','DELETE') AS del,has_table_privilege(current_user,'cigo.evidence','TRUNCATE') AS trunc");
+  assert.deepEqual(Object.values(privileges.rows[0]),[false,false,false]);
+  const constraints=await pool.query("SELECT conname FROM pg_constraint WHERE connamespace='cigo'::regnamespace");assert.ok(constraints.rows.length>=3);
+ } finally {await pool.end();}
+});
