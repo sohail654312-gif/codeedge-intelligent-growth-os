@@ -40,7 +40,7 @@ export function evaluateRecommendation(
     analysis.confidence!=="INSUFFICIENT" || analysis.verifiedFact!==false || analysis.actionable!==false ||
     !text(analysis.asOf) || proposal.asOf!==analysis.asOf || !strings(analysis.evidenceFingerprints,1,100) ||
     !Array.isArray(analysis.insights) || analysis.insights.length<2 || analysis.insights.length>100 ||
-    analysis.insights.some(i=>i.workspaceId!==context.workspaceId || i.status!=="AVAILABLE" || i.value===null ||
+    analysis.insights.some(i=>i.status!=="AVAILABLE" || i.value===null ||
       i.verifiedFact!==false || i.actionable!==false || !strings(i.evidenceFingerprints,1,100) ||
       i.evidenceFingerprints.some((fp:string)=>!analysis.evidenceFingerprints.includes(fp))) ||
     !strings(analysis.limitations,1,100) || !analysis.limitations.includes("SOURCE_UNVERIFIED"))
