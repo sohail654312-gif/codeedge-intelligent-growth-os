@@ -58,9 +58,10 @@ export class PostgresEvidenceStore implements TransactionalEvidenceStore {
    }
    for (const row of input.observations) {
     const o=row.observation;
-    await client.query(`INSERT INTO cigo.evidence (workspace_id,fingerprint,source_system,external_reference,resource_kind,source_version,observation,observed_at,verification,supersedes)
+    const evidenceInsert=await client.query(`INSERT INTO cigo.evidence (workspace_id,fingerprint,source_system,external_reference,resource_kind,source_version,observation,observed_at,verification,supersedes)
       VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,'UNVERIFIED',$9) ON CONFLICT (workspace_id,fingerprint) DO NOTHING`,
       [input.workspaceId,row.fingerprint,o.sourceSystem,o.externalReference,o.resourceKind,o.version??null,JSON.stringify(o),o.observedAt,row.supersedes??null]);
+    if (evidenceInsert.rowCount===0) throw new Error("DURABLE_EVIDENCE_FINGERPRINT_CONFLICT");
    }
    await client.query(`INSERT INTO cigo.audit_events (workspace_id,event_id,idempotency_key,event_type,payload_digest)
      VALUES ($1,$2,$3,'INTAKE_COMMITTED',$4)`,[input.workspaceId,input.idempotencyKey,input.idempotencyKey,input.requestDigest]);
