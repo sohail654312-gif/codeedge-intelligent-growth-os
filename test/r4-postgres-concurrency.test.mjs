@@ -42,3 +42,17 @@ test("R4M real DB restart, reconciliation, tenant pool reuse and immutable prove
  await assert.rejects(a.query("DELETE FROM cigo.audit_events WHERE workspace_id='workspace:a'"),/permission denied/i);
  }finally{await Promise.all([...ps.values()].map(p=>p.end()));}
 });
+
+test("R4M real DB evidence FK failure rolls back receipt and audit; supersession is tenant-scoped",{skip},async()=>{
+ const ps=await pools();try{const a=ps.get("workspace:a"),b=ps.get("workspace:b"),store=new PostgresEvidenceStore(a,"workspace:a");
+ const bad=input("workspace:a","r4m:bad:lineage","digest:bad:lineage",[row("workspace:a","r4m:bad:lineage:fp","bad","missing:ancestor")]);
+ await assert.rejects(store.commitIntake(bad),/foreign key/i);assert.equal(await store.lookupIntake("workspace:a",bad.idempotencyKey),undefined);
+ assert.equal((await a.query("SELECT count(*)::int AS n FROM cigo.evidence WHERE fingerprint=$1",["r4m:bad:lineage:fp"])).rows[0].n,0);
+ assert.equal((await a.query("SELECT count(*)::int AS n FROM cigo.audit_events WHERE idempotency_key=$1",[bad.idempotencyKey])).rows[0].n,0);
+ const parent=input("workspace:a","r4m:lineage:parent","digest:lineage:parent",[row("workspace:a","r4m:lineage:parent:fp")]);await store.commitIntake(parent);
+ const child=input("workspace:a","r4m:lineage:child","digest:lineage:child",[row("workspace:a","r4m:lineage:child:fp","child",parent.observations[0].fingerprint)]);await store.commitIntake(child);
+ assert.equal((await a.query("SELECT supersedes,verification FROM cigo.evidence WHERE fingerprint=$1",[child.observations[0].fingerprint])).rows[0].supersedes,parent.observations[0].fingerprint);
+ const cross=new PostgresEvidenceStore(b,"workspace:b");const other=input("workspace:b","r4m:lineage:cross","digest:lineage:cross",[row("workspace:b","r4m:lineage:cross:fp","cross",parent.observations[0].fingerprint)]);
+ await assert.rejects(cross.commitIntake(other),/foreign key/i);assert.equal(await cross.lookupIntake("workspace:b",other.idempotencyKey),undefined);
+ }finally{await Promise.all([...ps.values()].map(p=>p.end()));}
+});
