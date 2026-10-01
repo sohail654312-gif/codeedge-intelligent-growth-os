@@ -16,6 +16,6 @@ Part5 Block2 final implementation `40b6921951abba00a837bd44e30515343a0c5e6f`, ex
 
 Part5 Block3 final implementation `50b40bed3eb3c1747069c3167381428b0b3b20a8`, exact-SHA CI `36841469061` job `110301334904` SUCCESS, 65 passed, 0 failed. Scoped PASS `06abd793b0ca27443d63674201ad3689804b662e`; evidence `ops/evidence/CIGO-P5-BLOCK3.md` commit `55dd1deddaf296f2986fcacb1347b762f0fd132e`. LOCAL_RUN NOT_RUN.
 
-Part5 scoped closure recorded. Part6 Block1 verified (71 tests). Part6 Block2 verified Builder 1a09a21c3eff318c5cb08aa5101c6fc9154681ae; exact-SHA CI 36844237199 job 110310416420 SUCCESS 74/74; PASS b9286b91ea1a0b5104ca70b0fd7045d05b143ef6; evidence ops/evidence/CIGO-P6-BLOCK2.md. Next CIGO-P6-BLOCK3 draft growth orchestration dependency simulation, READY_FOR_EXECUTOR. No live scheduling or execution. Production gates deferred.
+Part5 scoped closure recorded. Part6 Blocks1–2 verified. Part6 Block3 Builder 78fa80394416fa3b4ca9d248ae4849e0e9666dd1; exact-SHA CI 36844782711 job 110312194578 SUCCESS 77/77; scoped PASS 42da8cf535ededd29df0c180afe074ecc623d04f; evidence ops/evidence/CIGO-P6-BLOCK3.md. Next CIGO-P6-BLOCK4 Part6 adversarial closure and Part7 entry, READY_FOR_EXECUTOR. No live scheduling or execution; production gates deferred.
 
 Production auth/revocation, independently authorized evidence verification, actual human review attestation, durable persistence/replay controls, live Business OS read-model integration, monitoring and deployment remain deferred. All scheduled CIGO automations DISABLED.
