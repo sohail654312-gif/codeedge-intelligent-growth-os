@@ -1,0 +1,7 @@
+# Part3 Block3 — Knowledge Integrity and Verification Boundaries
+
+The bounded `inspectKnowledgeIntegrity` diagnostic reads tenant-bound memory and evidence stores using the same trusted server-provided workspace context. It checks memory supersession/revision references, evidence fingerprint membership, workspace mismatch, source revisions and relative freshness; returns defensive clones with a maximum of 100 records per page. Findings distinguish missing, superseded, stale, future/unknown and unverified evidence. A fingerprint identifies a stored observation, **not** authenticity or verified business truth. A stale observation is not deleted or silently rewritten.
+
+The Part2 ledger has UNVERIFIED observations only. Every diagnostic reports `verificationAuthority: NOT_CONFIGURED` and `eligibleAsVerifiedFact: false`. The Part3 Block1 memory writer still rejects FACT creation, including caller-supplied reviewer claims. No AI, caller, fingerprint, source freshness or diagnostic result may self-attest as verification. A future independently authorized reviewer workflow must bind identity, policy, source authenticity, dispute/revocation and audit before FACT admission; it is NOT implemented here.
+
+This is an in-memory reference diagnostic, not durable storage, production authentication, cryptographic attestation, live provider integration or deployment. The read-only MVP/Business OS boundary and deferred Part2 production gates remain unchanged.
