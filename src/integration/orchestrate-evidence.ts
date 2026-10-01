@@ -40,6 +40,10 @@ export async function orchestrateEvidenceIntake(
       fail("INVALID_SOURCE_RESPONSE", "Source returned an invalid read result");
       break;
     }
+    if (response.records.some(record => record.resourceKind !== request.resourceKind)) {
+      fail("RESOURCE_SCOPE_MISMATCH", "Source returned a record outside the requested resource kind");
+      break;
+    }
     let report: IntakeReport;
     try { report = await ledger.ingest(request.context, response, request.sourceSystem); }
     catch {
