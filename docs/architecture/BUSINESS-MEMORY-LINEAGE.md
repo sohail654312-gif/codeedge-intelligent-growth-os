@@ -1,0 +1,7 @@
+# Part 3 Block 1 — Business Memory and Evidence Lineage
+
+The deterministic in-memory Business Memory store is workspace-bound and receives a workspace-scoped Part2 evidence ledger. Its context is a trusted server-side caller precondition; context shape alone does not authenticate a caller. Each memory entry has a key, FACT/ASSUMPTION/ANALYSIS kind, value, source evidence fingerprints, timestamp, status and optional supersedes link. All lineage fingerprints must exist in the bound tenant ledger. Returned values are defensively cloned. Exact latest replay is idempotent; changed values append a revision rather than overwriting history.
+
+**Fail-closed FACT gate:** Part2 observations are UNVERIFIED. This block deliberately rejects every FACT creation and any caller-supplied verification assertion. ASSUMPTION and ANALYSIS entries remain UNVERIFIED and retain their evidence references; they are not operational truth. A future independently verified authority/evidence workflow must be separately designed, implemented and tested before enabling FACT creation. No AI model or caller may self-certify a fact.
+
+This is a deterministic reference implementation, not a production identity provider, persistent database, search/retrieval engine, live Business OS integration or human review workflow. No operational writes or provider calls. Production Part2 gates remain deferred and must not be inferred from this block.
