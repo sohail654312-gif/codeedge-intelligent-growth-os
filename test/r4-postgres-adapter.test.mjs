@@ -34,3 +34,13 @@ test("R4E serialization retry is bounded and uses fresh clients",async()=>{
  let exhausted=0;const always={connect:async()=>({release(){},async query(sql){if(sql.startsWith("BEGIN"))throw Object.assign(new Error("serialization"),{code:"40001"});exhausted++;return {rows:[]};}})};
  await assert.rejects(new PostgresEvidenceStore(always).commitIntake(input),/DURABLE_SERIALIZATION_RETRY_EXHAUSTED/);assert.equal(exhausted,3);
 });
+
+test("R4F lost acknowledgement reconciles only after releasing transaction client",async()=>{
+ const receipt={workspaceId,idempotencyKey:input.idempotencyKey,requestDigest:input.requestDigest,fingerprints:["fingerprint:1"],status:"COMMITTED"};
+ let connects=0,released=false;
+ const pool={async connect(){connects++;if(connects===1)return {release(){released=true},async query(sql){if(sql.includes("ON CONFLICT (workspace_id,idempotency_key)"))return {rows:[{}]};if(sql==="COMMIT")throw Error("ack lost");return {rows:[]}}};assert.equal(released,true);return {release(){},async query(){return {rows:[{result:receipt}]}}};}};
+ assert.deepEqual(await new PostgresEvidenceStore(pool).commitIntake(input),receipt);assert.equal(connects,2);
+});
+test("R4F rejects duplicate batch fingerprints before connection",async()=>{
+ const f=fake();await assert.rejects(new PostgresEvidenceStore(f.pool).commitIntake({...input,observations:[input.observations[0],input.observations[0]]}),/INVALID_DURABLE_INTAKE/);assert.equal(f.calls.length,0);
+});
