@@ -1,0 +1,63 @@
+name: R4 disposable PostgreSQL acceptance
+
+on:
+  pull_request:
+    paths:
+      - "src/evidence/**"
+      - "test/r4-**"
+      - "docs/architecture/sql/R4-REFERENCE-MIGRATION.sql"
+      - "package.json"
+      - ".github/workflows/r4-postgres.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  disposable-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: cigo_r4_disposable_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: r4_ci_ephemeral_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d cigo_r4_disposable_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGDATABASE: cigo_r4_disposable_ci
+      PGUSER: postgres
+      PGPASSWORD: r4_ci_ephemeral_only
+      CIGO_R4_DISPOSABLE_TEST_CONFIRM: I_CONFIRM_DISPOSABLE_ONLY
+      CIGO_R4_DISPOSABLE_DATABASE_URL: postgres://cigo_r4_app:r4_ci_app_ephemeral_only@localhost:5432/cigo_r4_disposable_ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+      - name: Verify disposable database identity
+        run: |
+          test "$PGDATABASE" = cigo_r4_disposable_ci
+          test "$(psql -Atqc 'SELECT current_database()')" = cigo_r4_disposable_ci
+          psql -v ON_ERROR_STOP=1 -c "CREATE ROLE cigo_r4_app LOGIN PASSWORD 'r4_ci_app_ephemeral_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS"
+      - name: Apply reference migration as owner
+        run: psql -v ON_ERROR_STOP=1 -f docs/architecture/sql/R4-REFERENCE-MIGRATION.sql
+      - name: Grant least privilege to disposable app role
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          GRANT USAGE ON SCHEMA cigo TO cigo_r4_app;
+          GRANT SELECT, INSERT ON cigo.intake_requests, cigo.evidence, cigo.audit_events TO cigo_r4_app;
+          SQL
+      - name: Typecheck and unit tests
+        run: npm run verify
+      - name: Real PostgreSQL fail-closed integration tests
+        run: npm run test:postgres
