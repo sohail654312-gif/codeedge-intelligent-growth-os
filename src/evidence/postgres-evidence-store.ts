@@ -25,6 +25,15 @@ export class PostgresEvidenceStore implements TransactionalEvidenceStore {
    return result.rows[0] ? parseReceipt(result.rows[0].result) : undefined;
   } finally {client.release();}
  }
+ /** Reconcile an ambiguous COMMIT using a fresh connection. Never infer rollback from a lost acknowledgement. */
+ async reconcileIntake(input:Input):Promise<DurableIntakeReceipt> {
+  let found:DurableIntakeReceipt|undefined;
+  try {found=await this.lookupIntake(input.workspaceId,input.idempotencyKey);} catch {throw new Error("DURABLE_COMMIT_OUTCOME_UNKNOWN");}
+  if (!found) throw new Error("DURABLE_COMMIT_OUTCOME_UNKNOWN");
+  const expected:DurableIntakeReceipt={workspaceId:input.workspaceId,idempotencyKey:input.idempotencyKey,requestDigest:input.requestDigest,fingerprints:input.observations.map(o=>o.fingerprint),status:"COMMITTED"};
+  if (JSON.stringify(found)!==JSON.stringify(expected)) throw new Error("IDEMPOTENCY_CONFLICT");
+  return found;
+ }
  async commitIntake(input:Input):Promise<DurableIntakeReceipt> {
   if (!input.workspaceId || !input.idempotencyKey?.trim() || !input.requestDigest || !input.observations.length ||
       input.observations.some(o=>o.workspaceId!==input.workspaceId || o.verification!=="UNVERIFIED")) throw new Error("INVALID_DURABLE_INTAKE");
