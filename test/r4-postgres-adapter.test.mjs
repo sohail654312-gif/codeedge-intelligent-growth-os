@@ -26,3 +26,11 @@ test("R4D malformed persisted receipt fails closed",async()=>{
   const f=fake({existing:bad});await assert.rejects(new PostgresEvidenceStore(f.pool).lookupIntake(workspaceId,"request:1"),/INVALID_DURABLE_RECEIPT/);
  }
 });
+
+test("R4E serialization retry is bounded and uses fresh clients",async()=>{
+ let connections=0, failures=0;
+ const pool={connect:async()=>{connections++;return {release(){},async query(sql){if(sql.includes("ON CONFLICT (workspace_id,idempotency_key)") && failures++<2)throw Object.assign(new Error("serialization"),{code:"40001"});if(sql.includes("ON CONFLICT (workspace_id,idempotency_key)"))return {rows:[{request_digest:input.requestDigest}]};return {rows:[]};}}}};
+ assert.equal((await new PostgresEvidenceStore(pool).commitIntake(input)).status,"COMMITTED");assert.equal(connections,3);
+ let exhausted=0;const always={connect:async()=>({release(){},async query(sql){if(sql.startsWith("BEGIN"))throw Object.assign(new Error("serialization"),{code:"40001"});exhausted++;return {rows:[]};}})};
+ await assert.rejects(new PostgresEvidenceStore(always).commitIntake(input),/DURABLE_SERIALIZATION_RETRY_EXHAUSTED/);assert.equal(exhausted,3);
+});
