@@ -5,8 +5,8 @@
   "execution_model": "SINGLE_WRITER_RECOVERY",
   "current_major_part": 3,
   "current_major_part_name": "Business Memory and Knowledge Model",
-  "current_block": "Memory Retrieval, Revision Lineage and Knowledge Views",
-  "current_task_id": "CIGO-P3-BLOCK2",
+  "current_block": "Knowledge Integrity and Verification Boundaries",
+  "current_task_id": "CIGO-P3-BLOCK3",
   "attempt_count": 0,
   "status": "READY_FOR_EXECUTOR",
   "completed": [
@@ -19,21 +19,22 @@
     "CIGO-P2-BLOCK2 verified at da777e1d4d07e9fbae4e1582c4730f0b25a556d6; independent PASS 0deb151194c1b394c39a3e0fed43007a7c34577e; evidence ops/evidence/CIGO-P2-BLOCK2.md",
     "CIGO-P2-BLOCK3 verified final implementation 5b9b655cc864f5b16d785aa540769d974f3ebe49; PASS verdict 56e3311f77bf6cc2d9a569c4d25b01a6d730f9f5; evidence ops/evidence/CIGO-P2-BLOCK3.md",
     "Part2 deterministic in-memory foundation scoped closure: docs/architecture/PART2-CLOSURE-PRODUCTION-GATES.md @ 76115b1bba0d41f85f0025704c444fc96156a61c; PASS verdict @ 6bfa358f4d61d73e6c7516b3e2844f013e38aeab; evidence ops/evidence/CIGO-P2-COMPLETION.md @ f99e3528f189768285f65a4132f1e57d26c3be85. NOT production-ready.",
-    "CIGO-P3-BLOCK1 verified exact implementation e2f032fce43e35c280c6c22ca9b031e4b30a0f0c; CI run 36832909732 SUCCESS; independent PASS de8451ef7c95ede44955c23cdbcbdad14d01b71c; evidence ops/evidence/CIGO-P3-BLOCK1.md"
+    "CIGO-P3-BLOCK1 verified exact implementation e2f032fce43e35c280c6c22ca9b031e4b30a0f0c; CI run 36832909732 SUCCESS; independent PASS de8451ef7c95ede44955c23cdbcbdad14d01b71c; evidence ops/evidence/CIGO-P3-BLOCK1.md",
+    "CIGO-P3-BLOCK2 verified exact implementation f22e978f4cc3dd9827a72f326760fbc62652fe72; CI run 36833357741 job 110274829943 SUCCESS; independent PASS c615d0c936c63b2a4d89bcb7da41eda7519ce8a4; evidence ops/evidence/CIGO-P3-BLOCK2.md"
   ],
   "remaining": [
-    "Implement bounded tenant-scoped memory retrieval and current-vs-history views with evidence fingerprint lineage and source freshness; no cross-workspace leakage.",
-    "Define knowledge projection that distinguishes ASSUMPTION/ANALYSIS from verified FACT and exposes uncertainty, supersession and evidence limitations.",
-    "Test filtering, replay/revision, missing or stale evidence, cross-tenant access, defensive cloning and safe bounded results.",
-    "Document memory retrieval boundary, wire all suites, exact-SHA CI and independent verdict/evidence/STATE/HANDOFF."
+    "Design explicit evidence verification and knowledge integrity contracts; prohibit caller or AI self-attestation and preserve Part2 UNVERIFIED observation status.",
+    "Implement bounded tenant-scoped integrity checks for missing/stale/revised lineage and disputed/superseded memory; distinguish evidence authenticity from fingerprint identity.",
+    "Add regression tests for foreign/missing lineage, revision conflicts, unverifiable facts and safe failure; maintain read-only Business OS/MVP boundaries.",
+    "Document verification authority as a future separately authorized workflow; run exact-SHA CI, independent review/evidence, update STATE then HANDOFF."
   ],
-  "last_verified_commit": "e2f032fce43e35c280c6c22ca9b031e4b30a0f0c",
-  "test_status": "Part3 Block1 exact-SHA GitHub CI run 36832909732 job 110273400148 SUCCESS; npm run verify typecheck/build plus Part1, Part2 and Part3 memory suites; LOCAL_RUN NOT_RUN; independent PASS commit de8451ef7c95ede44955c23cdbcbdad14d01b71c.",
+  "last_verified_commit": "f22e978f4cc3dd9827a72f326760fbc62652fe72",
+  "test_status": "Part3 Block2 exact-SHA GitHub CI run 36833357741 job 110274829943 SUCCESS including Verify; independent PASS c615d0c936c63b2a4d89bcb7da41eda7519ce8a4. LOCAL_RUN NOT_RUN; no raw test count claimed.",
   "blockers": [],
   "deferred_backlog": [
     "PART2 PRODUCTION GATE: server-side authentication/authorization composition and revocation; live least-privilege Business OS read-model adapter and cursor/credential isolation; durable transactional tenant-isolated evidence storage, migration/restore/concurrency; adversarial conformance, monitoring and deployment evidence. See docs/architecture/PART2-CLOSURE-PRODUCTION-GATES.md. Not implemented/verified."
   ],
-  "next_action": "MANUAL MODE. Implement CIGO-P3-BLOCK2 bounded tenant-scoped retrieval and revision/knowledge views. Do not enable scheduled automations, modify protected repos or promote unverified evidence to FACT.",
+  "next_action": "MANUAL MODE; implement Part3 Block3 knowledge integrity and verification boundaries. All scheduled CIGO automations disabled; do not change protected repos or claim live production authority.",
   "coordination_rules": [
     "One active writer during recovery.",
     "Git commits are durable progress evidence; reconcile STATE to committed reality.",
@@ -44,6 +45,6 @@
   ],
   "authoritative_handoff": "GITHUB",
   "google_doc_role": "OPTIONAL_MIRROR_ONLY",
-  "latest_implementation_commit": "e2f032fce43e35c280c6c22ca9b031e4b30a0f0c",
-  "reconciliation_note": "Part3 Block1 scoped in-memory implementation verified; Block2 scoped, not yet implemented. Part2 production gates remain deferred."
+  "latest_implementation_commit": "f22e978f4cc3dd9827a72f326760fbc62652fe72",
+  "reconciliation_note": "Part3 Blocks1–2 verified; Block3 scoped but not implemented. Part2 production gates remain deferred."
 }
