@@ -1,3 +1,4 @@
+import type { WorkspaceId } from "../domain/truth/types.js";
 import type { OperationalRecord } from "../integration/contracts.js";
 import type { TransactionalEvidenceStore, DurableIntakeReceipt } from "./durable-intake.js";
 import { ingestDurably } from "./durable-intake.js";
@@ -43,6 +44,6 @@ export async function ingestWithTrustedIdentity(
   throw new Error("UNAUTHORIZED_DURABLE_INTAKE");
  const store=await dependencies.storeForWorkspace(request.workspaceId);
  if(!store) throw new Error("UNAUTHORIZED_DURABLE_INTAKE");
- return ingestDurably({workspaceId:request.workspaceId,actorId:actor.actorId,authorizedAt:now.toISOString()},
+ return ingestDurably({workspaceId:request.workspaceId as WorkspaceId,actorId:actor.actorId,authorizedAt:now.toISOString()},
   request.idempotencyKey,request.records,store);
 }
