@@ -1,0 +1,3 @@
+# Part6 Block2 — draft milestone progress
+
+This pure workspace-scoped reference contract records bounded caller-supplied draft milestones against Part6 draft plan steps, with exact linked evidence fingerprints and a bounded observation window. A count at or above target is **not** achievement: all observations remain UNVERIFIED, achieved null and overall achievement NOT_ESTABLISHED. Missing observations require null timestamp and no evidence; supplied observations require source-plan fingerprint membership. No live progress feed, authenticated provenance, scheduling, approvals, operational effects, persistence or audit is implemented. Production gates remain deferred; CIGO scheduled automations disabled.
