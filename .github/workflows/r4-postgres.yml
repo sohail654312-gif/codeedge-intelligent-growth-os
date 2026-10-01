@@ -6,6 +6,7 @@ on:
       - "src/evidence/**"
       - "test/r4-**"
       - "docs/architecture/sql/R4-REFERENCE-MIGRATION.sql"
+      - "docs/architecture/sql/R4-DISPOSABLE-TENANT-ROLES.sql"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/r4-postgres.yml"
@@ -76,6 +77,8 @@ jobs:
           GRANT USAGE ON SCHEMA cigo TO cigo_r4_app;
           GRANT SELECT, INSERT ON cigo.intake_requests, cigo.evidence, cigo.audit_events TO cigo_r4_app;
           SQL
+      - name: Provision synthetic tenant-scoped roles and RLS policies
+        run: psql -v ON_ERROR_STOP=1 -f docs/architecture/sql/R4-DISPOSABLE-TENANT-ROLES.sql
       - name: Typecheck and unit tests
         run: npm run verify
       - name: Real PostgreSQL fail-closed integration tests
