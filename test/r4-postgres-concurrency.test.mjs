@@ -64,3 +64,21 @@ test("R4M real DB bounded 40001 retry rolls back and obtains fresh physical conn
  const x=input("workspace:a","r4m:retry","digest:retry",[row("workspace:a","r4m:retry:fp")]);assert.equal((await new PostgresEvidenceStore(wrapped,"workspace:a").commitIntake(x)).status,"COMMITTED");assert.equal(connections,3);assert.equal(rollbacks,2);assert.equal((await pool.query("SELECT count(*)::int AS n FROM cigo.audit_events WHERE idempotency_key=$1",[x.idempotencyKey])).rows[0].n,1);
  }finally{await Promise.all([...ps.values()].map(p=>p.end()));}
 });
+
+test("G6 pre-review: genuine PostgreSQL backend termination rolls back an in-flight authorized transaction",{skip},async()=>{
+ const {default:pg}=await import("pg");const ps=await pools();
+ const admin=new pg.Pool({host:process.env.PGHOST??"localhost",port:Number(process.env.PGPORT??5432),database:"cigo_r4_disposable_ci",user:process.env.PGUSER??"postgres",password:process.env.PGPASSWORD,max:1});
+ try {
+  const tenant=ps.get("workspace:a"),client=await tenant.connect(),key="g6:terminated:transaction",fp="g6:terminated:fingerprint";
+  try {
+   await client.query("BEGIN ISOLATION LEVEL SERIALIZABLE");
+   await client.query("INSERT INTO cigo.intake_requests(workspace_id,idempotency_key,request_digest,result) VALUES($1,$2,$3,$4::jsonb)",["workspace:a",key,"digest:terminated",JSON.stringify({workspaceId:"workspace:a",idempotencyKey:key,requestDigest:"digest:terminated",fingerprints:[fp],status:"COMMITTED"})]);
+   const pid=Number((await client.query("SELECT pg_backend_pid() AS pid")).rows[0].pid);
+   assert.equal((await admin.query("SELECT pg_terminate_backend($1) AS terminated",[pid])).rows[0].terminated,true);
+   await assert.rejects(client.query("COMMIT"),/terminat|connection|closed|not queryable|ECONNRESET/i);
+  }finally{client.release(true);}
+  const fresh=new PostgresEvidenceStore(tenant,"workspace:a");assert.equal(await fresh.lookupIntake("workspace:a",key),undefined);
+  assert.equal((await tenant.query("SELECT count(*)::int AS n FROM cigo.evidence WHERE fingerprint=$1",[fp])).rows[0].n,0);
+  assert.equal((await tenant.query("SELECT count(*)::int AS n FROM cigo.audit_events WHERE idempotency_key=$1",[key])).rows[0].n,0);
+ }finally{await admin.end();await Promise.all([...ps.values()].map(p=>p.end()));}
+});
