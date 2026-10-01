@@ -5,7 +5,8 @@ import {PostgresEvidenceStore} from "../dist/src/evidence/postgres-evidence-stor
 // with the reviewed R4 migration and a least-privilege, non-owner application role.
 const url=process.env.CIGO_R4_DISPOSABLE_DATABASE_URL;
 const enabled=process.env.CIGO_R4_DISPOSABLE_TEST_CONFIRM==="I_CONFIRM_DISPOSABLE_ONLY" && Boolean(url);
-if(enabled && new URL(url).pathname!=="/cigo_r4_disposable_ci") throw new Error("R4_DISPOSABLE_DATABASE_IDENTITY_MISMATCH");
+if(process.env.CIGO_R4_REQUIRE_POSTGRES_TESTS==="true" && !enabled) throw new Error("R4_POSTGRES_TESTS_REQUIRED_NOT_SKIPPED");
+if(enabled) { const parsed=new URL(url); if(parsed.pathname!=="/cigo_r4_disposable_ci" || !["localhost","127.0.0.1","::1","[::1]"].includes(parsed.hostname) || parsed.username!=="cigo_r4_app") throw new Error("R4_DISPOSABLE_DATABASE_IDENTITY_MISMATCH"); }
 test("R4C real PostgreSQL: forced RLS denies unprovisioned application role", {skip:!enabled && "Requires explicitly confirmed disposable PostgreSQL URL and reviewed migration"}, async()=>{
  const {default:pg}=await import("pg");
  const pool=new pg.Pool({connectionString:url, max:2});
