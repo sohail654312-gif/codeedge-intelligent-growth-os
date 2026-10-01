@@ -1,0 +1,7 @@
+# CIGO Part 2 Block 3 — Bounded Evidence Orchestration
+
+`orchestrateEvidenceIntake(reader, ledger, request, maxPages=10)` composes a provider-neutral SourceReader and workspace-bound evidence ledger. Its caller must obtain AuthorizedWorkspaceContext from a trusted server; the function validates request shape and reader source, and the reader/ledger independently enforce workspace/source scope. The orchestrator rejects unexpected resource kinds before ingestion. This is not an authentication service or a live provider connector.
+
+Pagination is sequential and bounded (1–100 pages), tracks opaque cursors without assuming provider format, rejects blank/repeated cursors and reports PAGE_BOUND_REACHED when more pages remain. Source exceptions produce generic safe errors. A malformed source response or PARTIAL intake stops the walk; accumulated evidence stays UNVERIFIED and the aggregate result is PARTIAL. Reports retain per-page fetchedAt, errors and cursor. Replaying observations deduplicates via the Block2 ledger; no operational record is modified.
+
+Conformance tests exercise multi-page demo reader, replay, source/tenant mismatch, PARTIAL upstream failures, empty/repeated cursors, page bounds, thrown errors and resource-kind isolation. Future production readers must pass the same boundary tests and separately prove server authorization, opaque cursor binding, credential isolation, retries, durable ledger and live connectivity. No such production claim is made in this block.
