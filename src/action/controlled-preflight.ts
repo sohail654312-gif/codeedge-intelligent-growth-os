@@ -24,7 +24,7 @@ export function draftControlledActionPreflight(context:AuthorizedWorkspaceContex
  packet.status!=="AWAITING_INDEPENDENT_HUMAN_REVIEW"||packet.reviewerIdentity!==null||packet.decision!==null||packet.approval!==null||
  packet.approved!==false||packet.actionable!==false||packet.executable!==false||packet.verifiedFact!==false||
  !Array.isArray(packet.toolCalls)||packet.toolCalls.length!==0||!refs(packet.evidenceFingerprints)||!refs(packet.uncertainty)||
- !packet.uncertainty.includes("SOURCE_UNVERIFIED")||!packet.uncertainty.includes("REVIEW_NOT_ATTESTED")||
+ !packet.uncertainty.includes("SOURCE_UNVERIFIED")||!packet.uncertainty.includes("COPILOT_CONTENT_NOT_INDEPENDENTLY_VERIFIED")||!packet.uncertainty.includes("REVIEW_NOT_ATTESTED")||
  !Array.isArray(packet.sections)||packet.sections.length!==4||
  packet.sections.some((s,i)=>!s||s.category!==["ASSUMPTION","ANALYSIS","RECOMMENDATION","DRAFT_PLAN"][i]||!valid(s.content)||
  s.verifiedFact!==false||!refs(s.evidenceFingerprints)||s.evidenceFingerprints.length!==packet.evidenceFingerprints.length||
