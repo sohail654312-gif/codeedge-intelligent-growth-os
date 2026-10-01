@@ -46,3 +46,46 @@ test("R4G disposable PostgreSQL immutable table privileges and cross-tenant fail
   assert.equal(await store.lookupIntake("workspace:unprovisioned:two","missing"),undefined);
  }finally{await pool.end();}
 });
+
+test("R4L real PostgreSQL: tenant-role pinned RLS, authorized atomic intake and cross-tenant denial", {skip:!enabled && "Requires disposable PostgreSQL"},async()=>{
+ const {default:pg}=await import("pg");
+ const {createTenantBoundEvidenceStoreFactory}=await import("../dist/src/evidence/tenant-bound-postgres.js");
+ const {createDisposableServerIdentityFixture}=await import("../dist/src/evidence/disposable-server-identity-fixture.js");
+ const {ingestWithTrustedIdentity}=await import("../dist/src/evidence/trusted-durable-intake.js");
+ const base=new URL(url);const pools=new Map();
+ for(const [workspace,user,password] of [["workspace:a","cigo_r4_tenant_a","r4_tenant_a_ephemeral_only"],["workspace:b","cigo_r4_tenant_b","r4_tenant_b_ephemeral_only"]]){
+  const connection=new URL(base);connection.username=user;connection.password=password;
+  pools.set(workspace,new pg.Pool({connectionString:connection.toString(),max:2}));
+ }
+ try {
+  const storeForWorkspace=createTenantBoundEvidenceStoreFactory({resolveServerHeldTenantPool:async workspace=>pools.get(workspace)});
+  const now="2026-10-01T12:00:00.000Z";
+  const membership={active:true,revoked:false,expiresAt:"2026-10-03T12:00:00.000Z",permissions:["evidence:intake"],sourceSystems:["BUSINESS_OS"]};
+  const identity=createDisposableServerIdentityFixture({testOnly:true,actorId:"server:actor",memberships:{"workspace:a":membership}},
+   {NODE_ENV:"test",CIGO_R4_DISPOSABLE_TEST_CONFIRM:"I_CONFIRM_DISPOSABLE_ONLY"});
+  const deps={...identity,storeForWorkspace,now:()=>new Date(now)};
+  const record={workspaceId:"workspace:a",reference:{sourceSystem:"BUSINESS_OS",externalReference:"r4l:lead:1"},resourceKind:"lead",value:{status:"new"},observedAt:now};
+  const request={workspaceId:"workspace:a",idempotencyKey:"r4l:authorized:1",records:[record]};
+  const receipt=await ingestWithTrustedIdentity(deps,request);
+  assert.equal(receipt.status,"COMMITTED");
+  assert.deepEqual(await ingestWithTrustedIdentity(deps,request),receipt,"identical replay must be idempotent");
+  const a=await storeForWorkspace("workspace:a"),b=await storeForWorkspace("workspace:b");
+  assert.deepEqual(await a.lookupIntake("workspace:a",request.idempotencyKey),receipt);
+  assert.equal(await b.lookupIntake("workspace:b",request.idempotencyKey),undefined);
+  await assert.rejects(b.lookupIntake("workspace:a",request.idempotencyKey),/TENANT_POOL_SCOPE_MISMATCH/);
+  await assert.rejects(a.lookupIntake("workspace:b",request.idempotencyKey),/TENANT_POOL_SCOPE_MISMATCH/);
+  await assert.rejects(storeForWorkspace("workspace:unknown"),/UNAUTHORIZED_TENANT_POOL/);
+  const tenantA=pools.get("workspace:a"),tenantB=pools.get("workspace:b");
+  const evidence=await tenantA.query("SELECT verification,workspace_id FROM cigo.evidence WHERE fingerprint=$1",[receipt.fingerprints[0]]);
+  assert.equal(evidence.rows.length,1);assert.equal(evidence.rows[0].verification,"UNVERIFIED");
+  const audit=await tenantA.query("SELECT event_type FROM cigo.audit_events WHERE workspace_id=$1 AND idempotency_key=$2",["workspace:a",request.idempotencyKey]);
+  assert.equal(audit.rows.length,1);assert.equal(audit.rows[0].event_type,"INTAKE_COMMITTED");
+  assert.equal((await tenantB.query("SELECT * FROM cigo.evidence")).rows.length,0);
+  await assert.rejects(tenantA.query("INSERT INTO cigo.intake_requests(workspace_id,idempotency_key,request_digest,result) VALUES($1,$2,$3,$4::jsonb)",["workspace:b","forged","forged",JSON.stringify(receipt)]),/row-level security|violates/i);
+  await assert.rejects(tenantA.query("UPDATE cigo.evidence SET verification='FACT' WHERE workspace_id='workspace:a'"),/permission denied/i);
+  identity.revoke("workspace:a");
+  await assert.rejects(ingestWithTrustedIdentity(deps,{...request,idempotencyKey:"r4l:revoked"}),/UNAUTHORIZED/);
+  const check=await tenantA.query("SELECT current_user AS role, COUNT(*)::int AS count FROM cigo.intake_requests");
+  assert.equal(check.rows[0].role,"cigo_r4_tenant_a");assert.equal(check.rows[0].count,1);
+ }finally{await Promise.all([...pools.values()].map(pool=>pool.end()));}
+});
