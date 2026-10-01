@@ -12,6 +12,8 @@ Part4 Block4 final Builder `b8697de4b8a35bc34983d62123b109de97490413`, exact-SHA
 
 Part5 Block1 final implementation `de4e6d1f8f5105ee6d545744dbc0b4c06d8e8133`, exact-SHA CI `36840654844` job `110298715297` SUCCESS, 57 tests passed, 0 failed. Two TS7006 CI failures were corrected. Scoped PASS `0e03de3b6a1ebd561edc2a10a8f78028d4f2a487`; evidence `ops/evidence/CIGO-P5-BLOCK1.md` commit `1ddab0c0d5cd067f1b14097aba03c7267511987f`. LOCAL_RUN NOT_RUN.
 
-Current task `CIGO-P5-BLOCK2` — Recommendation Evaluation, Alternatives and Explicit Uncertainty, READY_FOR_EXECUTOR attempt 0. Implement bounded read-only evaluation, distinguish source structural lineage from unverified prose, represent trade-offs/dependencies without selecting winners or approving actions. Test, document, exact-SHA CI, scoped verdict/evidence and STATE-before-HANDOFF.
+Part5 Block2 final implementation `40b6921951abba00a837bd44e30515343a0c5e6f`, exact-SHA CI `36841009699` job `110299854032` SUCCESS, 61 passed, 0 failed. Scoped PASS `e6b4651c6461d4c71084c68fdf31a6f53975e07c`; evidence `ops/evidence/CIGO-P5-BLOCK2.md` commit `046e8bf7fa3329d4f199e8e1fd7bcb01305907be`. LOCAL_RUN NOT_RUN. Prior failures corrected.
+
+Current task `CIGO-P5-BLOCK3` — Decision Authority and Non-Executing Decision Record Contracts, READY_FOR_EXECUTOR attempt 0. Define explicit human authority boundary without AI self-approval, trusted server identity only in future production adapter, no provider execution. Test, document, exact-SHA CI, scoped verdict/evidence, STATE before HANDOFF.
 
 Production auth/revocation, independently authorized evidence verification, durable persistence, live Business OS read-model integration, monitoring and deployment remain deferred. All scheduled CIGO automations DISABLED.
