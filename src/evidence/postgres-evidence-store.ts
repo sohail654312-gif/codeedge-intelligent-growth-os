@@ -28,7 +28,10 @@ export class PostgresEvidenceStore implements TransactionalEvidenceStore {
   try {
    const result=await client.query<{result:unknown}>(
     "SELECT result FROM cigo.intake_requests WHERE workspace_id=$1 AND idempotency_key=$2", [workspaceId,idempotencyKey]);
-   return result.rows[0] ? parseReceipt(result.rows[0].result) : undefined;
+   if (!result.rows[0]) return undefined;
+   const receipt=parseReceipt(result.rows[0].result);
+   if (receipt.workspaceId!==workspaceId || receipt.idempotencyKey!==idempotencyKey) throw new Error("DURABLE_RECEIPT_SCOPE_MISMATCH");
+   return receipt;
   } finally {client.release();}
  }
  /** Reconcile an ambiguous COMMIT using a fresh connection. Never infer rollback from a lost acknowledgement. */
