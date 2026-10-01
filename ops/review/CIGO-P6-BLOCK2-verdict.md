@@ -1,0 +1,3 @@
+# CIGO-P6-BLOCK2 scoped review
+
+PASS final Builder `1a09a21c3eff318c5cb08aa5101c6fc9154681ae`. Exact-SHA CI run `36844237199`, job `110310416420`, completed SUCCESS including typecheck/build, **74 passed, 0 failed**. LOCAL_RUN NOT_RUN. Reviewed `src/planning/draft-progress.ts`, `test/draft-progress.test.mjs`, package wiring, `docs/architecture/PART6-MILESTONE-PROGRESS.md`, prior draft-plan contract and Part6 authority boundary. Tests cover tenant separation, forged approval/source, invalid time window, fabricated evidence, missing/duplicate milestones, over-target non-achievement, defensive cloning. No actual verified progress or live provider effects. This is scoped role-separated AI review, not external human attestation. Production gates deferred.
