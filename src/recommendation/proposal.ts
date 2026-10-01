@@ -44,7 +44,7 @@ export function proposeRecommendation(context: AuthorizedWorkspaceContext, analy
     analysis.status!=="AVAILABLE" || !Array.isArray(analysis.insights) || analysis.insights.length<2 ||
     analysis.insights.length>100 || analysis.insights.some(i=>i.kind!=="ANALYSIS" || i.verifiedFact!==false || i.actionable!==false ||
       i.status!=="AVAILABLE" || i.value===null || !Array.isArray(i.evidenceFingerprints) || !i.evidenceFingerprints.length ||
-      i.evidenceFingerprints.some(fp=>!validText(fp))) ||
+      i.evidenceFingerprints.some((fp: string)=>!validText(fp))) ||
     !uniqueTexts(analysis.evidenceFingerprints,100) ||
     !analysis.insights.every(i=>i.evidenceFingerprints.every(fp=>analysis.evidenceFingerprints.includes(fp))) ||
     !Array.isArray(analysis.limitations) || !analysis.limitations.includes("SOURCE_UNVERIFIED") ||
@@ -52,7 +52,7 @@ export function proposeRecommendation(context: AuthorizedWorkspaceContext, analy
   if (!request || !validText(request.proposalId) || !validText(request.title) || !validText(request.rationale) ||
     !validText(request.asOf) || request.asOf!==analysis.asOf ||
     !uniqueTexts(request.assumptions,20) || !uniqueTexts(request.supportingEvidenceFingerprints,100) ||
-    !request.supportingEvidenceFingerprints.every(fp=>analysis.evidenceFingerprints.includes(fp)) ||
+    !request.supportingEvidenceFingerprints.every((fp: string)=>analysis.evidenceFingerprints.includes(fp)) ||
     !Array.isArray(request.alternatives) || request.alternatives.length<2 || request.alternatives.length>5 ||
     request.alternatives.some(a=>!a || !validText(a.id) || !validText(a.description) || !uniqueTexts(a.tradeOffs,10)) ||
     new Set(request.alternatives.map(a=>a.id)).size!==request.alternatives.length)
