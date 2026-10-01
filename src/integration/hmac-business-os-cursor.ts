@@ -4,14 +4,14 @@ type Scope=Parameters<TrustedCursorCodec["encode"]>[0];
 type Payload={v:1;k:string;s:Scope;c:string;exp:number};
 /** Server-held HMAC cursor: authenticated, actor/tenant/resource/page scoped and expiring. Never log or expose upstream cursors. */
 export class HmacBusinessOsCursorCodec implements TrustedCursorCodec {
- private readonly keys:ReadonlyMap<string,Buffer>;
+ private readonly keys:ReadonlyMap<string,Uint8Array>;
  constructor(keys:ReadonlyMap<string,Buffer>,private readonly activeKeyId:string,
   private readonly now:()=>number=()=>Date.now(),private readonly ttlMs=300_000){
   if(!Number.isSafeInteger(ttlMs)||ttlMs<1000||ttlMs>86_400_000)throw Error("INVALID_CURSOR_TTL");
   if(!keys.size || [...keys].some(([id,key])=>!id||!Buffer.isBuffer(key)||key.length<32) || !keys.has(activeKeyId))throw Error("INVALID_CURSOR_KEYRING");
   this.keys=new Map([...keys].map(([id,key])=>[id,Buffer.from(key)]));
  }
- private mac(key:Buffer,body:string){return createHmac("sha256",key).update("cigo:business-os:cursor:v1:").update(body).digest();}
+ private mac(key:Uint8Array,body:string){return createHmac("sha256",key).update("cigo:business-os:cursor:v1:").update(body).digest();}
  encode(scope:Scope,providerCursor:string):string{
   if(!providerCursor||providerCursor.length>4096)throw Error("INVALID_UPSTREAM_CURSOR");
   const payload:Payload={v:1,k:this.activeKeyId,s:scope,c:providerCursor,exp:this.now()+this.ttlMs};
