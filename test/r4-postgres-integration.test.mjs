@@ -31,3 +31,16 @@ test("R4F disposable PostgreSQL schema security introspection", {skip:!enabled &
   const constraints=await pool.query("SELECT conname FROM pg_constraint WHERE connamespace='cigo'::regnamespace");assert.ok(constraints.rows.length>=3);
  } finally {await pool.end();}
 });
+
+test("R4G disposable PostgreSQL immutable table privileges and cross-tenant fail-closed reads", {skip:!enabled && "Requires confirmed disposable PostgreSQL"},async()=>{
+ const {default:pg}=await import("pg");const pool=new pg.Pool({connectionString:url,max:2});
+ try {
+  for(const table of ["evidence","intake_requests","audit_events"]){
+   const result=await pool.query("SELECT has_table_privilege(current_user,$1,'UPDATE') AS upd,has_table_privilege(current_user,$1,'DELETE') AS del,has_table_privilege(current_user,$1,'TRUNCATE') AS trunc",["cigo."+table]);
+   assert.equal(result.rows[0].upd,false);assert.equal(result.rows[0].del,false);assert.equal(result.rows[0].trunc,false);
+  }
+  const store=new PostgresEvidenceStore(pool);
+  assert.equal(await store.lookupIntake("workspace:unprovisioned:one","missing"),undefined);
+  assert.equal(await store.lookupIntake("workspace:unprovisioned:two","missing"),undefined);
+ }finally{await pool.end();}
+});
