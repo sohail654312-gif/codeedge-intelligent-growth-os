@@ -21,3 +21,11 @@ test("R4 never acknowledges failed or inconsistent commit",async()=>{
  const bad=store();bad.commitIntake=async x=>({workspaceId:x.workspaceId,idempotencyKey:x.idempotencyKey,requestDigest:x.requestDigest,fingerprints:[],status:"COMMITTED"});
  await assert.rejects(ingestDurably(context(A),"x",[record()],bad),/DURABLE_COMMIT_UNCONFIRMED/);
 });
+
+test("R4 rejects duplicate observations within a batch and forged replay receipt",async()=>{
+ const db=store();
+ await assert.rejects(ingestDurably(context(A),"duplicate",[record(),record()],db),/DUPLICATE_BATCH_OBSERVATION/);
+ const original=await ingestDurably(context(A),"replay",[record()],db);
+ const forged={lookupIntake:async()=>({...original,fingerprints:["forged"]}),commitIntake:async()=>{throw Error("MUST_NOT_COMMIT")}};
+ await assert.rejects(ingestDurably(context(A),"replay",[record()],forged),/IDEMPOTENCY_CONFLICT/);
+});
