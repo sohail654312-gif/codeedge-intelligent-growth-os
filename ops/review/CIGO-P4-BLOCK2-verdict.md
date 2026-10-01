@@ -1,0 +1,7 @@
+# CIGO-P4-BLOCK2 — role-separated scoped review
+
+**PASS** for final Builder implementation SHA `fbebe4a2bd3f077ff76cc6d72043ff25396b3e01`. GitHub Actions run `36838510879`, job `110291659761`, exact checked-out SHA matched, completed SUCCESS. `npm run verify` ran `npm run typecheck`, `npm test` (which runs build and Node tests): **45 passed, 0 failed**. LOCAL_RUN NOT_RUN; no separate local commands claimed.
+
+Reviewed `src/analysis/business-metrics.ts`, `test/business-metrics.test.mjs`, `package.json`, `docs/architecture/PART4-BUSINESS-METRICS.md`. The first exact-SHA run `36838461396` failed typecheck TS7006 on fingerprint callback; targeted type fix committed `fbebe4a2bd3f077ff76cc6d72043ff25396b3e01` and the final run passed. Bounded max-100 deterministic read-only workspace-scoped projection arithmetic, period and units, numerator/denominator, fingerprints, explicit partial/stale/future/zero-denominator unavailable status, duplicate conflict rejection, defensive clone and no FACT/action authority satisfy this reference block.
+
+**Scope restriction:** projections are trusted inputs supplied by a future authorized adapter; this pure function does not authenticate the source, verify fingerprint authenticity, enforce real source semantics or establish live Business OS integration. Its AVAILABLE label denotes arithmetic availability only, not verified business truth. No production readiness, independent human audit or external deployment claimed. Deferred Part2/Part3 gates retained.
