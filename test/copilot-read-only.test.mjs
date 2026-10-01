@@ -1,0 +1,16 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {analyzeCrossDomain} from "../dist/src/analysis/cross-domain.js";
+import {proposeRecommendation} from "../dist/src/recommendation/proposal.js";
+import {evaluateRecommendation} from "../dist/src/recommendation/evaluation.js";
+import {draftGoalPlan} from "../dist/src/planning/draft-goal.js";
+const now="2026-10-01T00:00:00.000Z",ctx={workspaceId:"clinic",actorId:"model",authorizedAt:now};
+const metric=d=>({workspaceId:"clinic",domain:d,metricKey:d.toLowerCase(),periodStart:"2026-09-01T00:00:00.000Z",periodEnd:"2026-09-30T00:00:00.000Z",observedAt:now,unit:"COUNT",numerator:4,denominator:8,evidenceFingerprints:["source-"+d],coverage:"COMPLETE",verification:"UNVERIFIED"});
+const evaluation=()=>{const a=analyzeCrossDomain(ctx,[metric("LEADS"),metric("APPOINTMENTS")],{asOf:now,maxEvidenceAgeMs:86400000,domains:["LEADS","APPOINTMENTS"]});const p=proposeRecommendation(ctx,a,{proposalId:"p1",asOf:now,title:"Review",rationale:"Candidate",assumptions:["Staff unknown"],alternatives:[{id:"a",description:"Review",tradeOffs:["Time"]},{id:"b",description:"Observe",tradeOffs:["Delay"]}],supportingEvidenceFingerprints:[...a.evidenceFingerprints]});return evaluateRecommendation(ctx,a,p,{a:["Staff"],b:["Data"]});};
+const req=()=>({goalId:"g1",planId:"plan1",asOf:now,objective:"Explore follow-up quality",outcomeMeasure:"Candidate observation count",assumptions:["Resources unknown"],constraints:["No live changes"],steps:[{id:"observe",description:"Review observations",dependencyIds:[]},{id:"draft",description:"Prepare a draft",dependencyIds:["observe"]}]});
+import {observeDraftProgress} from "../dist/src/planning/draft-progress.js";
+import {simulateDraftOrchestration} from "../dist/src/planning/draft-simulation.js";
+const plan=()=>draftGoalPlan(ctx,evaluation(),req());
+const progress=p=>observeDraftProgress(ctx,p,{asOf:"2026-10-02T00:00:00.000Z",milestones:[{id:"m1",stepId:"observe",measure:"count",target:2,observed:5,observedAt:"2026-10-02T00:00:00.000Z",evidenceFingerprints:["source-LEADS"]}]});
+import {composeCopilotResponse} from "../dist/src/copilot/read-only-response.js";
+test("read-only Copilot retains uncertainty and rejects foreign tenant",()=>{const e=evaluation(),p=draftGoalPlan(ctx,e,req()),q={questionId:"q",question:"Review candidate",asOf:now},r=composeCopilotResponse(ctx,e,p,q);assert.deepEqual(r.sections.map(s=>s.category),["ASSUMPTION","ANALYSIS","RECOMMENDATION","DRAFT_PLAN"]);assert.equal(r.reviewStatus,"HUMAN_REVIEW_REQUIRED");assert.equal(r.approved,false);assert.equal(r.executable,false);assert.deepEqual(r.toolCalls,[]);assert.ok(r.sections.every(s=>s.verifiedFact===false));assert.throws(()=>composeCopilotResponse({...ctx,workspaceId:"foreign"},e,p,q),/UNAUTHORIZED/);assert.throws(()=>composeCopilotResponse(ctx,{...e,approved:true},p,q),/UNSAFE/);assert.throws(()=>composeCopilotResponse(ctx,e,{...p,proposalId:"foreign"},q),/UNSAFE/);assert.throws(()=>composeCopilotResponse(ctx,e,p,{...q,asOf:"wrong"}),/INVALID/);});
