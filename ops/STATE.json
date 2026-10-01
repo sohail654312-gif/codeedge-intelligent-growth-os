@@ -23,7 +23,8 @@
     "CIGO-P3-BLOCK2 verified exact implementation f22e978f4cc3dd9827a72f326760fbc62652fe72; CI run 36833357741 job 110274829943 SUCCESS; independent PASS c615d0c936c63b2a4d89bcb7da41eda7519ce8a4; evidence ops/evidence/CIGO-P3-BLOCK2.md",
     "CIGO-P3-BLOCK3 verified implementation 4510cc15d632890b9363dd0568f20f480ee735d6; CI run 36833801669 job 110276253969 SUCCESS; scoped PASS 84090493735b0a9b2cb64a266f7658a9d8d4ca21; evidence ops/evidence/CIGO-P3-BLOCK3.md",
     "Part3 deterministic in-memory foundation scoped closure: architecture docs/architecture/PART3-CLOSURE-PART4-ENTRY.md @ 216e39eb4142be5606df37a225510c7d5785f3f3; PASS b8e889d2b3d2fcbbd20b392712e246fa39fe52ec; evidence ops/evidence/CIGO-P3-COMPLETION.md @ 1d55e90327a4c350475aaee9e1934bb87d0f42e3. NOT production-ready.",
-    "CIGO-P4-BLOCK1 verified implementation 4b23c86f6ccc0755ecd40c2e006b5c1d8155f04d; exact-SHA CI run 36837852882 job 110289517093 SUCCESS; scoped PASS e1b48accf8d3367914df8c72e7567c428d9b5de3; evidence ops/evidence/CIGO-P4-BLOCK1.md @ 9aaade71c5c75966d058abb4db2be5769450aef5."
+    "CIGO-P4-BLOCK1 verified implementation 4b23c86f6ccc0755ecd40c2e006b5c1d8155f04d; exact-SHA CI run 36837852882 job 110289517093 SUCCESS; scoped PASS e1b48accf8d3367914df8c72e7567c428d9b5de3; evidence ops/evidence/CIGO-P4-BLOCK1.md @ 9aaade71c5c75966d058abb4db2be5769450aef5.",
+    "CIGO-P4-BLOCK1 targeted pagination correction verified separately: implementation 07e0a62e92e31e1229a5862b91a0c2a17d51a9d9; CI run 36837976666 job 110289927244 SUCCESS; scoped PASS addendum ca3895eb4bb09fd75df7a3728c51b896b54dd4d1; evidence update e7f5c6bbc818c15de3a9dca69486346d747ba063."
   ],
   "remaining": [
     "Define approved typed source metric projections with workspace, period, units, explicit numerator/denominator, evidence fingerprint provenance and coverage; reject unsupported or missing inputs.",
@@ -31,8 +32,8 @@
     "Test cross-tenant isolation, zero denominators, conflicting/missing/stale data, precision/units, repeatability and defensive cloning; document source/metric ownership.",
     "Run exact-SHA CI, scoped role-separated review, evidence and STATE-before-HANDOFF; preserve Part2/Part3 production gates and all disabled automations."
   ],
-  "last_verified_commit": "4b23c86f6ccc0755ecd40c2e006b5c1d8155f04d",
-  "test_status": "Part4 Block1 exact-SHA GitHub CI run 36837852882 job 110289517093 completed SUCCESS including Verify; scoped PASS e1b48accf8d3367914df8c72e7567c428d9b5de3. LOCAL_RUN NOT_RUN; raw test total not asserted.",
+  "last_verified_commit": "07e0a62e92e31e1229a5862b91a0c2a17d51a9d9",
+  "test_status": "Part4 Block1 original CI 36837852882 PASS; corrected pagination exact-SHA CI 36837976666 job 110289927244 SUCCESS and separately reviewed PASS addendum ca3895eb4bb09fd75df7a3728c51b896b54dd4d1. LOCAL_RUN NOT_RUN; raw test count not asserted.",
   "blockers": [],
   "deferred_backlog": [
     "PART2 PRODUCTION GATE: server-side authentication/authorization composition and revocation; live least-privilege Business OS read-model adapter and cursor/credential isolation; durable transactional tenant-isolated evidence storage, migration/restore/concurrency; adversarial conformance, monitoring and deployment evidence. See docs/architecture/PART2-CLOSURE-PRODUCTION-GATES.md. Not implemented/verified.",
@@ -49,6 +50,6 @@
   ],
   "authoritative_handoff": "GITHUB",
   "google_doc_role": "OPTIONAL_MIRROR_ONLY",
-  "latest_implementation_commit": "4b23c86f6ccc0755ecd40c2e006b5c1d8155f04d",
-  "reconciliation_note": "Part3 scoped foundation closure verified. Existing Part4 Block1 Builder commits reconciled to exact-SHA CI and PASS; Part4 Block2 scoped, not implemented. Production gates deferred."
+  "latest_implementation_commit": "07e0a62e92e31e1229a5862b91a0c2a17d51a9d9",
+  "reconciliation_note": "Part4 Block1 pagination corrected and separately verified; Part4 Block2 remains READY_FOR_EXECUTOR. Part2/3 production gates deferred."
 }
