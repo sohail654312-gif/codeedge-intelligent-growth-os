@@ -8,6 +8,8 @@ Part4 Block2 final implementation `fbebe4a2bd3f077ff76cc6d72043ff25396b3e01`, ex
 
 Part4 Block3 final implementation `113c5433a674eddb4ec4df002de614912634e580`, exact-SHA CI `36839330414` job `110294360391` SUCCESS, 49 tests passed, 0 failed. Scoped PASS `b23ed995e6a74eec460cd2d40d3a502a608e5f64`; evidence `ops/evidence/CIGO-P4-BLOCK3.md` commit `781c8c89da55c6c7b3af3031558d1dadbcce2186`. LOCAL_RUN NOT_RUN.
 
-Current task `CIGO-P4-BLOCK4` — Adversarial Evaluation and Scoped Part4 Closure, READY_FOR_EXECUTOR attempt 0. Audit Blocks1–3, test adversarial source boundaries and provenance, document Part4 closure/Part5 dependencies, exact-SHA CI, scoped verdict/evidence, STATE before HANDOFF. Part4 is NOT yet formally closed.
+Part4 Block4 final Builder `b8697de4b8a35bc34983d62123b109de97490413`, exact-SHA CI `36839995362` job `110296558624` SUCCESS, 53 tests passed, 0 failed; scoped PASS `d99a808858d7422e0524173bcd8f5bc26cca2e5d`; completion evidence `ops/evidence/CIGO-P4-COMPLETION.md` commit `bce8cfbcfc00f2ea5f4c03cab830f6b6e60a595e`. Part4 scoped deterministic foundation CLOSED, NOT production-ready. LOCAL_RUN NOT_RUN.
+
+Current task `CIGO-P5-BLOCK1` — Typed Evidence-Grounded Recommendation Proposals, READY_FOR_EXECUTOR attempt 0. Implement bounded tenant-scoped non-actionable proposals consuming Part4 ANALYSIS, preserve evidence, assumptions, uncertainty, alternatives and trade-offs. No FACT/DECISION/approval/action promotion. Test, document, exact-SHA CI, scoped verdict/evidence and STATE-before-HANDOFF.
 
 Production auth/revocation, independently authorized evidence verification, durable persistence, live Business OS read-model integration, monitoring and deployment remain deferred. All scheduled CIGO automations DISABLED.
