@@ -53,7 +53,7 @@ test("denial lifecycle bounds, clone and conflicting replay fail closed",()=>{
  const {p,first}=inputs(),two=previewDeniedBusinessOsDispatch(ctx,p,{...previewRequest(p),previewId:"preview-2"});
  assert.throws(()=>summarizeDeniedActionLifecycle(ctx,p,[]),/INVALID/);
  assert.throws(()=>summarizeDeniedActionLifecycle(ctx,p,Array.from({length:11},()=>first)),/INVALID/);
- assert.throws(()=>summarizeDeniedActionLifecycle(ctx,p,[first,{...two,previewId:first.previewId}]),/UNSAFE|CONFLICT/);
+ assert.throws(()=>summarizeDeniedActionLifecycle(ctx,p,[first,{...two,previewId:first.previewId,performedEffects:1}]),/UNSAFE|CONFLICT/);
  const original=summarizeDeniedActionLifecycle(ctx,p,[first,two]),mutant=summarizeDeniedActionLifecycle(ctx,p,[first,two]);
  mutant.records[0].status="PERFORMED";mutant.evidenceFingerprints.push("fabricated");
  assert.deepEqual(summarizeDeniedActionLifecycle(ctx,p,[first,two]),original);
