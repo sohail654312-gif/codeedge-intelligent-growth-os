@@ -25,6 +25,7 @@ export function observeDraftProgress(context:AuthorizedWorkspaceContext,plan:Dra
  !Array.isArray(plan.steps)||plan.steps.length<1||plan.steps.length>20||
  plan.steps.some(s=>!s||!txt(s.id)||!txt(s.description)||!Array.isArray(s.dependencyIds))||
  new Set(plan.steps.map(s=>s.id)).size!==plan.steps.length)throw new Error("UNSAFE_PROGRESS_PLAN");
+ const ordered=new Set<string>();for(const step of plan.steps){if(step.dependencyIds.length>20||new Set(step.dependencyIds).size!==step.dependencyIds.length||step.dependencyIds.some((id:string)=>!txt(id)||!ordered.has(id)))throw new Error("UNSAFE_PROGRESS_PLAN");ordered.add(step.id);}
  if(!request||!timestamp(request.asOf)||Date.parse(request.asOf)<Date.parse(plan.asOf)||
  Date.parse(request.asOf)-Date.parse(plan.asOf)>366*86400000||
  !Array.isArray(request.milestones)||request.milestones.length<1||request.milestones.length>20||
