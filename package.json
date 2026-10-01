@@ -6,7 +6,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "test": "npm run build && node --test test/truth.test.mjs",
+    "test": "npm run build && node --test test/truth.test.mjs test/integration-evidence.test.mjs",
     "verify": "npm run typecheck && npm test"
   },
   "devDependencies": {
