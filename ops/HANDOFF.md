@@ -16,6 +16,6 @@ Part5 Block2 final implementation `40b6921951abba00a837bd44e30515343a0c5e6f`, ex
 
 Part5 Block3 final implementation `50b40bed3eb3c1747069c3167381428b0b3b20a8`, exact-SHA CI `36841469061` job `110301334904` SUCCESS, 65 passed, 0 failed. Scoped PASS `06abd793b0ca27443d63674201ad3689804b662e`; evidence `ops/evidence/CIGO-P5-BLOCK3.md` commit `55dd1deddaf296f2986fcacb1347b762f0fd132e`. LOCAL_RUN NOT_RUN.
 
-Current task `CIGO-P5-BLOCK4` — Adversarial Evaluation and Scoped Part5 Closure, READY_FOR_EXECUTOR attempt 0. Audit Blocks1–3, add adversarial safe-failure tests, document Part5 closure and Part6 entry, exact-SHA CI, scoped verdict/evidence, STATE then HANDOFF. Part5 NOT yet formally closed.
+Part5 scoped closure: Builder 00cce6c0216b5c838c00acfe4fa44db7e944667c, CI 36842538970 (68 passed), PASS 15f46bec63f7941462942cc064ca0d3fcade7656, evidence ops/evidence/CIGO-P5-COMPLETION.md. Current task CIGO-P6-BLOCK1: typed workspace goals and draft-only plans, READY_FOR_EXECUTOR. Part5 is NOT production-ready.
 
 Production auth/revocation, independently authorized evidence verification, actual human review attestation, durable persistence/replay controls, live Business OS read-model integration, monitoring and deployment remain deferred. All scheduled CIGO automations DISABLED.
