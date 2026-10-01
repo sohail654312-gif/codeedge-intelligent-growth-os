@@ -28,10 +28,10 @@ const intent=(mode="DEMO")=>({intentId:"intent-1",asOf:now,mode,domainService:"C
 
 import {previewDeniedBusinessOsDispatch,REQUIRED_DISPATCH_GATES} from "../dist/src/action/dispatch-preview.js";
 const preflight=(mode="DEMO")=>{const {response,request}=fixture();const packet=prepareCopilotReviewHandoff(ctx,response,request);return draftControlledActionPreflight(ctx,packet,intent(mode));};
-const req=(p)=>({previewId:"preview-1",intentId:p.intentId,mode:p.mode,domainService:p.domainService,operation:p.operation,asOf:p.asOf});
+const previewRequest=(p)=>({previewId:"preview-1",intentId:p.intentId,mode:p.mode,domainService:p.domainService,operation:p.operation,asOf:p.asOf});
 test("all modes produce a deterministic provider-neutral zero-effect dispatch preview",()=>{
  for(const mode of ["DEMO","SANDBOX","PRODUCTION"]){
- const p=preflight(mode),r=previewDeniedBusinessOsDispatch(ctx,p,req(p));
+ const p=preflight(mode),r=previewDeniedBusinessOsDispatch(ctx,p,previewRequest(p));
  assert.equal(r.kind,"BUSINESS_OS_DISPATCH_PREVIEW");assert.equal(r.mode,mode);assert.equal(r.domainBoundary,"BUSINESS_OS_DOMAIN_SERVICE_ONLY");
  assert.equal(r.requestedEffects,0);assert.equal(r.performedEffects,0);
  for(const k of ["submitted","authorized","scheduled","approved","actionable","executable","verifiedFact"])assert.equal(r[k],false);
@@ -41,17 +41,17 @@ test("all modes produce a deterministic provider-neutral zero-effect dispatch pr
 });
 test("foreign workspace, forged policy, approval or altered gate fails closed",()=>{
  const p=preflight("SANDBOX");
- assert.throws(()=>previewDeniedBusinessOsDispatch({...ctx,workspaceId:"other"},p,req(p)),/UNAUTHORIZED/);
+ assert.throws(()=>previewDeniedBusinessOsDispatch({...ctx,workspaceId:"other"},p,previewRequest(p)),/UNAUTHORIZED/);
  for(const patch of [{policy:"ALLOW"},{approved:true},{actionable:true},{executable:true},{effect:"SENT"},{humanApproval:"ATTESTED"},{sourceVerification:"VERIFIED"},{gates:p.gates.slice(1)},{gates:p.gates.map((g,i)=>i===0?{...g,status:"SATISFIED"}:g)},{evidenceFingerprints:["fake"]},{uncertainty:["SOURCE_UNVERIFIED"]}])
- assert.throws(()=>previewDeniedBusinessOsDispatch(ctx,{...p,...patch},req(p)),/UNSAFE/);
+ assert.throws(()=>previewDeniedBusinessOsDispatch(ctx,{...p,...patch},previewRequest(p)),/UNSAFE/);
 });
 test("reject mismatched intent, mode, domain service, operation and asOf",()=>{
  const p=preflight("PRODUCTION");
  for(const patch of [{intentId:"other"},{mode:"DEMO"},{domainService:"ProviderSDK"},{operation:"other"},{asOf:"wrong"},{previewId:""}])
- assert.throws(()=>previewDeniedBusinessOsDispatch(ctx,p,{...req(p),...patch}),/INVALID/);
+ assert.throws(()=>previewDeniedBusinessOsDispatch(ctx,p,{...previewRequest(p),...patch}),/INVALID/);
 });
 test("denied dispatch preview is replayable but never durable or executable",()=>{
- const p=preflight(),r=req(p),a=previewDeniedBusinessOsDispatch(ctx,p,r),b=previewDeniedBusinessOsDispatch(ctx,p,r);
+ const p=preflight(),r=previewRequest(p),a=previewDeniedBusinessOsDispatch(ctx,p,r),b=previewDeniedBusinessOsDispatch(ctx,p,r);
  assert.deepEqual(a,b);a.evidenceFingerprints.push("tamper");a.uncertainty.push("tamper");
  assert.deepEqual(previewDeniedBusinessOsDispatch(ctx,p,r),b);
  assert.equal(b.performedEffects,0);assert.equal(b.submitted,false);
