@@ -9,7 +9,13 @@ export interface ValidationResult {
 const DERIVED = new Set(["ANALYSIS", "PREDICTION", "RECOMMENDATION"]);
 const AUTHORIZED = new Set(["DECISION", "ACTION"]);
 
-export function validateTruthRecord(record: TruthRecord): ValidationResult {
+/** Trusted verification must be supplied by an independently authenticated boundary. */
+export interface TrustedTruthContext {
+  isVerifiedEvidence: (evidence: TruthRecord["evidence"][number], record: TruthRecord) => boolean;
+  isAuthorizedApproval: (record: TruthRecord) => boolean;
+}
+
+export function validateTruthRecord(record: TruthRecord, trusted?: TrustedTruthContext): ValidationResult {
   const errors: string[] = [];
 
   if (!record.workspaceId) errors.push("WORKSPACE_REQUIRED");
@@ -36,7 +42,7 @@ export function validateTruthRecord(record: TruthRecord): ValidationResult {
 
   if (record.truthClass === "FACT") {
     if (record.evidence.length === 0) errors.push("FACT_EVIDENCE_REQUIRED");
-    if (!record.evidence.some((evidence) => evidence.verification === "VERIFIED")) {
+    if (!record.evidence.some((evidence) => evidence.verification === "VERIFIED" && trusted?.isVerifiedEvidence(evidence, record) === true)) {
       errors.push("FACT_VERIFICATION_REQUIRED");
     }
   }
@@ -52,6 +58,9 @@ export function validateTruthRecord(record: TruthRecord): ValidationResult {
   if (AUTHORIZED.has(record.truthClass)) {
     if (!record.authority?.actorId || !record.authority.evidenceReference) {
       errors.push("AUTHORITY_EVIDENCE_REQUIRED");
+    }
+    if (record.authority?.approved && trusted?.isAuthorizedApproval(record) !== true) {
+      errors.push("TRUSTED_APPROVAL_REQUIRED");
     }
     if (record.authority?.actorType === "SYSTEM" && record.authority.approved) {
       errors.push("SYSTEM_CANNOT_SELF_APPROVE");
@@ -71,6 +80,7 @@ export function validateTruthRecord(record: TruthRecord): ValidationResult {
 export function promoteAssumption(
   record: TruthRecord,
   evidence: TruthRecord["evidence"],
+  trusted?: TrustedTruthContext,
 ): TruthRecord {
   if (record.truthClass !== "ASSUMPTION") {
     throw new Error("ONLY_ASSUMPTIONS_CAN_BE_PROMOTED");
@@ -79,10 +89,13 @@ export function promoteAssumption(
   const verified = evidence.filter(
     (item) =>
       item.workspaceId === record.workspaceId &&
-      item.verification === "VERIFIED",
+      item.verification === "VERIFIED" &&
+      trusted?.isVerifiedEvidence(item, record) === true,
   );
 
   if (!verified.length) throw new Error("VERIFIED_EVIDENCE_REQUIRED");
 
-  return { ...record, truthClass: "FACT", evidence: verified };
+  const promoted: TruthRecord = { ...record, truthClass: "FACT", evidence: verified };
+  if (!validateTruthRecord(promoted, trusted).ok) throw new Error("PROMOTED_FACT_INVALID");
+  return promoted;
 }
