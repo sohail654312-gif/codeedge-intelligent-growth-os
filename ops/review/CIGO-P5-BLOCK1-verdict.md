@@ -1,0 +1,7 @@
+# CIGO-P5-BLOCK1 scoped role-separated review
+
+**PASS** final Builder SHA `de4e6d1f8f5105ee6d545744dbc0b4c06d8e8133`. Exact-SHA GitHub Actions run `36840654844`, job `110298715297`, completed SUCCESS with Verify SUCCESS (`npm run verify` includes typecheck/build/tests): **57 passed, 0 failed**. LOCAL_RUN NOT_RUN. Earlier runs `36840560134` and `36840608050` failed TS7006 implicit-any callbacks; two targeted fixes produced final passing SHA. This is a scoped role-separated review in one manual AI workflow, not independent external human audit.
+
+Reviewed `src/recommendation/proposal.ts`, `test/recommendation.test.mjs`, `package.json`, `docs/architecture/PART5-RECOMMENDATION-BOUNDARY.md` and upstream Part4 cross-domain result contract. Typed bounded proposal rejects foreign tenant, absent/foreign evidence fingerprint, fabricated verified/actionable analysis, unavailable/partial source analysis, inconsistent as-of, absent assumptions, insufficient/duplicate alternatives or trade-offs. Outputs preserve source lineage and limitations, status PROPOSED_UNVERIFIED, confidence INSUFFICIENT, authority NONE, approved/actionable/verifiedFact false; deterministic and defensively cloned. No provider calls or protected repo modifications.
+
+Production identity, independent evidence verification, durable storage, live adapters, security and deployment remain deferred. The candidate prose is supplied by a caller and is not automatically substantiated by the analysis; later Part5 evaluation must address semantic grounding and policy/decision authority separately.
