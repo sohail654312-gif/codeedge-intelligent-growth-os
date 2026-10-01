@@ -27,7 +27,7 @@ export function simulateDraftOrchestration(context:AuthorizedWorkspaceContext,pl
  if(progress.kind!=="DRAFT_PROGRESS"||progress.status!=="DRAFT_UNVERIFIED"||
  progress.planId!==plan.planId||progress.goalId!==plan.goalId||!timestamp(progress.asOf)||
  Date.parse(progress.asOf)<Date.parse(plan.asOf)||Date.parse(progress.asOf)-Date.parse(plan.asOf)>366*86400000||
- progress.achievement!=="NOT_ESTABLISHED"||progress.approved!==false||progress.actionable!==false||
+ progress.achievement!=="NOT_ESTABLISHED"||(progress as DraftProgress & {scheduled?:boolean}).scheduled===true||progress.approved!==false||progress.actionable!==false||
  progress.executable!==false||progress.verifiedFact!==false||!unique(progress.evidenceFingerprints,1,100)||
  progress.evidenceFingerprints.length!==plan.evidenceFingerprints.length||
  !progress.evidenceFingerprints.every((fp:string)=>plan.evidenceFingerprints.includes(fp))||
