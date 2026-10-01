@@ -49,8 +49,8 @@ jobs:
       - name: Generate genuine lockfile artifact when repository lockfile is absent
         id: lockfile
         run: |
-          if test ! -f package-lock.json; then
-            npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          if ! git ls-files --error-unmatch package-lock.json >/dev/null 2>&1; then
+            test -f package-lock.json || npm install --package-lock-only --ignore-scripts --no-audit --no-fund
             echo "generated=true" >> "$GITHUB_OUTPUT"
           else
             echo "generated=false" >> "$GITHUB_OUTPUT"
