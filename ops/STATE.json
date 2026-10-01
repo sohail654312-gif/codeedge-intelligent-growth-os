@@ -5,8 +5,8 @@
   "execution_model": "SINGLE_WRITER_RECOVERY",
   "current_major_part": 2,
   "current_major_part_name": "Data Access, Integration & Evidence Layer",
-  "current_block": "Source Reader Conformance and Evidence Intake Orchestration",
-  "current_task_id": "CIGO-P2-BLOCK3",
+  "current_block": "Part 2 Closure and Production Adapter Readiness Assessment",
+  "current_task_id": "CIGO-P2-CLOSURE",
   "attempt_count": 0,
   "status": "READY_FOR_EXECUTOR",
   "completed": [
@@ -16,19 +16,20 @@
     "Part 2 partial implementation (NOT BLOCK VERIFIED): src/evidence/normalize.ts @ 5ba1032c0f7ae4e53f31a04a5f17002783b67d62",
     "Part 2 partial implementation (NOT BLOCK VERIFIED): src/evidence/validation.ts @ b4cf5cef3cca2adfa2d4ac65b090ba7fde90e1c7",
     "CIGO-P2-BLOCK1 implementation merged at 8737d7cda8d633bcad24d8f96ba4623ec274d159; exact-SHA independent PASS verdict committed at a35e226cdcf9bc67532ca98ccf56503c561cb97a",
-    "CIGO-P2-BLOCK2 verified at da777e1d4d07e9fbae4e1582c4730f0b25a556d6; independent PASS 0deb151194c1b394c39a3e0fed43007a7c34577e; evidence ops/evidence/CIGO-P2-BLOCK2.md"
+    "CIGO-P2-BLOCK2 verified at da777e1d4d07e9fbae4e1582c4730f0b25a556d6; independent PASS 0deb151194c1b394c39a3e0fed43007a7c34577e; evidence ops/evidence/CIGO-P2-BLOCK2.md",
+    "CIGO-P2-BLOCK3 verified final implementation 5b9b655cc864f5b16d785aa540769d974f3ebe49; PASS verdict 56e3311f77bf6cc2d9a569c4d25b01a6d730f9f5; evidence ops/evidence/CIGO-P2-BLOCK3.md"
   ],
   "remaining": [
-    "Create provider-neutral orchestration that invokes SourceReader with trusted server-side context and explicit source binding, ingests pages into ledger, and preserves PARTIAL/error/freshness/cursor outcomes.",
-    "Test multi-page pagination, invalid/looping cursors, partial source results, tenant/source isolation, replay idempotency and safe failure; no live connector credentials or provider-specific calls.",
-    "Document bounded execution and demo/live adapter conformance contract; do not claim production connectivity.",
-    "Run exact-SHA typecheck/build/all regression suites; independent PASS/FAIL, evidence, STATE first, HANDOFF mirror."
+    "Audit Part2 contracts, ledger and orchestration against Part2 acceptance and constitution; distinguish verified in-memory scope from deferred production adapters.",
+    "Document production reader and persistence prerequisites, threat model, source authority and migration boundaries without modifying Business OS or MVP.",
+    "Create Part2 closure verdict/evidence only if acceptance is met; otherwise scope a targeted Block4 for actual gaps.",
+    "Then scope Part3 Business Memory and Knowledge Model; require exact-SHA CI and independent verification for implementation."
   ],
-  "last_verified_commit": "da777e1d4d07e9fbae4e1582c4730f0b25a556d6",
-  "test_status": "Block2 CI run 36831383637 job 110268559781 SUCCESS for exact SHA da777e1d4d07e9fbae4e1582c4730f0b25a556d6; npm run verify typecheck/build and three suites; LOCAL_RUN NOT_RUN; independent PASS commit 0deb151194c1b394c39a3e0fed43007a7c34577e.",
+  "last_verified_commit": "5b9b655cc864f5b16d785aa540769d974f3ebe49",
+  "test_status": "Block3 GitHub Actions run 36832153593 job 110270998093 SUCCESS exact SHA 5b9b655cc864f5b16d785aa540769d974f3ebe49; verdict reports typecheck/build and 29/29 tests; LOCAL_RUN NOT_RUN. Independent PASS commit 56e3311f77bf6cc2d9a569c4d25b01a6d730f9f5.",
   "blockers": [],
   "deferred_backlog": [],
-  "next_action": "MANUAL MODE, automations remain disabled. Implement CIGO-P2-BLOCK3 source reader conformance and bounded evidence intake orchestration. Do not mutate protected repos or claim live connectivity.",
+  "next_action": "MANUAL MODE, automations disabled. Assess Part2 closure, explicitly record production integration gaps, then scope Part3 only on evidence; do not claim live connectivity.",
   "coordination_rules": [
     "One active writer during recovery.",
     "Git commits are durable progress evidence; reconcile STATE to committed reality.",
@@ -39,6 +40,6 @@
   ],
   "authoritative_handoff": "GITHUB",
   "google_doc_role": "OPTIONAL_MIRROR_ONLY",
-  "latest_implementation_commit": "da777e1d4d07e9fbae4e1582c4730f0b25a556d6",
-  "reconciliation_note": "Block1 and Block2 independently verified. Block3 scoped but not implemented or verified."
+  "latest_implementation_commit": "5b9b655cc864f5b16d785aa540769d974f3ebe49",
+  "reconciliation_note": "Part1 and Part2 Blocks1–3 verified. Part2 overall closure pending; no production connectivity claim."
 }
