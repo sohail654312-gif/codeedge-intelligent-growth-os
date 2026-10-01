@@ -1,0 +1,3 @@
+# CIGO-P6-BLOCK3 scoped review
+
+PASS final Builder `78fa80394416fa3b4ca9d248ae4849e0e9666dd1`. Exact-SHA CI run `36844782711` job `110312194578` SUCCESS including typecheck/build and **77 passed, 0 failed**. Earlier run `36844721222` failed one adversarial regression for forged scheduled=true; corrected before PASS. LOCAL_RUN NOT_RUN. Reviewed `src/planning/draft-simulation.ts`, `test/draft-simulation.test.mjs`, package wiring and architecture. Validates workspace and plan/progress identity, evidence membership, dependency ordering, missing observations, no authority and cloned output. This is scoped AI role-separated review, not external human attestation. No live scheduling/provider calls; production gates deferred.
