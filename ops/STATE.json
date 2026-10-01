@@ -10,27 +10,31 @@
   "attempt_count": 1,
   "status": "READY_FOR_EXECUTOR",
   "completed": [
-    "Part 1 complete/frozen with repository evidence",
-    "CIGO-P2-BLOCK1 Attempt 1: src/integration/contracts.ts committed at bcce5e9f49e94da4a2ab63a00b3fe41712cca968"
+    "Part 1 complete/frozen with repository evidence: ops/evidence/CIGO-P1-COMPLETION.md @ e7111698a27fe5fde1fc32adfffd04b5d6fd359c",
+    "Part 2 partial implementation (NOT BLOCK VERIFIED): src/integration/contracts.ts @ bcce5e9f49e94da4a2ab63a00b3fe41712cca968",
+    "Part 2 partial implementation (NOT BLOCK VERIFIED): src/integration/source-reader.ts @ 8eaa3041b581537b4f9a0274c5d84b05c8a89e2d",
+    "Part 2 partial implementation (NOT BLOCK VERIFIED): src/evidence/normalize.ts @ 5ba1032c0f7ae4e53f31a04a5f17002783b67d62",
+    "Part 2 partial implementation (NOT BLOCK VERIFIED): src/evidence/validation.ts @ b4cf5cef3cca2adfa2d4ac65b090ba7fde90e1c7"
   ],
   "remaining": [
-    "src/integration/source-reader.ts",
-    "src/integration/in-memory-source-reader.ts",
-    "src/evidence/normalize.ts",
-    "src/evidence/fingerprint.ts",
-    "src/evidence/validation.ts",
-    "src/integration/index.ts",
+    "src/integration/in-memory-source-reader.ts (provider-neutral, workspace-scoped, validates read and each returned record)",
+    "src/evidence/fingerprint.ts (deterministic stable observation identity; altered version/value differs)",
+    "src/integration/index.ts (contract/reader exports)",
     "docs/architecture/DATA-ACCESS-EVIDENCE-BOUNDARY.md",
     "docs/architecture/INTEGRATION-CONTRACTS.md",
-    "test/integration-evidence.test.mjs",
-    "ops/evidence/CIGO-P2-BLOCK1.md",
-    "verification: typecheck, build, Part 1 tests, Part 2 tests"
+    "test/integration-evidence.test.mjs (including missing/cross-workspace/provenance/fingerprint/partial-failure/demo parity)",
+    "package.json test script must run BOTH test/truth.test.mjs and test/integration-evidence.test.mjs",
+    "ops/review/CIGO-P2-BLOCK1-verdict.md for exact final Builder SHA by independent Verifier",
+    "ops/evidence/CIGO-P2-BLOCK1.md and advancement only after committed exact-SHA PASS verdict",
+    "verification: typecheck, build, Part 1 tests AND Part 2 tests"
   ],
   "last_verified_commit": "bcce5e9f49e94da4a2ab63a00b3fe41712cca968",
-  "test_status": "Part 2 continuation not yet verified",
-  "blockers": [],
+  "test_status": "GitHub Actions CIGO CI run 36813595514 for b4cf5cef3cca2adfa2d4ac65b090ba7fde90e1c7 succeeded (install + npm run verify), but package.json at that SHA runs only Part 1 test/truth.test.mjs. Part 2 acceptance tests/independent exact-SHA verdict NOT PRESENT.",
+  "blockers": [
+    "Part 2 acceptance gate incomplete: package.json only runs Part 1 tests; missing Part 2 deterministic suite and exact-SHA Verifier verdict. This is remaining work, not proof existing CI failed."
+  ],
   "deferred_backlog": [],
-  "next_action": "Single writer continues CIGO-P2-BLOCK1 as Attempt 2 from committed contracts; implement only remaining scope, verify, commit, then update STATE. No pre-write lock and no multi-builder mutex.",
+  "next_action": "Builder: preserve all four existing Part 2 files; finish only seven missing implementation/docs/test/script items above; commit coherent work. Check exact new SHA CI (typecheck, build, BOTH test suites). Verifier: commit exact-SHA verdict only after evidence. Steward: consume only a committed matching PASS/FAIL verdict, record real attempt count without counting passive coordination, STATE first then HANDOFF. No pre-write lock.",
   "coordination_rules": [
     "One active writer during recovery.",
     "Git commits are durable progress evidence; reconcile STATE to committed reality.",
@@ -40,5 +44,7 @@
     "Never restart valid committed work because coordination metadata is stale."
   ],
   "authoritative_handoff": "GITHUB",
-  "google_doc_role": "OPTIONAL_MIRROR_ONLY"
+  "google_doc_role": "OPTIONAL_MIRROR_ONLY",
+  "latest_implementation_commit": "b4cf5cef3cca2adfa2d4ac65b090ba7fde90e1c7",
+  "reconciliation_note": "2026-10-01: reconciled latest Git commits after stale contracts-only STATE. Existing attempt_count=1 retained pending Steward's verdict/attempt adjudication; do not reset or double-count partial implementation; all later commits are explicitly preserved. last_verified_commit is retained as prior pointer, NOT evidence of Part 2 verification."
 }
