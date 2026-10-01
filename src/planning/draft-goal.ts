@@ -37,11 +37,11 @@ export function draftGoalPlan(context:AuthorizedWorkspaceContext,evaluation:Reco
  !strs(request.assumptions,1,20)||!strs(request.constraints,1,20)||
  !Array.isArray(request.steps)||request.steps.length<1||request.steps.length>20||
  request.steps.some(s=>!s||!txt(s.id)||!txt(s.description)||!Array.isArray(s.dependencyIds)||
- s.dependencyIds.length>20||s.dependencyIds.some(d=>!txt(d))||new Set(s.dependencyIds).size!==s.dependencyIds.length)||
+ s.dependencyIds.length>20||s.dependencyIds.some((d:string)=>!txt(d))||new Set(s.dependencyIds).size!==s.dependencyIds.length)||
  new Set(request.steps.map(s=>s.id)).size!==request.steps.length)
  throw new Error("INVALID_DRAFT_PLAN");
  const seen=new Set<string>();
- for(const step of request.steps){if(step.dependencyIds.some(id=>!seen.has(id)))throw new Error("INVALID_PLAN_DEPENDENCY");seen.add(step.id);}
+ for(const step of request.steps){if(step.dependencyIds.some((id:string)=>!seen.has(id)))throw new Error("INVALID_PLAN_DEPENDENCY");seen.add(step.id);}
  return structuredClone({kind:"DRAFT_PLAN" as const,workspaceId:context.workspaceId,goalId:request.goalId,
  planId:request.planId,proposalId:evaluation.proposalId,asOf:request.asOf,objective:request.objective,
  outcomeMeasure:request.outcomeMeasure,assumptions:[...request.assumptions],constraints:[...request.constraints],
