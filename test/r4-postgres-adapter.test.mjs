@@ -44,3 +44,15 @@ test("R4F lost acknowledgement reconciles only after releasing transaction clien
 test("R4F rejects duplicate batch fingerprints before connection",async()=>{
  const f=fake();await assert.rejects(new PostgresEvidenceStore(f.pool).commitIntake({...input,observations:[input.observations[0],input.observations[0]]}),/INVALID_DURABLE_INTAKE/);assert.equal(f.calls.length,0);
 });
+
+test("R4G existing fingerprint cannot silently turn new intake into success",async()=>{
+ const calls=[];let released=false;
+ const pool={connect:async()=>({release(){released=true},async query(sql){calls.push(sql);if(sql.includes("ON CONFLICT (workspace_id,idempotency_key)"))return {rows:[{request_digest:input.requestDigest}]};if(sql.includes("INSERT INTO cigo.evidence"))return {rows:[],rowCount:0};return {rows:[]};}})};
+ await assert.rejects(new PostgresEvidenceStore(pool).commitIntake(input),/DURABLE_EVIDENCE_FINGERPRINT_CONFLICT/);
+ assert.equal(calls.at(-1),"ROLLBACK");assert.equal(released,true);assert.ok(!calls.some(sql=>sql.includes("INSERT INTO cigo.audit_events")));
+});
+test("R4G ambiguous COMMIT with missing reconciliation remains unknown, not rollback",async()=>{
+ let connections=0,released=false;
+ const pool={async connect(){connections++;if(connections===1)return {release(){released=true},async query(sql){if(sql.includes("ON CONFLICT (workspace_id,idempotency_key)"))return {rows:[{}]};if(sql==="COMMIT")throw Error("lost");return {rows:[]};}};assert.equal(released,true);return {release(){},async query(){return {rows:[]};}};}};
+ await assert.rejects(new PostgresEvidenceStore(pool).commitIntake(input),/DURABLE_COMMIT_OUTCOME_UNKNOWN/);assert.equal(connections,2);
+});
