@@ -70,6 +70,7 @@ test("G6 pre-review: genuine PostgreSQL backend termination rolls back an in-fli
  const admin=new pg.Pool({host:process.env.PGHOST??"localhost",port:Number(process.env.PGPORT??5432),database:"cigo_r4_disposable_ci",user:process.env.PGUSER??"postgres",password:process.env.PGPASSWORD,max:1});
  try {
   const tenant=ps.get("workspace:a"),client=await tenant.connect(),key="g6:terminated:transaction",fp="g6:terminated:fingerprint";
+  client.on("error",()=>{/* expected backend termination during this disposable fault test */});
   try {
    await client.query("BEGIN ISOLATION LEVEL SERIALIZABLE");
    await client.query("INSERT INTO cigo.intake_requests(workspace_id,idempotency_key,request_digest,result) VALUES($1,$2,$3,$4::jsonb)",["workspace:a",key,"digest:terminated",JSON.stringify({workspaceId:"workspace:a",idempotencyKey:key,requestDigest:"digest:terminated",fingerprints:[fp],status:"COMMITTED"})]);
