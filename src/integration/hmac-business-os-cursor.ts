@@ -5,7 +5,7 @@ type Payload={v:1;k:string;s:Scope;c:string;exp:number};
 /** Server-held HMAC cursor: authenticated, actor/tenant/resource/page scoped and expiring. Never log or expose upstream cursors. */
 export class HmacBusinessOsCursorCodec implements TrustedCursorCodec {
  private readonly keys:ReadonlyMap<string,Uint8Array>;
- constructor(keys:ReadonlyMap<string,Buffer>,private readonly activeKeyId:string,
+ constructor(keys:ReadonlyMap<string,Uint8Array>,private readonly activeKeyId:string,
   private readonly now:()=>number=()=>Date.now(),private readonly ttlMs=300_000){
   if(!Number.isSafeInteger(ttlMs)||ttlMs<1000||ttlMs>86_400_000)throw Error("INVALID_CURSOR_TTL");
   if(!keys.size || [...keys].some(([id,key])=>!id||!Buffer.isBuffer(key)||key.length<32) || !keys.has(activeKeyId))throw Error("INVALID_CURSOR_KEYRING");
