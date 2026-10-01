@@ -51,3 +51,16 @@ test("R4M real DB evidence FK failure rolls back receipt and audit; supersession
  await assert.rejects(cross.commitIntake(other),/foreign key/i);assert.equal(await cross.lookupIntake("workspace:b",other.idempotencyKey),undefined);
  }finally{await Promise.all([...ps.values()].map(p=>p.end()));}
 });
+
+test("R4M real DB lost COMMIT acknowledgement reconciles through fresh physical connection",{skip},async()=>{
+ const ps=await pools();try{const pool=ps.get("workspace:a");let commits=0,connects=0,released=false;
+ const wrapped={async connect(){const physical=await pool.connect();connects++;const index=connects;return {release(){if(index===1)released=true;physical.release()},async query(sql,params){const result=await physical.query(sql,params);if(index===1&&sql==="COMMIT"&&++commits===1)throw Error("SIMULATED_LOST_ACK_AFTER_REAL_POSTGRES_COMMIT");if(index>1)assert.equal(released,true);return result;}};}};
+ const x=input("workspace:a","r4m:ack:lost","digest:ack:lost",[row("workspace:a","r4m:ack:lost:fp")]);const receipt=await new PostgresEvidenceStore(wrapped,"workspace:a").commitIntake(x);assert.equal(receipt.status,"COMMITTED");assert.equal(commits,1);assert.equal(connects,2);assert.deepEqual(await new PostgresEvidenceStore(pool,"workspace:a").lookupIntake("workspace:a",x.idempotencyKey),receipt);
+ }finally{await Promise.all([...ps.values()].map(p=>p.end()));}
+});
+test("R4M real DB bounded 40001 retry rolls back and obtains fresh physical connections",{skip},async()=>{
+ const ps=await pools();try{const pool=ps.get("workspace:a");let connections=0,injected=0,rollbacks=0;
+ const wrapped={async connect(){connections++;const physical=await pool.connect();return {release(){physical.release()},async query(sql,params){if(sql.includes("ON CONFLICT (workspace_id,idempotency_key)")&&injected++<2)throw Object.assign(Error("INJECTED_SERIALIZATION_FAILURE"),{code:"40001"});if(sql==="ROLLBACK")rollbacks++;return physical.query(sql,params);}};}};
+ const x=input("workspace:a","r4m:retry","digest:retry",[row("workspace:a","r4m:retry:fp")]);assert.equal((await new PostgresEvidenceStore(wrapped,"workspace:a").commitIntake(x)).status,"COMMITTED");assert.equal(connections,3);assert.equal(rollbacks,2);assert.equal((await pool.query("SELECT count(*)::int AS n FROM cigo.audit_events WHERE idempotency_key=$1",[x.idempotencyKey])).rows[0].n,1);
+ }finally{await Promise.all([...ps.values()].map(p=>p.end()));}
+});
