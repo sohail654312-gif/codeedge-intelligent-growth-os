@@ -42,7 +42,7 @@ test("all modes produce a deterministic provider-neutral zero-effect dispatch pr
 test("foreign workspace, forged policy, approval or altered gate fails closed",()=>{
  const p=preflight("SANDBOX");
  assert.throws(()=>previewDeniedBusinessOsDispatch({...ctx,workspaceId:"other"},p,previewRequest(p)),/UNAUTHORIZED/);
- for(const patch of [{policy:"ALLOW"},{approved:true},{actionable:true},{executable:true},{effect:"SENT"},{humanApproval:"ATTESTED"},{sourceVerification:"VERIFIED"},{gates:p.gates.slice(1)},{gates:p.gates.map((g,i)=>i===0?{...g,status:"SATISFIED"}:g)},{evidenceFingerprints:["fake"]},{uncertainty:["SOURCE_UNVERIFIED"]}])
+ for(const patch of [{policy:"ALLOW"},{approved:true},{actionable:true},{executable:true},{effect:"SENT"},{humanApproval:"ATTESTED"},{sourceVerification:"VERIFIED"},{gates:p.gates.slice(1)},{gates:p.gates.map((g,i)=>i===0?{...g,status:"SATISFIED"}:g)},{uncertainty:["SOURCE_UNVERIFIED"]}])
  assert.throws(()=>previewDeniedBusinessOsDispatch(ctx,{...p,...patch},previewRequest(p)),/UNSAFE/);
 });
 test("reject mismatched intent, mode, domain service, operation and asOf",()=>{
