@@ -31,3 +31,12 @@ ALTER TABLE cigo.audit_events FORCE ROW LEVEL SECURITY;
 -- No permissive policies/grants are installed: access fails closed until a reviewed
 -- server-derived tenant setting, least-privilege role, and transaction-scoped RLS policies exist.
 -- Immutable history: no application role may receive UPDATE, DELETE or TRUNCATE privileges.
+
+-- R4D: indexes for lineage and audit retrieval (reference only; not applied).
+CREATE INDEX evidence_source_lineage_idx ON cigo.evidence
+ (workspace_id,source_system,external_reference,resource_kind,ingested_at DESC);
+CREATE INDEX evidence_supersedes_idx ON cigo.evidence (workspace_id,supersedes) WHERE supersedes IS NOT NULL;
+CREATE INDEX audit_intake_idx ON cigo.audit_events (workspace_id,idempotency_key,created_at DESC);
+-- SECURITY: no application UPDATE/DELETE/TRUNCATE grants. A separate trusted identity
+-- gateway and reviewed role-scoped policies are required before authorized write tests.
+-- Do not use caller-set session variables as authentication or give the app table ownership.
