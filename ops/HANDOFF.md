@@ -10,6 +10,8 @@ Part4 Block3 final implementation `113c5433a674eddb4ec4df002de614912634e580`, ex
 
 Part4 Block4 final Builder `b8697de4b8a35bc34983d62123b109de97490413`, exact-SHA CI `36839995362` job `110296558624` SUCCESS, 53 tests passed, 0 failed; scoped PASS `d99a808858d7422e0524173bcd8f5bc26cca2e5d`; completion evidence `ops/evidence/CIGO-P4-COMPLETION.md` commit `bce8cfbcfc00f2ea5f4c03cab830f6b6e60a595e`. Part4 scoped deterministic foundation CLOSED, NOT production-ready. LOCAL_RUN NOT_RUN.
 
-Current task `CIGO-P5-BLOCK1` — Typed Evidence-Grounded Recommendation Proposals, READY_FOR_EXECUTOR attempt 0. Implement bounded tenant-scoped non-actionable proposals consuming Part4 ANALYSIS, preserve evidence, assumptions, uncertainty, alternatives and trade-offs. No FACT/DECISION/approval/action promotion. Test, document, exact-SHA CI, scoped verdict/evidence and STATE-before-HANDOFF.
+Part5 Block1 final implementation `de4e6d1f8f5105ee6d545744dbc0b4c06d8e8133`, exact-SHA CI `36840654844` job `110298715297` SUCCESS, 57 tests passed, 0 failed. Two TS7006 CI failures were corrected. Scoped PASS `0e03de3b6a1ebd561edc2a10a8f78028d4f2a487`; evidence `ops/evidence/CIGO-P5-BLOCK1.md` commit `1ddab0c0d5cd067f1b14097aba03c7267511987f`. LOCAL_RUN NOT_RUN.
+
+Current task `CIGO-P5-BLOCK2` — Recommendation Evaluation, Alternatives and Explicit Uncertainty, READY_FOR_EXECUTOR attempt 0. Implement bounded read-only evaluation, distinguish source structural lineage from unverified prose, represent trade-offs/dependencies without selecting winners or approving actions. Test, document, exact-SHA CI, scoped verdict/evidence and STATE-before-HANDOFF.
 
 Production auth/revocation, independently authorized evidence verification, durable persistence, live Business OS read-model integration, monitoring and deployment remain deferred. All scheduled CIGO automations DISABLED.
