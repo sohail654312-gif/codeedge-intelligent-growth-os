@@ -50,3 +50,18 @@ test("unexpected resource kind is rejected before ingestion",async()=>{
  assert.ok(output.errors.some(e=>e.code==="RESOURCE_SCOPE_MISMATCH"));
  assert.equal(store.list(context()).length,0);
 });
+
+test("malformed source records fail closed before any ingestion",async()=>{
+ for(const malformed of [null, "unexpected", {resourceKind:undefined}]) {
+  const store=ledger();
+  const source={sourceSystem:"BUSINESS_OS",async read(){
+   return response(undefined,{records:[record("lead:valid"),malformed]});
+  }};
+  const output=await orchestrateEvidenceIntake(source,store,request());
+  assert.equal(output.completeness,"PARTIAL");
+  assert.equal(output.accepted,0);
+  assert.equal(output.pages,0);
+  assert.ok(output.errors.some(e=>e.code==="INVALID_SOURCE_RESPONSE"));
+  assert.equal(store.list(context()).length,0);
+ }
+});
