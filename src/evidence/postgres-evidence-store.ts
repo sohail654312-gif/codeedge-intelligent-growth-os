@@ -18,8 +18,12 @@ function parseReceipt(value: unknown): DurableIntakeReceipt {
 function isSerializationFailure(error:unknown):boolean {return typeof error==="object" && error!==null && "code" in error && error.code==="40001";}
 function sameReceipt(a:DurableIntakeReceipt,b:DurableIntakeReceipt):boolean {return a.workspaceId===b.workspaceId && a.idempotencyKey===b.idempotencyKey && a.requestDigest===b.requestDigest && a.status===b.status && a.fingerprints.length===b.fingerprints.length && a.fingerprints.every((v,i)=>v===b.fingerprints[i]);}
 export class PostgresEvidenceStore implements TransactionalEvidenceStore {
- constructor(private readonly pool: PgPool) {}
+ constructor(private readonly pool: PgPool, private readonly boundWorkspaceId?: string) {}
+ private assertWorkspace(workspaceId:WorkspaceId):void {
+  if(this.boundWorkspaceId !== undefined && workspaceId !== this.boundWorkspaceId) throw new Error("TENANT_POOL_SCOPE_MISMATCH");
+ }
  async lookupIntake(workspaceId: WorkspaceId,idempotencyKey: string): Promise<DurableIntakeReceipt|undefined> {
+  this.assertWorkspace(workspaceId);
   const client=await this.pool.connect();
   try {
    const result=await client.query<{result:unknown}>(
@@ -29,6 +33,7 @@ export class PostgresEvidenceStore implements TransactionalEvidenceStore {
  }
  /** Reconcile an ambiguous COMMIT using a fresh connection. Never infer rollback from a lost acknowledgement. */
  async reconcileIntake(input:Input):Promise<DurableIntakeReceipt> {
+  this.assertWorkspace(input.workspaceId);
   let found:DurableIntakeReceipt|undefined;
   try {found=await this.lookupIntake(input.workspaceId,input.idempotencyKey);} catch {throw new Error("DURABLE_COMMIT_OUTCOME_UNKNOWN");}
   if (!found) throw new Error("DURABLE_COMMIT_OUTCOME_UNKNOWN");
@@ -37,6 +42,7 @@ export class PostgresEvidenceStore implements TransactionalEvidenceStore {
   return found;
  }
  async commitIntake(input:Input):Promise<DurableIntakeReceipt> {
+  this.assertWorkspace(input.workspaceId);
   if (!input.workspaceId || !input.idempotencyKey?.trim() || !input.requestDigest || !input.observations.length ||
       input.observations.some(o=>o.workspaceId!==input.workspaceId || o.verification!=="UNVERIFIED")) throw new Error("INVALID_DURABLE_INTAKE");
   if (new Set(input.observations.map(o=>o.fingerprint)).size!==input.observations.length || input.observations.some(o=>!o.fingerprint || o.observation.workspaceId!==input.workspaceId)) throw new Error("INVALID_DURABLE_INTAKE");
