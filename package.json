@@ -11,6 +11,7 @@
     "test:postgres": "npm run build && node --test test/r4-postgres-integration.test.mjs"
   },
   "devDependencies": {
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "pg": "8.16.3"
   }
 }
