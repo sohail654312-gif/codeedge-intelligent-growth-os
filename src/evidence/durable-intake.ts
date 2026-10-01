@@ -43,9 +43,12 @@ export async function ingestDurably(context: AuthorizedWorkspaceContext, idempot
  for (const record of records) observations.push({workspaceId:context.workspaceId,
    fingerprint:await fingerprintOperationalRecord(record), observation:normalizeOperationalRecord(record),verification:"UNVERIFIED"});
  const requestDigest=await digest({schema:"cigo-intake-v1",workspaceId:context.workspaceId,observations});
+ const expectedFingerprints=observations.map(o=>o.fingerprint);
+ if (new Set(expectedFingerprints).size!==expectedFingerprints.length) throw new Error("DUPLICATE_BATCH_OBSERVATION");
  const previous=await store.lookupIntake(context.workspaceId,idempotencyKey);
  if (previous) {
-   if (previous.workspaceId!==context.workspaceId || previous.idempotencyKey!==idempotencyKey || previous.requestDigest!==requestDigest || previous.status!=="COMMITTED")
+   if (previous.workspaceId!==context.workspaceId || previous.idempotencyKey!==idempotencyKey || previous.requestDigest!==requestDigest || previous.status!=="COMMITTED" ||
+       stableSerialize(previous.fingerprints)!==stableSerialize(expectedFingerprints))
      throw new Error("IDEMPOTENCY_CONFLICT");
    return previous;
  }
