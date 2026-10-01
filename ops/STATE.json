@@ -5,8 +5,8 @@
   "execution_model": "SINGLE_WRITER_RECOVERY",
   "current_major_part": 7,
   "current_major_part_name": "AI Strategist / Copilot Experience",
-  "current_block": "Read-Only Evidence-Grounded Copilot Response Contracts",
-  "current_task_id": "CIGO-P7-BLOCK1",
+  "current_block": "Copilot Grounding, Citation and Untrusted Input Hardening",
+  "current_task_id": "CIGO-P7-BLOCK2",
   "attempt_count": 0,
   "status": "READY_FOR_EXECUTOR",
   "completed": [
@@ -35,22 +35,22 @@
     "CIGO-P6-BLOCK1 scoped verified Builder 4c7bca1de6fe26b27a38e25fac907ffd3d97dca1; exact-SHA CI run 36843949853 job 110309472137 SUCCESS 71/71 tests; scoped PASS 9fbbb667f2ed8f343ae1902c924928473c0cf66e; evidence ops/evidence/CIGO-P6-BLOCK1.md @ 18e82889f3d16f8dedda1c490a4bef8c1da8dd97.",
     "CIGO-P6-BLOCK2 scoped verified Builder 1a09a21c3eff318c5cb08aa5101c6fc9154681ae; exact-SHA CI run 36844237199 job 110310416420 SUCCESS 74/74 tests; scoped PASS b9286b91ea1a0b5104ca70b0fd7045d05b143ef6; evidence ops/evidence/CIGO-P6-BLOCK2.md @ 37194444e1e1c20d8244b0839e59f9b1ab5b1e05.",
     "CIGO-P6-BLOCK3 scoped verified Builder 78fa80394416fa3b4ca9d248ae4849e0e9666dd1; exact-SHA CI run 36844782711 job 110312194578 SUCCESS 77/77 tests; scoped PASS 42da8cf535ededd29df0c180afe074ecc623d04f; evidence ops/evidence/CIGO-P6-BLOCK3.md @ 7986bb42ff24a611270f077ab0e5bfa4b4adc756.",
-    "CIGO-P6-BLOCK4 and scoped Part6 closure verified Builder 46017484a3c15f38cbbfa633c81e7f28b615d911; exact-SHA CI run 36845213392 job 110313606398 SUCCESS 81/81 tests; scoped PASS 59060bf37880fd800741b46861aa49452c04eb58; evidence ops/evidence/CIGO-P6-COMPLETION.md @ 867f5480a4f1b5bcd5223509566a04507c33b978. NOT production-ready."
+    "CIGO-P6-BLOCK4 and scoped Part6 closure verified Builder 46017484a3c15f38cbbfa633c81e7f28b615d911; exact-SHA CI run 36845213392 job 110313606398 SUCCESS 81/81 tests; scoped PASS 59060bf37880fd800741b46861aa49452c04eb58; evidence ops/evidence/CIGO-P6-COMPLETION.md @ 867f5480a4f1b5bcd5223509566a04507c33b978. NOT production-ready.",
+    "CIGO-P7-BLOCK1 verified: Builder 6b7ac406c0edade43a8478c0f9d76b03b3c53d06, CI 36853796418 SUCCESS 82/82, PASS 2a880079284aedcaba28090813b2d0616b38b842, evidence ops/evidence/CIGO-P7-BLOCK1.md."
   ],
   "remaining": [
-    "Define bounded tenant-scoped read-only Copilot response contracts consuming verified-scope analysis/recommendation/planning references without promoting unverified content to FACT or authority.",
-    "Clearly distinguish source evidence references, assumptions, analysis, recommendations and draft plans; retain limitations and human-review handoff.",
-    "Adversarial tests for foreign workspace, missing lineage, forged truth/approval, injection-like untrusted content, bounds and safe failures; document no tool/provider execution.",
-    "Exact-SHA CI, scoped verdict/evidence, STATE then HANDOFF; preserve deferred production gates and disabled scheduled automations."
+    "Harden Copilot tenant scope, bounded input, citation lineage and uncertainty; never promote unverified prose to FACT.",
+    "Add adversarial tests for forged source, foreign workspace, malformed input and deterministic output.",
+    "Document boundary, exact-SHA CI, scoped review/evidence, STATE then HANDOFF."
   ],
-  "last_verified_commit": "46017484a3c15f38cbbfa633c81e7f28b615d911",
-  "test_status": "Part6 Block4 exact-SHA CI run 36845213392 job 110313606398 SUCCESS typecheck/build; 81 passed, 0 failed; scoped PASS 59060bf37880fd800741b46861aa49452c04eb58. LOCAL_RUN NOT_RUN.",
+  "last_verified_commit": "6b7ac406c0edade43a8478c0f9d76b03b3c53d06",
+  "test_status": "Part7 Block1 exact-SHA CI 36853796418 SUCCESS 82/82; scoped PASS 2a880079284aedcaba28090813b2d0616b38b842. LOCAL_RUN NOT_RUN.",
   "blockers": [],
   "deferred_backlog": [
     "PART2 PRODUCTION GATE: server-side authentication/authorization composition and revocation; live least-privilege Business OS read-model adapter and cursor/credential isolation; durable transactional tenant-isolated evidence storage, migration/restore/concurrency; adversarial conformance, monitoring and deployment evidence. See docs/architecture/PART2-CLOSURE-PRODUCTION-GATES.md. Not implemented/verified.",
     "PART3 PRODUCTION GATE: authenticated server-side identity/authorization and revocation; durable tenant-isolated memory/evidence storage and migration/recovery; independently authorized evidence authenticity, reviewer attestation, dispute/revocation and audit workflow before FACT admission; adversarial and deployment evidence. Not implemented/verified."
   ],
-  "next_action": "MANUAL MODE. Part7 Block1 read-only evidence-grounded Copilot contracts; no tool execution. Scheduled CIGO automations disabled.",
+  "next_action": "MANUAL MODE. Part7 Block2 grounding, citation and untrusted-input hardening. Automations disabled.",
   "coordination_rules": [
     "One active writer during recovery.",
     "Git commits are durable progress evidence; reconcile STATE to committed reality.",
@@ -61,6 +61,6 @@
   ],
   "authoritative_handoff": "GITHUB",
   "google_doc_role": "OPTIONAL_MIRROR_ONLY",
-  "latest_implementation_commit": "46017484a3c15f38cbbfa633c81e7f28b615d911",
+  "latest_implementation_commit": "6b7ac406c0edade43a8478c0f9d76b03b3c53d06",
   "reconciliation_note": "Part6 scoped CLOSED; Part7 Block1 READY. Production authenticity, auth, durable audit and execution gates deferred."
 }
