@@ -12,7 +12,7 @@ interface Input {readonly workspaceId: WorkspaceId; readonly idempotencyKey: str
 function parseReceipt(value: unknown): DurableIntakeReceipt {
  if (!value || typeof value!=="object") throw new Error("INVALID_DURABLE_RECEIPT");
  const r=value as Partial<DurableIntakeReceipt>;
- if (!r.workspaceId || !r.idempotencyKey || !r.requestDigest || r.status!=="COMMITTED" || !Array.isArray(r.fingerprints) || !r.fingerprints.every(x=>typeof x==="string")) throw new Error("INVALID_DURABLE_RECEIPT");
+ if (typeof r.workspaceId!=="string" || !r.workspaceId.trim() || typeof r.idempotencyKey!=="string" || !r.idempotencyKey.trim() || typeof r.requestDigest!=="string" || !r.requestDigest.trim() || r.status!=="COMMITTED" || !Array.isArray(r.fingerprints) || !r.fingerprints.length || !r.fingerprints.every(x=>typeof x==="string" && x.length>0) || new Set(r.fingerprints).size!==r.fingerprints.length) throw new Error("INVALID_DURABLE_RECEIPT");
  return r as DurableIntakeReceipt;
 }
 export class PostgresEvidenceStore implements TransactionalEvidenceStore {
@@ -62,7 +62,11 @@ export class PostgresEvidenceStore implements TransactionalEvidenceStore {
      VALUES ($1,$2,$3,'INTAKE_COMMITTED',$4)`,[input.workspaceId,input.idempotencyKey,input.idempotencyKey,input.requestDigest]);
    commitAttempted=true;await client.query("COMMIT");return receipt;
   } catch (error) {
-   if (commitAttempted) throw new Error("DURABLE_COMMIT_OUTCOME_UNKNOWN",{cause:error});
+   if (commitAttempted) {
+    // The connection used for COMMIT is no longer authoritative. Release it first in finally;
+    // caller can explicitly reconcile with a fresh trusted connection via reconcileIntake.
+    throw new Error("DURABLE_COMMIT_OUTCOME_UNKNOWN",{cause:error});
+   }
    try {await client.query("ROLLBACK");} catch { /* original error is authoritative */ }
    throw error;
   } finally {client.release();}
