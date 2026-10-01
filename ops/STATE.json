@@ -5,8 +5,8 @@
   "execution_model": "SINGLE_WRITER_RECOVERY",
   "current_major_part": 5,
   "current_major_part_name": "Recommendation and Decision Support Engine",
-  "current_block": "Decision Authority and Non-Executing Decision Record Contracts",
-  "current_task_id": "CIGO-P5-BLOCK3",
+  "current_block": "Adversarial Evaluation and Scoped Part5 Closure",
+  "current_task_id": "CIGO-P5-BLOCK4",
   "attempt_count": 0,
   "status": "READY_FOR_EXECUTOR",
   "completed": [
@@ -29,22 +29,23 @@
     "CIGO-P4-BLOCK3 scoped verified final implementation 113c5433a674eddb4ec4df002de614912634e580; CI run 36839330414 job 110294360391 SUCCESS 49/49 tests; scoped PASS b23ed995e6a74eec460cd2d40d3a502a608e5f64; evidence ops/evidence/CIGO-P4-BLOCK3.md @ 781c8c89da55c6c7b3af3031558d1dadbcce2186.",
     "CIGO-P4-BLOCK4 and scoped Part4 closure verified Builder b8697de4b8a35bc34983d62123b109de97490413; CI run 36839995362 job 110296558624 SUCCESS 53/53 tests; scoped PASS d99a808858d7422e0524173bcd8f5bc26cca2e5d; evidence ops/evidence/CIGO-P4-COMPLETION.md @ bce8cfbcfc00f2ea5f4c03cab830f6b6e60a595e. NOT production-ready.",
     "CIGO-P5-BLOCK1 scoped verified final implementation de4e6d1f8f5105ee6d545744dbc0b4c06d8e8133; CI run 36840654844 job 110298715297 SUCCESS 57/57 tests; scoped PASS 0e03de3b6a1ebd561edc2a10a8f78028d4f2a487; evidence ops/evidence/CIGO-P5-BLOCK1.md @ 1ddab0c0d5cd067f1b14097aba03c7267511987f.",
-    "CIGO-P5-BLOCK2 scoped verified final implementation 40b6921951abba00a837bd44e30515343a0c5e6f; exact-SHA CI run 36841009699 job 110299854032 SUCCESS 61/61 tests; scoped PASS e6b4651c6461d4c71084c68fdf31a6f53975e07c; evidence ops/evidence/CIGO-P5-BLOCK2.md @ 046e8bf7fa3329d4f199e8e1fd7bcb01305907be."
+    "CIGO-P5-BLOCK2 scoped verified final implementation 40b6921951abba00a837bd44e30515343a0c5e6f; exact-SHA CI run 36841009699 job 110299854032 SUCCESS 61/61 tests; scoped PASS e6b4651c6461d4c71084c68fdf31a6f53975e07c; evidence ops/evidence/CIGO-P5-BLOCK2.md @ 046e8bf7fa3329d4f199e8e1fd7bcb01305907be.",
+    "CIGO-P5-BLOCK3 scoped verified final implementation 50b40bed3eb3c1747069c3167381428b0b3b20a8; exact-SHA CI run 36841469061 job 110301334904 SUCCESS 65/65 tests; scoped PASS 06abd793b0ca27443d63674201ad3689804b662e; evidence ops/evidence/CIGO-P5-BLOCK3.md @ 55dd1deddaf296f2986fcacb1347b762f0fd132e."
   ],
   "remaining": [
-    "Define explicit bounded workspace-scoped decision record proposal interfaces referencing evaluated recommendation without allowing AI self-approval or impersonated reviewer identity.",
-    "Keep decision authority separate from proposal/evaluation, require independently authenticated human authority in later production adapter; no provider execution or operational mutations in Part5.",
-    "Test foreign workspace, forged approval, missing lineage, conflicting/expired analysis, replay, cloning and safe failure; document authority gates.",
-    "Run exact-SHA CI, scoped verdict/evidence, STATE then HANDOFF; preserve deferred production requirements and disabled automations."
+    "Audit Part5 Blocks1–3 and evidence against product constitution and Part4 source limitations; correct demonstrated defects only.",
+    "Add adversarial tests for foreign tenant, fabricated source/proposal/decision authority, contradictory/stale evidence, missing lineage, boundedness, replay and no provider effects.",
+    "Document scoped Part5 closure and Part6 entry while explicitly retaining human review, independent FACT verification, production auth, persistence and execution gates.",
+    "Obtain exact-SHA CI, scoped verdict/evidence, STATE-first HANDOFF mirror; keep scheduled CIGO automations disabled."
   ],
-  "last_verified_commit": "40b6921951abba00a837bd44e30515343a0c5e6f",
-  "test_status": "Part5 Block2 exact-SHA GitHub CI run 36841009699 job 110299854032 SUCCESS typecheck/build; 61 passed, 0 failed; scoped PASS e6b4651c6461d4c71084c68fdf31a6f53975e07c. LOCAL_RUN NOT_RUN.",
+  "last_verified_commit": "50b40bed3eb3c1747069c3167381428b0b3b20a8",
+  "test_status": "Part5 Block3 exact-SHA GitHub CI run 36841469061 job 110301334904 SUCCESS typecheck/build; 65 passed, 0 failed; scoped PASS 06abd793b0ca27443d63674201ad3689804b662e. LOCAL_RUN NOT_RUN.",
   "blockers": [],
   "deferred_backlog": [
     "PART2 PRODUCTION GATE: server-side authentication/authorization composition and revocation; live least-privilege Business OS read-model adapter and cursor/credential isolation; durable transactional tenant-isolated evidence storage, migration/restore/concurrency; adversarial conformance, monitoring and deployment evidence. See docs/architecture/PART2-CLOSURE-PRODUCTION-GATES.md. Not implemented/verified.",
     "PART3 PRODUCTION GATE: authenticated server-side identity/authorization and revocation; durable tenant-isolated memory/evidence storage and migration/recovery; independently authorized evidence authenticity, reviewer attestation, dispute/revocation and audit workflow before FACT admission; adversarial and deployment evidence. Not implemented/verified."
   ],
-  "next_action": "MANUAL MODE. Implement Part5 Block3 non-executing decision authority/record boundary; no AI self-approval. Scheduled CIGO automations disabled.",
+  "next_action": "MANUAL MODE. Part5 Block4 adversarial evaluation and scoped closure; scheduled CIGO automations disabled.",
   "coordination_rules": [
     "One active writer during recovery.",
     "Git commits are durable progress evidence; reconcile STATE to committed reality.",
@@ -55,6 +56,6 @@
   ],
   "authoritative_handoff": "GITHUB",
   "google_doc_role": "OPTIONAL_MIRROR_ONLY",
-  "latest_implementation_commit": "40b6921951abba00a837bd44e30515343a0c5e6f",
-  "reconciliation_note": "Part4 scoped closed; Part5 Blocks1–2 verified; Block3 ready. Production gates deferred."
+  "latest_implementation_commit": "50b40bed3eb3c1747069c3167381428b0b3b20a8",
+  "reconciliation_note": "Part4 scoped closed; Part5 Blocks1–3 verified; Block4 ready. No actual human approval or production execution authority."
 }
