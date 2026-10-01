@@ -28,7 +28,7 @@ test("analysis preserves evidence lineage and uncertainty, never certifies fact 
 test("workspace mismatch and malformed bounds fail closed",async()=>{
  const {ledger,memory}=await fixture();
  assert.throws(()=>analyzeKnowledge(ctx(B),memory,ledger,{asOf:now,maxEvidenceAgeMs:0}),/UNAUTHORIZED_WORKSPACE/);
- for(const request of [{asOf:"invalid",maxEvidenceAgeMs:0},{asOf:now,maxEvidenceAgeMs:-1},{asOf:now,maxEvidenceAgeMs:0,limit:101},{asOf:now,maxEvidenceAgeMs:0,key:" "}])
+ for(const request of [{asOf:"invalid",maxEvidenceAgeMs:0},{asOf:now,maxEvidenceAgeMs:-1},{asOf:now,maxEvidenceAgeMs:0,limit:101},{asOf:now,maxEvidenceAgeMs:0,key:" "},{asOf:now,maxEvidenceAgeMs:0,offset:-1}])
   assert.throws(()=>analyzeKnowledge(ctx(),memory,ledger,request),/INVALID_ANALYSIS_REQUEST/);
 });
 test("analysis exposes bounded partial result instead of silently claiming completeness",async()=>{
@@ -36,5 +36,8 @@ test("analysis exposes bounded partial result instead of silently claiming compl
  memory.add(ctx(),{key:"capacity",kind:"ANALYSIS",value:{slots:2},evidenceFingerprints:[fp]});
  const result=analyzeKnowledge(ctx(),memory,ledger,{asOf:now,maxEvidenceAgeMs:86400000,limit:1});
  assert.equal(result.insights.length,1);assert.equal(result.nextOffset,1);
+ const next=analyzeKnowledge(ctx(),memory,ledger,{asOf:now,maxEvidenceAgeMs:86400000,limit:1,offset:1});
+ assert.equal(next.insights.length,1);assert.equal(next.insights[0].memoryKey,"capacity");
+ assert.equal(next.nextOffset,undefined);
  assert.ok(result.limitations.includes("RESULTS_PAGINATED"));
 });
