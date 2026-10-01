@@ -4,11 +4,15 @@
 
 This file is the durable knowledge baseline for all CIGO autonomous builders and reviewers. It exists so automation does not depend on transient chat history.
 
-On every run, CIGO automation must read:
-1. `ops/STATE.json` — current machine state and task.
-2. This file — durable product/architecture/strategy knowledge.
-3. `ops/HANDOFF.md` — mirror only.
-4. Only then inspect relevant repository evidence and reference repositories.
+On every run, the role must read in order:
+1. `ops/STATE.json` — authoritative current machine state, task and blob SHA.
+2. `ops/HANDOFF.md` — mirror only.
+3. `docs/architecture/PRODUCT-CONSTITUTION.md` — binding product boundary.
+4. `docs/architecture/CAPABILITY-OWNERSHIP-MATRIX.md` — frozen capability ownership baseline.
+5. This Charter — durable product/architecture/strategy knowledge.
+6. Then inspect current-task commits, relevant files/tests/evidence and, where relevant, read-only reference repositories.
+
+When authoritative STATE disagrees with committed repository evidence, preserve real commits and record the discrepancy for the responsible role; never fabricate completion or overwrite more recent progress.
 
 If this charter conflicts with newer repository evidence or an explicitly updated product constitution, preserve repository evidence and update the charter deliberately rather than silently ignoring the conflict.
 
@@ -381,24 +385,20 @@ When implementation is required, completion needs:
 
 ---
 
-## Autonomous builder protocol
+## Role-separated autonomous recovery protocol
 
-CIGO currently uses a **single-writer recovery model**. Multi-builder scheduling and repository mutex/lease logic are suspended until the build path demonstrates stable consecutive block completion.
+CIGO currently uses **one implementation writer**, not three competing builders. Role ownership is explicit:
 
-Each execution run must:
-1. read STATE
-2. read this charter
-3. inspect committed reality
-4. reconcile stale state without erasing commits
-5. repair previous errors first
-6. continue only remaining work
-7. test/verify
-8. commit coherent implementation/evidence
-9. re-fetch and update STATE using the latest blob SHA
-10. mirror HANDOFF only after STATE succeeds
-11. advance when safe
+| Role | Writable paths | Required result |
+|---|---|---|
+| Builder | `src/`, `test/`, `docs/architecture/`, and `package.json` only for test-script wiring | Preserve committed work; implement only current task's remaining scope; commit code/docs/tests; provide exact SHA and genuine CI/local command results. Never write ops/ or advance STATE. |
+| Verifier | `ops/review/<CURRENT_TASK_ID>-verdict.md` only | Independently review the exact latest implementation SHA and its required typecheck/build/test evidence; commit PASS or numbered FAIL with exact proof. No unverified PASS. |
+| Steward | `ops/STATE.json`, `ops/HANDOFF.md`, `ops/evidence/` only | Consume a new exact-task/exact-SHA committed verdict; record evidence and attempted work, update STATE first against latest blob SHA, re-fetch/verify, then HANDOFF. Scope the next substantial task only after PASS. |
+| External Viewer | Nothing | Compare committed git reality against claims. Read-only. |
 
-Do not pre-write STATE merely to acquire a lock. Git commits are durable progress evidence. If implementation commits succeed but a later STATE write fails, the next run must recover those commits and reconcile STATE rather than repeating the implementation.
+Each role re-reads STATE and intervening git commits at run start, respects its task precondition, and exits NO-OP if not met. Do not pre-write STATE to acquire a lock; no scheduler disable on conflict/write failure. A SHA conflict requires re-fetch/reconciliation, not blind overwrite. Successful GitHub CI proves only the commands actually wired in the examined `package.json` at that SHA; a green run of Part 1 tests does not prove Part 2. A code commit with an unsuccessful later STATE write remains durable and must be preserved. When the task ID advances, every role uses the NEW current task and its scoped acceptance, never an old hard-coded block. Attempt counts must reflect real implementation attempts, without counting passive coordination failures or counting a committed result twice.
+
+The completion pipeline is **Builder implementation commit → exact-SHA independent Verifier PASS → Steward evidence and authoritative STATE update → HANDOFF mirror → next task**. Missing implementation, docs, deterministic verification, or matching PASS means the block remains unverified.
 
 ## State authority
 
