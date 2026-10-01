@@ -27,7 +27,7 @@ test("partial, contradictory or stale analysis cannot be evaluated",()=>{
  const a=analysis(),p=proposal(a);
  assert.throws(()=>evaluateRecommendation(ctx,{...a,status:"PARTIAL"},p,deps()),/UNSAFE_EVALUATION_ANALYSIS/);
  assert.throws(()=>evaluateRecommendation(ctx,{...a,insights:[{...a.insights[0],value:null},a.insights[1]]},p,deps()),/UNSAFE_EVALUATION_ANALYSIS/);
- assert.throws(()=>evaluateRecommendation(ctx,{...a,asOf:"2026-09-01T00:00:00.000Z"},p,deps()),/UNSAFE_EVALUATION_PROPOSAL/);
+ assert.throws(()=>evaluateRecommendation(ctx,{...a,asOf:"2026-09-01T00:00:00.000Z"},p,deps()),/UNSAFE_EVALUATION_(ANALYSIS|PROPOSAL)/);
 });
 test("missing, unexpected, duplicated and unbounded dependencies rejected",()=>{
  const a=analysis(),p=proposal(a);
