@@ -61,7 +61,7 @@ export function analyzeBusinessMetrics(context: AuthorizedWorkspaceContext, proj
       !Number.isSafeInteger(p.numerator) || p.numerator < 0 ||
       (p.denominator !== undefined && (!Number.isSafeInteger(p.denominator) || p.denominator < 0)) ||
       !Array.isArray(p.evidenceFingerprints) || !p.evidenceFingerprints.length ||
-      p.evidenceFingerprints.some(fp => typeof fp !== "string" || !fp.trim()) ||
+      p.evidenceFingerprints.some((fp: string) => typeof fp !== "string" || !fp.trim()) ||
       new Set(p.evidenceFingerprints).size !== p.evidenceFingerprints.length ||
       !["COMPLETE","PARTIAL"].includes(p.coverage) || p.verification !== "UNVERIFIED")
       throw new Error("INVALID_METRIC_PROJECTION");
