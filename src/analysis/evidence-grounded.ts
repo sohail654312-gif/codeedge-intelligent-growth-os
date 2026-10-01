@@ -9,6 +9,7 @@ export interface AnalysisRequest {
   readonly key?: string;
   readonly maxEvidenceAgeMs: number;
   readonly limit?: number;
+  readonly offset?: number;
 }
 export interface AnalysisInsight {
   readonly kind: "ANALYSIS";
@@ -43,12 +44,13 @@ export function analyzeKnowledge(
   if (!request || typeof request.asOf !== "string" || !Number.isFinite(Date.parse(request.asOf)) ||
     !Number.isSafeInteger(request.maxEvidenceAgeMs) || request.maxEvidenceAgeMs < 0 ||
     (request.key !== undefined && (typeof request.key !== "string" || !request.key.trim())) ||
-    (request.limit !== undefined && (!Number.isSafeInteger(request.limit) || request.limit < 1 || request.limit > 100)))
+    (request.limit !== undefined && (!Number.isSafeInteger(request.limit) || request.limit < 1 || request.limit > 100)) ||
+    (request.offset !== undefined && (!Number.isSafeInteger(request.offset) || request.offset < 0)))
     throw new Error("INVALID_ANALYSIS_REQUEST");
   const limit = request.limit ?? 20;
   // Both source APIs authorize independently; do not accept caller-supplied knowledge objects.
   const knowledge = queryBusinessKnowledge(context, memory, ledger, {
-    asOf: request.asOf, key: request.key, limit, view: "CURRENT",
+    asOf: request.asOf, key: request.key, limit, offset: request.offset, view: "CURRENT",
     maxEvidenceAgeMs: request.maxEvidenceAgeMs,
   });
   const integrity = inspectKnowledgeIntegrity(context, memory, ledger, {
