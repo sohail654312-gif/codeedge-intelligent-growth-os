@@ -11,8 +11,8 @@ export interface BusinessOsReadModelPort {
 }
 /** A server-held, opaque cursor registry/codec. Implementations MUST authenticate tenant, source, resource and page size. */
 export interface TrustedCursorCodec {
-  encode(scope:Readonly<{workspaceId:WorkspaceId; resourceKind:string; limit:number}>, providerCursor:string):string;
-  decode(scope:Readonly<{workspaceId:WorkspaceId; resourceKind:string; limit:number}>, token:string):string|undefined;
+  encode(scope:Readonly<{workspaceId:WorkspaceId; resourceKind:string; limit:number; actorId:string}>, providerCursor:string):string;
+  decode(scope:Readonly<{workspaceId:WorkspaceId; resourceKind:string; limit:number; actorId:string}>, token:string):string|undefined;
 }
 export interface TrustedReadAuthorization {
   assertAuthorized(input:Readonly<{workspaceId:WorkspaceId; actorId:string; authorizedAt:string; resourceKind:string}>):Promise<void>;
@@ -35,15 +35,15 @@ export class BusinessOsReadModelReader implements SourceReader {
   if(request.sourceSystem!=="BUSINESS_OS") return denied("SOURCE_SCOPE_MISMATCH");
   const limit=request.limit??MAX_PAGE;
   if(!Number.isSafeInteger(limit)||limit<1||limit>MAX_PAGE) return denied("INVALID_PAGE_LIMIT");
-  const scope={workspaceId:this.workspaceId,resourceKind:request.resourceKind,limit};
+  const scope={workspaceId:this.workspaceId,resourceKind:request.resourceKind,limit,actorId:request.context.actorId};
+  try{await this.authorization.assertAuthorized({workspaceId:this.workspaceId,actorId:request.context.actorId,authorizedAt:request.context.authorizedAt,resourceKind:request.resourceKind});}
+  catch{return denied("READ_AUTHORIZATION_DENIED");}
   let cursor:string|undefined;
   if(request.cursor!==undefined){
    if(!request.cursor || request.cursor.length>4096) return denied("INVALID_CURSOR");
    try{cursor=this.cursors.decode(scope,request.cursor);}catch{return denied("INVALID_CURSOR");}
    if(!cursor || cursor.length>4096) return denied("INVALID_CURSOR");
   }
-  try{await this.authorization.assertAuthorized({workspaceId:this.workspaceId,actorId:request.context.actorId,authorizedAt:request.context.authorizedAt,resourceKind:request.resourceKind});}
-  catch{return denied("READ_AUTHORIZATION_DENIED");}
   let page:Awaited<ReturnType<BusinessOsReadModelPort["readPage"]>>;
   try{page=await this.port.readPage({...scope,...(cursor===undefined?{}:{cursor})});}
   catch{return denied("SOURCE_UNAVAILABLE",true);}
@@ -57,6 +57,8 @@ export class BusinessOsReadModelReader implements SourceReader {
       record.reference?.sourceSystem!=="BUSINESS_OS" || record.resourceKind!==request.resourceKind){invalid=true;continue;}
    records.push(structuredClone(record));
   }
+  // Do not issue a continuation token for a quarantined or partial page: it could hide missing evidence.
+  if(invalid || page.partial) return {records,fetchedAt,completeness:"PARTIAL",errors:[safeError(invalid?"INVALID_SOURCE_RECORD":"PARTIAL_SOURCE_PAGE",!invalid)]};
   let nextCursor:string|undefined;
   if(page.nextCursor!==undefined){
    try{nextCursor=this.cursors.encode(scope,page.nextCursor);if(!nextCursor || nextCursor.length>4096) return denied("INVALID_SOURCE_CURSOR");}
