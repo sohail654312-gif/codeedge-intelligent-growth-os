@@ -1,0 +1,3 @@
+# Part6 Block3 — draft-only orchestration simulation
+
+Pure, deterministic tenant-scoped visualization of draft-plan step dependencies and unverified milestone observations. Earlier step observations do not establish completed dependencies: dependent steps are BLOCKED_UNVERIFIED_DEPENDENCY; roots are REVIEW_ONLY_UNVERIFIED. Neither is an execution-ready status. Preserves constraints, evidence fingerprints and uncertainty. No scheduler, clock trigger, provider adapter, external action, human approval, durable storage or independent provenance verification. Production gates deferred and all CIGO scheduled automations disabled.
