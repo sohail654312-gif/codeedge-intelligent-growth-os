@@ -1,4 +1,4 @@
-import type { AuthorizedWorkspaceContext, OperationalRecord, ReadResult, ReadError } from "../integration/contracts.js";
+import type { AuthorizedWorkspaceContext, OperationalRecord, ReadResult, ReadError, ReadRequest } from "../integration/contracts.js";
 import { validateOperationalRecord } from "./validation.js";
 import { normalizeOperationalRecord, type NormalizedEvidence } from "./normalize.js";
 import { fingerprintOperationalRecord } from "./fingerprint.js";
@@ -28,13 +28,17 @@ export class InMemoryEvidenceLedger {
       throw new Error("UNAUTHORIZED_WORKSPACE");
     return structuredClone(this.entries);
   }
-  async ingest(context: AuthorizedWorkspaceContext, result: ReadResult): Promise<IntakeReport> {
+  async ingest(context: AuthorizedWorkspaceContext, result: ReadResult, expectedSourceSystem: ReadRequest["sourceSystem"]): Promise<IntakeReport> {
     if (!context?.workspaceId || context.workspaceId !== this.workspaceId || !context.actorId?.trim() || !context.authorizedAt)
       throw new Error("UNAUTHORIZED_WORKSPACE");
     const errors: ReadError[] = [...result.errors.map(e => ({ ...e }))];
     const accepted: IntakeEntry[] = [], duplicates: string[] = [];
     for (const record of result.records) {
       const validation = validateOperationalRecord(record, context);
+      if (!expectedSourceSystem || record.reference?.sourceSystem !== expectedSourceSystem) {
+        errors.push({ code: "SOURCE_SCOPE_MISMATCH", message: "Evidence source does not match authorized intake", retryable: false });
+        continue;
+      }
       if (!validation.ok) {
         errors.push(...validation.errors.map(code => ({ code, message: "Evidence intake validation failed", retryable: false })));
         continue;
