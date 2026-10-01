@@ -42,3 +42,11 @@ test("repeated and empty cursors, bounds, exceptions fail safely",async()=>{
  assert.equal(failed.pages,0);assert.equal(failed.errors[0].code,"SOURCE_READ_FAILED");
  assert.ok(!JSON.stringify(failed).includes("secret"));
 });
+
+test("unexpected resource kind is rejected before ingestion",async()=>{
+ const store=ledger();const source={sourceSystem:"BUSINESS_OS",async read(){return response(undefined,{records:[{...record("booking:1"),resourceKind:"booking"}]});}};
+ const output=await orchestrateEvidenceIntake(source,store,request());
+ assert.equal(output.completeness,"PARTIAL");assert.equal(output.accepted,0);
+ assert.ok(output.errors.some(e=>e.code==="RESOURCE_SCOPE_MISMATCH"));
+ assert.equal(store.list(context()).length,0);
+});
