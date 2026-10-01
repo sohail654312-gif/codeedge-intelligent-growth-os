@@ -5,8 +5,8 @@
   "execution_model": "SINGLE_WRITER_RECOVERY",
   "current_major_part": 4,
   "current_major_part_name": "Intelligence and Analysis",
-  "current_block": "Bounded Deterministic Business Metrics Analysis",
-  "current_task_id": "CIGO-P4-BLOCK2",
+  "current_block": "Cross-Domain Evidence-Grounded Intelligence",
+  "current_task_id": "CIGO-P4-BLOCK3",
   "attempt_count": 0,
   "status": "READY_FOR_EXECUTOR",
   "completed": [
@@ -24,22 +24,23 @@
     "CIGO-P3-BLOCK3 verified implementation 4510cc15d632890b9363dd0568f20f480ee735d6; CI run 36833801669 job 110276253969 SUCCESS; scoped PASS 84090493735b0a9b2cb64a266f7658a9d8d4ca21; evidence ops/evidence/CIGO-P3-BLOCK3.md",
     "Part3 deterministic in-memory foundation scoped closure: architecture docs/architecture/PART3-CLOSURE-PART4-ENTRY.md @ 216e39eb4142be5606df37a225510c7d5785f3f3; PASS b8e889d2b3d2fcbbd20b392712e246fa39fe52ec; evidence ops/evidence/CIGO-P3-COMPLETION.md @ 1d55e90327a4c350475aaee9e1934bb87d0f42e3. NOT production-ready.",
     "CIGO-P4-BLOCK1 verified implementation 4b23c86f6ccc0755ecd40c2e006b5c1d8155f04d; exact-SHA CI run 36837852882 job 110289517093 SUCCESS; scoped PASS e1b48accf8d3367914df8c72e7567c428d9b5de3; evidence ops/evidence/CIGO-P4-BLOCK1.md @ 9aaade71c5c75966d058abb4db2be5769450aef5.",
-    "CIGO-P4-BLOCK1 targeted pagination correction verified separately: implementation 07e0a62e92e31e1229a5862b91a0c2a17d51a9d9; CI run 36837976666 job 110289927244 SUCCESS; scoped PASS addendum ca3895eb4bb09fd75df7a3728c51b896b54dd4d1; evidence update e7f5c6bbc818c15de3a9dca69486346d747ba063."
+    "CIGO-P4-BLOCK1 targeted pagination correction verified separately: implementation 07e0a62e92e31e1229a5862b91a0c2a17d51a9d9; CI run 36837976666 job 110289927244 SUCCESS; scoped PASS addendum ca3895eb4bb09fd75df7a3728c51b896b54dd4d1; evidence update e7f5c6bbc818c15de3a9dca69486346d747ba063.",
+    "CIGO-P4-BLOCK2 scoped verified final implementation fbebe4a2bd3f077ff76cc6d72043ff25396b3e01; CI run 36838510879 job 110291659761 SUCCESS 45/45 tests; PASS b7e7939ce067972fdf587ef916bdcad16ab4557e; evidence ops/evidence/CIGO-P4-BLOCK2.md @ 3ee356b5217f3a3c7419d0d6040e9d9edf4c0096."
   ],
   "remaining": [
-    "Define approved typed source metric projections with workspace, period, units, explicit numerator/denominator, evidence fingerprint provenance and coverage; reject unsupported or missing inputs.",
-    "Implement deterministic bounded lead, conversion, appointment, missed enquiry, revenue/cost, marketing, retention and capacity calculations only where authorized complete evidence exists; otherwise report unavailable/partial, never invent figures.",
-    "Test cross-tenant isolation, zero denominators, conflicting/missing/stale data, precision/units, repeatability and defensive cloning; document source/metric ownership.",
-    "Run exact-SHA CI, scoped role-separated review, evidence and STATE-before-HANDOFF; preserve Part2/Part3 production gates and all disabled automations."
+    "Define bounded read-only cross-domain analysis combining only authorized workspace-scoped Part4 metric projections, preserving per-domain period, units, source fingerprints and uncertainty.",
+    "Reject conflicting or incompatible periods/units, incomplete source provenance and any implicit FACT promotion; do not infer causal conclusions from correlation or generate operational actions.",
+    "Test tenant isolation, partial/stale/contradictory source coverage, repeatability, defensive cloning, bounds and provider neutrality; document architecture.",
+    "Obtain exact-SHA CI, scoped verdict/evidence, STATE-first HANDOFF mirror. Preserve all production gates."
   ],
-  "last_verified_commit": "07e0a62e92e31e1229a5862b91a0c2a17d51a9d9",
-  "test_status": "Part4 Block1 original CI 36837852882 PASS; corrected pagination exact-SHA CI 36837976666 job 110289927244 SUCCESS and separately reviewed PASS addendum ca3895eb4bb09fd75df7a3728c51b896b54dd4d1. LOCAL_RUN NOT_RUN; raw test count not asserted.",
+  "last_verified_commit": "fbebe4a2bd3f077ff76cc6d72043ff25396b3e01",
+  "test_status": "Part4 Block2 final exact-SHA GitHub Actions run 36838510879 job 110291659761 SUCCESS; typecheck/build and 45 tests passed, 0 failed. Scoped PASS b7e7939ce067972fdf587ef916bdcad16ab4557e; LOCAL_RUN NOT_RUN.",
   "blockers": [],
   "deferred_backlog": [
     "PART2 PRODUCTION GATE: server-side authentication/authorization composition and revocation; live least-privilege Business OS read-model adapter and cursor/credential isolation; durable transactional tenant-isolated evidence storage, migration/restore/concurrency; adversarial conformance, monitoring and deployment evidence. See docs/architecture/PART2-CLOSURE-PRODUCTION-GATES.md. Not implemented/verified.",
     "PART3 PRODUCTION GATE: authenticated server-side identity/authorization and revocation; durable tenant-isolated memory/evidence storage and migration/recovery; independently authorized evidence authenticity, reviewer attestation, dispute/revocation and audit workflow before FACT admission; adversarial and deployment evidence. Not implemented/verified."
   ],
-  "next_action": "MANUAL MODE. Implement Part4 Block2 typed approved-source bounded deterministic business metrics analysis; no fabricated metrics, provider calls, protected repo writes or scheduled automations.",
+  "next_action": "MANUAL MODE. Implement Part4 Block3 controlled cross-domain evidence-grounded intelligence. Scheduled CIGO automations remain disabled; no protected repo writes or provider effects.",
   "coordination_rules": [
     "One active writer during recovery.",
     "Git commits are durable progress evidence; reconcile STATE to committed reality.",
@@ -50,6 +51,6 @@
   ],
   "authoritative_handoff": "GITHUB",
   "google_doc_role": "OPTIONAL_MIRROR_ONLY",
-  "latest_implementation_commit": "07e0a62e92e31e1229a5862b91a0c2a17d51a9d9",
-  "reconciliation_note": "Part4 Block1 pagination corrected and separately verified; Part4 Block2 remains READY_FOR_EXECUTOR. Part2/3 production gates deferred."
+  "latest_implementation_commit": "fbebe4a2bd3f077ff76cc6d72043ff25396b3e01",
+  "reconciliation_note": "Part4 Block1 corrected pagination separately verified; Block2 verified after one targeted TypeScript fix; Block3 ready. Production gates remain deferred."
 }
