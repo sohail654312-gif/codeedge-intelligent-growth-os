@@ -9,3 +9,12 @@ test("R4B audit failure rolls back and does not acknowledge",async()=>{const f=f
 test("R4B lost COMMIT acknowledgement fails unknown rather than success",async()=>{const f=fake({failAt:"COMMIT"});await assert.rejects(new PostgresEvidenceStore(f.pool).commitIntake(input),/DURABLE_COMMIT_OUTCOME_UNKNOWN/);assert.equal(f.released,true)});
 test("R4B replay reads existing receipt without writing new evidence",async()=>{const receipt={workspaceId,idempotencyKey:input.idempotencyKey,requestDigest:input.requestDigest,fingerprints:["fingerprint:1"],status:"COMMITTED"};const f=fake({existing:receipt});assert.deepEqual(await new PostgresEvidenceStore(f.pool).commitIntake(input),receipt);assert.ok(!f.calls.some(c=>c.sql.includes("INSERT INTO cigo.evidence")))});
 test("R4B rejects mismatched tenant before acquiring connection",async()=>{const f=fake();await assert.rejects(new PostgresEvidenceStore(f.pool).commitIntake({...input,observations:[{...input.observations[0],workspaceId:"workspace:b"}]}),/INVALID_DURABLE_INTAKE/);assert.equal(f.calls.length,0)});
+
+test("R4C reconcile unknown COMMIT using a fresh connection and reject conflicting receipt",async()=>{
+ const receipt={workspaceId,idempotencyKey:input.idempotencyKey,requestDigest:input.requestDigest,fingerprints:["fingerprint:1"],status:"COMMITTED"};
+ const f=fake({existing:receipt}),store=new PostgresEvidenceStore(f.pool);
+ assert.deepEqual(await store.reconcileIntake(input),receipt);
+ const bad=fake({existing:{...receipt,requestDigest:"altered"}});
+ await assert.rejects(new PostgresEvidenceStore(bad.pool).reconcileIntake(input),/IDEMPOTENCY_CONFLICT/);
+ const missing=fake();await assert.rejects(new PostgresEvidenceStore(missing.pool).reconcileIntake(input),/DURABLE_COMMIT_OUTCOME_UNKNOWN/);
+});
