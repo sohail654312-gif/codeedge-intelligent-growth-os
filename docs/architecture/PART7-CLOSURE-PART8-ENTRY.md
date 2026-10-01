@@ -1,0 +1,13 @@
+# Part 7 scoped closure and Part 8 entry
+
+## Verified scope
+Part 7 supplies deterministic read-only Copilot response composition, bounded citation references, inert human-review **requests**, and bounded supplied-turn context projection. Part 7 adversarial closure exercises the full chain: source/evaluation/plan references → response → review request / conversation projection. Rejected inputs include foreign workspace, duplicate question IDs, incompatible plan lineage, forged FACT/DECISION categories, omitted unverified-content marker, fabricated evidence membership, tool/approval fields, and downstream-incompatible composite text length. All sections preserve unverified status and lineage; defensive copies prevent mutation of the originating evidence arrays.
+
+## Truth and authority
+Evidence fingerprints are **structural references**, not authenticated source truth or semantic grounding. No output grants human approval, decision authority, confirmed achievement, scheduling rights or an executable action. Question and candidate prose are data, not instructions. A review packet indicates only *AWAITING_INDEPENDENT_HUMAN_REVIEW*: identity and approval remain null. Conversation summaries represent **caller-supplied, unauthenticated** in-memory turns, not historical audit records or durable memory.
+
+## Part 8 entry requirements
+The next scoped task is a provider-neutral, non-effect **controlled-action request / policy-preflight contract** that distinguishes proposal, policy assessment, independent human authorization and domain execution authority. A pending review request MUST NOT be accepted as approval or promoted into an executable command. CIGO does not become Business OS operational truth or call providers directly. Any future real Business OS integration needs independently established server-side auth and tenant isolation, revocation, durable approval/audit and idempotency, least-privilege adapters, Demo/Sandbox parity, safe failure and actual staging verification. Part 8 must not claim production execution merely because a deterministic contract passes tests.
+
+## Deferred production gates
+Part 2 live authorized Business OS read models, real identity and revocation, transactional durable evidence and authenticated provenance; Part 3 independent FACT verification and human reviewer attestation; audited persistent conversation/replay, provider-neutral integration, monitoring, deployment and controlled staging acceptance. Protected repositories remain read-only. Scheduled CIGO Builder, Verifier, Steward and External Viewer automations remain disabled. Part 7 closure is **scoped development only, NOT production-ready**.
