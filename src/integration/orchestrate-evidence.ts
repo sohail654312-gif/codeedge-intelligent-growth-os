@@ -40,6 +40,10 @@ export async function orchestrateEvidenceIntake(
       fail("INVALID_SOURCE_RESPONSE", "Source returned an invalid read result");
       break;
     }
+    if (response.records.some(record => !record || typeof record !== "object" || typeof record.resourceKind !== "string")) {
+      fail("INVALID_SOURCE_RESPONSE", "Source returned malformed records");
+      break;
+    }
     if (response.records.some(record => record.resourceKind !== request.resourceKind)) {
       fail("RESOURCE_SCOPE_MISMATCH", "Source returned a record outside the requested resource kind");
       break;
