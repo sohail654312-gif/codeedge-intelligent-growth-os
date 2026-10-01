@@ -6,7 +6,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "test": "npm run build && node --test test/truth.test.mjs test/integration-evidence.test.mjs test/evidence-intake.test.mjs test/orchestration.test.mjs test/business-memory.test.mjs test/knowledge-view.test.mjs test/integrity.test.mjs test/analysis.test.mjs test/business-metrics.test.mjs test/cross-domain.test.mjs test/part4-adversarial.test.mjs test/recommendation.test.mjs test/recommendation-evaluation.test.mjs test/decision-review.test.mjs test/part5-adversarial.test.mjs test/draft-goal.test.mjs test/draft-progress.test.mjs test/draft-simulation.test.mjs test/part6-adversarial.test.mjs test/copilot-read-only.test.mjs test/part7-adversarial.test.mjs test/controlled-preflight.test.mjs test/dispatch-preview.test.mjs test/denial-lifecycle.test.mjs test/part8-adversarial.test.mjs",
+    "test": "npm run build && node --test test/truth.test.mjs test/integration-evidence.test.mjs test/evidence-intake.test.mjs test/orchestration.test.mjs test/business-memory.test.mjs test/knowledge-view.test.mjs test/integrity.test.mjs test/analysis.test.mjs test/business-metrics.test.mjs test/cross-domain.test.mjs test/part4-adversarial.test.mjs test/recommendation.test.mjs test/recommendation-evaluation.test.mjs test/decision-review.test.mjs test/part5-adversarial.test.mjs test/draft-goal.test.mjs test/draft-progress.test.mjs test/draft-simulation.test.mjs test/part6-adversarial.test.mjs test/copilot-read-only.test.mjs test/part7-adversarial.test.mjs test/controlled-preflight.test.mjs test/dispatch-preview.test.mjs test/denial-lifecycle.test.mjs test/part8-adversarial.test.mjs test/part9-security-conformance.test.mjs",
     "verify": "npm run typecheck && npm test"
   },
   "devDependencies": {
