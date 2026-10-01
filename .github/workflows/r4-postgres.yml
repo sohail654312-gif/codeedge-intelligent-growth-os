@@ -37,6 +37,7 @@ jobs:
       PGUSER: postgres
       PGPASSWORD: r4_ci_ephemeral_only
       CIGO_R4_DISPOSABLE_TEST_CONFIRM: I_CONFIRM_DISPOSABLE_ONLY
+      CIGO_R4_REQUIRE_POSTGRES_TESTS: "true"
       CIGO_R4_DISPOSABLE_DATABASE_URL: postgres://cigo_r4_app:r4_ci_app_ephemeral_only@localhost:5432/cigo_r4_disposable_ci
     steps:
       - uses: actions/checkout@v4
