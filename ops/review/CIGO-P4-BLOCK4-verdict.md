@@ -1,0 +1,7 @@
+# CIGO-P4-BLOCK4 — role-separated scoped review
+
+**PASS** for final Builder SHA `b8697de4b8a35bc34983d62123b109de97490413`. GitHub Actions exact-SHA run `36839995362`, job `110296558624`, completed SUCCESS, Verify SUCCESS (`npm run verify`: typecheck, npm test including build): **53 tests passed, 0 failed**. LOCAL_RUN NOT_RUN. Role separation within one manual AI workflow, not external human audit.
+
+Reviewed Part4 Blocks1–3 source/test boundaries, committed scoped verdict/evidence, new `test/part4-adversarial.test.mjs`, package test wiring and `docs/architecture/PART4-CLOSURE-PART5-ENTRY.md`. Adversarial coverage includes foreign workspace, fabricated verification, absent/duplicate provenance, missing/unexpected/contradictory domain projections, incompatible windows, partial/stale/zero-denominator unavailability, deterministic replay, clone and boundedness. Source projection authorization/authenticity remains an unimplemented production adapter requirement, not silently certified by these tests. No verified FACT, causal claim, recommendation authority, provider effects or operational writes granted.
+
+**Scoped Part4 foundation closure PASS only.** Deferred Part2/Part3 and Part4 production gates remain open: production identity/authorization/revocation, live Business OS adapters, durable transactional persistence and recovery, independent evidence verification and audit, metric semantic validation, production security/monitoring and deployment. Part5 may start typed non-actionable recommendations consuming Part4 ANALYSIS.
