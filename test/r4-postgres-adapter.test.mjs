@@ -18,3 +18,11 @@ test("R4C reconcile unknown COMMIT using a fresh connection and reject conflicti
  await assert.rejects(new PostgresEvidenceStore(bad.pool).reconcileIntake(input),/IDEMPOTENCY_CONFLICT/);
  const missing=fake();await assert.rejects(new PostgresEvidenceStore(missing.pool).reconcileIntake(input),/DURABLE_COMMIT_OUTCOME_UNKNOWN/);
 });
+
+test("R4D malformed persisted receipt fails closed",async()=>{
+ for (const bad of [{workspaceId,idempotencyKey:"request:1",requestDigest:"digest:1",fingerprints:[],status:"COMMITTED"},
+  {workspaceId,idempotencyKey:"request:1",requestDigest:"digest:1",fingerprints:["same","same"],status:"COMMITTED"},
+  {workspaceId,idempotencyKey:"request:1",requestDigest:"digest:1",fingerprints:["fingerprint:1"],status:"PENDING"}]) {
+  const f=fake({existing:bad});await assert.rejects(new PostgresEvidenceStore(f.pool).lookupIntake(workspaceId,"request:1"),/INVALID_DURABLE_RECEIPT/);
+ }
+});
