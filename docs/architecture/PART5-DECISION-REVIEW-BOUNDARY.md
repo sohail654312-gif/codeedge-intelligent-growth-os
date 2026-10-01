@@ -1,0 +1,5 @@
+# Part5 Block3 — Inert decision-review boundary
+
+`prepareDecisionReview` builds a bounded read-only review packet from an unverified Part5 evaluation. It is **not a decision record of human approval**. Reviewer role is a requested policy hint only; no caller-supplied reviewer identity, signature, approval, decision, selected option or action authority is accepted. Output always has null reviewer/decision/approval/selection, NONE authority and executable/actionable/verifiedFact false. A maximum seven-day packet validity window is descriptive and is not a durable expiry or replay-control mechanism. Repeating the function can produce the same inert packet and never constitutes approval.
+
+Future independently authenticated server authority must enforce role and tenant membership, reviewer identity, fresh evidence and revocation, immutable review attestations, idempotency/replay controls, audit, persistence and human choice; a separate later action boundary must require explicit policy and human approval. None are implemented by this contract. No provider effects, protected repo writes or CIGO scheduled automation changes.
