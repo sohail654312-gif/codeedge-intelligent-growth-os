@@ -45,7 +45,7 @@ export class BusinessOsReadModelReader implements SourceReader {
    if(!cursor || cursor.length>4096) return denied("INVALID_CURSOR");
   }
   let page:Awaited<ReturnType<BusinessOsReadModelPort["readPage"]>>;
-  try{page=await this.port.readPage({...scope,...(cursor===undefined?{}:{cursor})});}
+  try{page=await this.port.readPage({workspaceId:this.workspaceId,resourceKind:request.resourceKind,limit,...(cursor===undefined?{}:{cursor})});}
   catch{return denied("SOURCE_UNAVAILABLE",true);}
   if(!page || !Array.isArray(page.records) || page.records.length>limit ||
     (page.nextCursor!==undefined && (typeof page.nextCursor!=="string" || !page.nextCursor || page.nextCursor.length>4096)))
