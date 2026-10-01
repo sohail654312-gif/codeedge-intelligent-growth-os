@@ -1,0 +1,3 @@
+# Part7 Block2 — bounded citation and input hardening
+
+Each unverified Copilot section carries copied source-plan evidence fingerprint references. This is structural citation lineage, not independent authenticity or semantic entailment. The read-only composer bounds and validates tenant, evaluation alternatives, draft plan, ordered dependencies, question and source uncertainty. Question text remains inert and is never interpreted as instructions. Output remains non-actionable, non-executable and requires human review. No external LLM, tool/provider effects, production identity, persistence or deployment.
