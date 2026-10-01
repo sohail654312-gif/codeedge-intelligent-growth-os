@@ -39,9 +39,10 @@ export class PostgresEvidenceStore implements TransactionalEvidenceStore {
  async commitIntake(input:Input):Promise<DurableIntakeReceipt> {
   if (!input.workspaceId || !input.idempotencyKey?.trim() || !input.requestDigest || !input.observations.length ||
       input.observations.some(o=>o.workspaceId!==input.workspaceId || o.verification!=="UNVERIFIED")) throw new Error("INVALID_DURABLE_INTAKE");
+  if (new Set(input.observations.map(o=>o.fingerprint)).size!==input.observations.length || input.observations.some(o=>!o.fingerprint || o.observation.workspaceId!==input.workspaceId)) throw new Error("INVALID_DURABLE_INTAKE");
   const receipt:DurableIntakeReceipt={workspaceId:input.workspaceId,idempotencyKey:input.idempotencyKey,requestDigest:input.requestDigest,fingerprints:input.observations.map(o=>o.fingerprint),status:"COMMITTED"};
   for(let attempt=0;attempt<3;attempt++) {
-  const client=await this.pool.connect();let commitAttempted=false;
+  const client=await this.pool.connect();let commitAttempted=false;let ambiguous=false;
   try {
    await client.query("BEGIN ISOLATION LEVEL SERIALIZABLE");
    const inserted=await client.query(`INSERT INTO cigo.intake_requests (workspace_id,idempotency_key,request_digest,result)
@@ -65,12 +66,15 @@ export class PostgresEvidenceStore implements TransactionalEvidenceStore {
      VALUES ($1,$2,$3,'INTAKE_COMMITTED',$4)`,[input.workspaceId,input.idempotencyKey,input.idempotencyKey,input.requestDigest]);
    commitAttempted=true;await client.query("COMMIT");return receipt;
   } catch (error) {
-   if (commitAttempted) throw new Error("DURABLE_COMMIT_OUTCOME_UNKNOWN",{cause:error});
+   if (commitAttempted) {ambiguous=true;}
+   else {
    try {await client.query("ROLLBACK");} catch { /* original error is authoritative */ }
    if (isSerializationFailure(error) && attempt<2) continue;
    if (isSerializationFailure(error)) throw new Error("DURABLE_SERIALIZATION_RETRY_EXHAUSTED");
    throw error;
+   }
   } finally {client.release();}
+  if (ambiguous) return this.reconcileIntake(input);
   }
   throw new Error("DURABLE_SERIALIZATION_RETRY_EXHAUSTED");
  }
