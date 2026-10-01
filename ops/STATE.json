@@ -5,8 +5,8 @@
   "execution_model": "SINGLE_WRITER_RECOVERY",
   "current_major_part": 9,
   "current_major_part_name": "Security, Tenancy, Reliability, Audit & Evaluation",
-  "current_block": "Cross-Part Security and Tenant Isolation Conformance Baseline",
-  "current_task_id": "CIGO-P9-BLOCK1",
+  "current_block": "Tenant Security Threat and Abuse-Case Evaluation Matrix",
+  "current_task_id": "CIGO-P9-BLOCK2",
   "attempt_count": 0,
   "status": "READY_FOR_EXECUTOR",
   "completed": [
@@ -43,22 +43,23 @@
     "CIGO-P8-BLOCK1 scoped verified Builder 1ea6a806cdf45b3c3a2383114832fb9131359184; exact-SHA CI 36856449077 job 110349953603 SUCCESS 94/94; PASS 11a201edcfc9d6824daffa9d05dd2078f9aa9f18; evidence ops/evidence/CIGO-P8-BLOCK1.md @ 1084c89186adb45fa3bbcd27f5ad4ffc355f3e33. NOT production-ready.",
     "CIGO-P8-BLOCK2 scoped verified Builder b3fdb135f35650e4f1e3eb097d574a75b6a00fcb; exact-SHA CI 36856776661 job 110351025146 SUCCESS 98/98; scoped PASS 060be0d8915a21126f04e2456d4f8cfce1ccb1fe; evidence ops/evidence/CIGO-P8-BLOCK2.md @ d0b0caacd87423143b5840e0a1672839737e7eb1. NOT production-ready.",
     "CIGO-P8-BLOCK3 scoped verified Builder 01693969e16e5a8dee5dfef0979ad250401a3e11; exact-SHA CI run 36857055565 job 110351941244 SUCCESS 101/101; scoped PASS 362e9346f788c18e458e7e74391cba7cdbbcc02b; evidence ops/evidence/CIGO-P8-BLOCK3.md @ abdcaec3626238bc5c920397e45dc82e612b746c. NOT production-ready.",
-    "CIGO-P8-BLOCK4 and scoped Part8 closure verified Builder aa8c969f0357e67e61fc02abd125ef36f64d710f; exact-SHA CI run 36857898078 job 110354676390 SUCCESS 106/106 tests; scoped PASS 8f68136e31e121f187ceeed3c145e859115e17bd; evidence ops/evidence/CIGO-P8-COMPLETION.md @ baaebc0e530004961152df0b877abc6295f06a6d. NOT production-ready."
+    "CIGO-P8-BLOCK4 and scoped Part8 closure verified Builder aa8c969f0357e67e61fc02abd125ef36f64d710f; exact-SHA CI run 36857898078 job 110354676390 SUCCESS 106/106 tests; scoped PASS 8f68136e31e121f187ceeed3c145e859115e17bd; evidence ops/evidence/CIGO-P8-COMPLETION.md @ baaebc0e530004961152df0b877abc6295f06a6d. NOT production-ready.",
+    "CIGO-P9-BLOCK1 scoped verified Builder f9402b0bf5696b912a987b5581e940b61aef2963; exact-SHA CI 36858404931 job 110356325006 SUCCESS 112/112; PASS a86ecf362f578d754ed98072de3e2b5b62c465be; evidence ops/evidence/CIGO-P9-BLOCK1.md @ ed4b12a60b7b7b0b7f4a0d60f2b036605df3fbeb. NOT production-ready."
   ],
   "remaining": [
-    "Establish deterministic cross-part security and tenant-isolation conformance baseline for existing in-memory contracts; inspect authoritative Constitution, deferred Part2/Part3 production gates and Part4–8 scoped evidence without treating it as live authorization.",
-    "Test representative foreign-tenant, forged provenance/FACT, authority escalation, missing uncertainty, no-provider-effects and Demo/Sandbox parity across available layers; correct only demonstrated defects.",
-    "Document a traceable production-gap register distinguishing testable reference safeguards from unimplemented server-side identity, auth/revocation, source verification, real human attestation, transactional tenant audit, idempotency, Business OS adapters and staged proof.",
-    "Exact-SHA CI, role-separated scoped verdict/evidence, STATE before HANDOFF. Scheduled CIGO automations remain disabled."
+    "Define a bounded, evidence-linked Part9 tenant/security threat and abuse-case evaluation matrix based on PART9-SECURITY-CONFORMANCE-GAPS.md and current scoped contracts, preserving strict separation between tested reference safeguards and missing production gates.",
+    "Add deterministic adversarial tests for threat cases including forged identity/workspace, leaked source/tenant data, FACT promotion, forged approval/effect evidence, replay/idempotency misunderstandings and Demo/Sandbox/Production parity.",
+    "Document responsible owner/boundary, fail-closed behavior, detection/test evidence, production prerequisites and acceptance status. No claim of actual server auth, live Business OS effects or durable audit.",
+    "Exact-SHA CI, role-separated scoped verdict/evidence; STATE first, HANDOFF mirror second. Scheduled CIGO automations disabled."
   ],
-  "last_verified_commit": "aa8c969f0357e67e61fc02abd125ef36f64d710f",
-  "test_status": "Part8 Block4 exact-SHA CI run 36857898078 job 110354676390 SUCCESS typecheck/build; 106 passed, 0 failed; scoped PASS 8f68136e31e121f187ceeed3c145e859115e17bd. LOCAL_RUN NOT_RUN.",
+  "last_verified_commit": "f9402b0bf5696b912a987b5581e940b61aef2963",
+  "test_status": "Part9 Block1 exact-SHA CI 36858404931 job 110356325006 SUCCESS typecheck/build; 112 tests passed, 0 failed; scoped PASS a86ecf362f578d754ed98072de3e2b5b62c465be. LOCAL_RUN NOT_RUN.",
   "blockers": [],
   "deferred_backlog": [
     "PART2 PRODUCTION GATE: server-side authentication/authorization composition and revocation; live least-privilege Business OS read-model adapter and cursor/credential isolation; durable transactional tenant-isolated evidence storage, migration/restore/concurrency; adversarial conformance, monitoring and deployment evidence. See docs/architecture/PART2-CLOSURE-PRODUCTION-GATES.md. Not implemented/verified.",
     "PART3 PRODUCTION GATE: authenticated server-side identity/authorization and revocation; durable tenant-isolated memory/evidence storage and migration/recovery; independently authorized evidence authenticity, reviewer attestation, dispute/revocation and audit workflow before FACT admission; adversarial and deployment evidence. Not implemented/verified."
   ],
-  "next_action": "MANUAL MODE Part9 Block1 cross-part security/tenant conformance and production gap register. Scheduled CIGO automations disabled.",
+  "next_action": "MANUAL MODE Part9 Block2 tenant security threat/abuse evaluation matrix; scheduled CIGO automations disabled.",
   "coordination_rules": [
     "One active writer during recovery.",
     "Git commits are durable progress evidence; reconcile STATE to committed reality.",
@@ -69,6 +70,6 @@
   ],
   "authoritative_handoff": "GITHUB",
   "google_doc_role": "OPTIONAL_MIRROR_ONLY",
-  "latest_implementation_commit": "aa8c969f0357e67e61fc02abd125ef36f64d710f",
-  "reconciliation_note": "Part8 scoped CLOSED; Part9 Block1 READY. Real approved effects, authenticated provenance/identity, durable audit/idempotency and production integration still deferred."
+  "latest_implementation_commit": "f9402b0bf5696b912a987b5581e940b61aef2963",
+  "reconciliation_note": "Part9 Block1 scoped verified; Block2 READY. Eight production gaps G1–G8 explicitly tracked; authenticated production tenant controls and deployed Business OS integration remain deferred."
 }
