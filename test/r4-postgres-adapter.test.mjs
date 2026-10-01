@@ -56,3 +56,10 @@ test("R4G ambiguous COMMIT with missing reconciliation remains unknown, not roll
  const pool={async connect(){connections++;if(connections===1)return {release(){released=true},async query(sql){if(sql.includes("ON CONFLICT (workspace_id,idempotency_key)"))return {rows:[{}]};if(sql==="COMMIT")throw Error("lost");return {rows:[]};}};assert.equal(released,true);return {release(){},async query(){return {rows:[]};}};}};
  await assert.rejects(new PostgresEvidenceStore(pool).commitIntake(input),/DURABLE_COMMIT_OUTCOME_UNKNOWN/);assert.equal(connections,2);
 });
+
+test("R4N persisted receipt cannot spoof another tenant or idempotency key",async()=>{
+ const receipt={workspaceId,idempotencyKey:input.idempotencyKey,requestDigest:input.requestDigest,fingerprints:["fingerprint:1"],status:"COMMITTED"};
+ for(const altered of [{...receipt,workspaceId:"workspace:b"},{...receipt,idempotencyKey:"request:other"}]){
+  const f=fake({existing:altered});await assert.rejects(new PostgresEvidenceStore(f.pool,workspaceId).lookupIntake(workspaceId,input.idempotencyKey),/DURABLE_RECEIPT_SCOPE_MISMATCH/);assert.equal(f.released,true);
+ }
+});
