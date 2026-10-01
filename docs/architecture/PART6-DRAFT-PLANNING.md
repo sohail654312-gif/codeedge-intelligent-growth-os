@@ -1,0 +1,3 @@
+# Part6 Block1 draft planning boundary
+
+Typed tenant-scoped goals consume an unverified Part5 evaluation and retain evidence references and uncertainty. Candidate objectives, outcome measures, assumptions, constraints and ordered steps are caller-supplied, not independently validated facts. Steps permit only previously declared dependencies, avoiding cycles. Output remains DRAFT_UNVERIFIED, non-actionable and non-executable; no option selection or approval. No live scheduling or provider effect. Production identity, durable state, verification, human approval, audit and integration are deferred.
