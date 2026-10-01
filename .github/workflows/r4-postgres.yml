@@ -7,6 +7,7 @@ on:
       - "test/r4-**"
       - "docs/architecture/sql/R4-REFERENCE-MIGRATION.sql"
       - "package.json"
+      - "package-lock.json"
       - ".github/workflows/r4-postgres.yml"
   workflow_dispatch:
 
@@ -44,6 +45,23 @@ jobs:
           node-version: "24"
       - name: Install dependencies
         run: npm install --ignore-scripts
+      - name: Generate genuine lockfile artifact when repository lockfile is absent
+        id: lockfile
+        run: |
+          if test ! -f package-lock.json; then
+            npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+            echo "generated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "generated=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Upload generated lockfile for review
+        if: steps.lockfile.outputs.generated == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: r4-generated-npm-lockfile
+          path: package-lock.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Verify disposable database identity
         run: |
           test "$PGDATABASE" = cigo_r4_disposable_ci
