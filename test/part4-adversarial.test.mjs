@@ -1,10 +1,11 @@
+import {makeMetricFixture} from "./metric-fixture.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { analyzeBusinessMetrics } from "../dist/src/analysis/business-metrics.js";
 import { analyzeCrossDomain } from "../dist/src/analysis/cross-domain.js";
 const now="2026-10-01T00:00:00.000Z";
 const ctx={workspaceId:"clinic",actorId:"owner",authorizedAt:now};
-const metric=(domain,changes={})=>({workspaceId:"clinic",domain,metricKey:domain.toLowerCase(),periodStart:"2026-09-01T00:00:00.000Z",periodEnd:"2026-09-30T00:00:00.000Z",observedAt:now,unit:"COUNT",numerator:4,denominator:8,evidenceFingerprints:["source-"+domain],coverage:"COMPLETE",verification:"UNVERIFIED",...changes});
+const metric=(domain,changes={})=>makeMetricFixture(domain,ctx.workspaceId,now,changes);
 const req={asOf:now,maxEvidenceAgeMs:86400000,domains:["LEADS","APPOINTMENTS"]};
 test("adversarial: no mixed tenant, fabricated verification or missing provenance",()=>{
  for(const changes of [{workspaceId:"other"},{verification:"VERIFIED"},{evidenceFingerprints:[]},{evidenceFingerprints:["same","same"]}])
