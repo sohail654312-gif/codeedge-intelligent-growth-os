@@ -22,12 +22,22 @@ const MAX_PAGE=100;
 const safeError=(code:string,retryable=false):ReadError=>({code,message:"Business OS read boundary denied or unavailable",retryable});
 export class BusinessOsReadModelReader implements SourceReader {
  readonly sourceSystem="BUSINESS_OS" as const;
+ /** Trusted server composition: this creates the codec; no caller-supplied subclass or mode is accepted. */
+ static create(input:Readonly<{workspaceId:WorkspaceId;port:BusinessOsReadModelPort;authorization:TrustedReadAuthorization;
+   cursorKeys:ReadonlyMap<string,Uint8Array>;activeKeyId:string;clock?:()=>string;cursorNow?:()=>number;cursorTtlMs?:number}>):BusinessOsReadModelReader{
+  if(!input||Object.keys(input).some(k=>!["workspaceId","port","authorization","cursorKeys","activeKeyId","clock","cursorNow","cursorTtlMs"].includes(k)))
+   throw Error("INVALID_READ_MODEL_COMPOSITION");
+  const codec=new AeadBusinessOsCursorCodec(input.cursorKeys,input.activeKeyId,input.cursorNow,input.cursorTtlMs);
+  return new BusinessOsReadModelReader(input.workspaceId,input.port,input.authorization,codec,input.clock);
+ }
  constructor(private readonly workspaceId:WorkspaceId,private readonly port:BusinessOsReadModelPort,
   private readonly authorization:TrustedReadAuthorization,private readonly cursors:TrustedCursorCodec,
   private readonly clock:()=>string=()=>new Date().toISOString()) {
   if(port.version!=="v1") throw new Error("UNSUPPORTED_BUSINESS_OS_READ_MODEL");
   // No mode override: synthetic and production readers use the same confidential AEAD boundary.
-  if(!(cursors instanceof AeadBusinessOsCursorCodec))throw Error("CONFIDENTIAL_CURSOR_CODEC_REQUIRED");
+  if(!cursors||Object.getPrototypeOf(cursors)!==AeadBusinessOsCursorCodec.prototype||
+    Object.prototype.hasOwnProperty.call(cursors,"encode")||Object.prototype.hasOwnProperty.call(cursors,"decode"))
+    throw Error("CONFIDENTIAL_CURSOR_CODEC_REQUIRED");
  }
  async read(request:ReadRequest):Promise<ReadResult>{
   const fetchedAt=this.clock();
