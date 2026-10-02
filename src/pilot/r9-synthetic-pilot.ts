@@ -48,7 +48,10 @@ export async function runSyntheticPilot(seed:SyntheticPilotSeed):Promise<Synthet
  const references=new Set<string>();
  for(const record of seed.records){
   if(!record||record.workspaceId!==workspaceId||record.reference?.sourceSystem!=="BUSINESS_OS"||
-    record.resourceKind!=="lead"||!validateOperationalRecord(record,context).ok||
+    record.resourceKind!=="lead"||record.reference.version!=="v1"||
+    !validateOperationalRecord(record,context).ok||
+    Date.parse(record.observedAt)<Date.parse("2026-10-01T00:00:00.000Z")||
+    Date.parse(record.observedAt)>=Date.parse("2026-10-02T00:00:00.000Z")||
     references.has(record.reference.externalReference))reject("INVALID_SYNTHETIC_PILOT_SEED");
   references.add(record.reference.externalReference);
  }

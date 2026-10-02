@@ -45,6 +45,8 @@ test("M-08 foreign tenant and wrong source fail before downstream composition wi
   x=>{x.records.push({...x.records[0],workspaceId:B,reference:{...x.records[0].reference,externalReference:"lead:foreign"}});},
   x=>{x.records[0].reference.sourceSystem="MVP";},
   x=>{x.records[0].resourceKind="invoice";},
+  x=>{x.records[0].reference.version="v2";},
+  x=>{x.records[0].observedAt="2026-09-30T12:00:00.000Z";},
   x=>{x.records.push(clone(x.records[0]));}
  ]){
   const x=seed();mutate(x);
