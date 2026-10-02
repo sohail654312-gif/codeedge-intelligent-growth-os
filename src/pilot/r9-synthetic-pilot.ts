@@ -22,13 +22,13 @@ export async function runSyntheticPilot(seed:SyntheticPilotSeed):Promise<Synthet
  const port:BusinessOsReadModelPort={version:"v1",async readPage(x){if(x.workspaceId!==seed.workspaceId||x.resourceKind!=="lead"||x.cursor!==undefined)reject("SYNTHETIC_SOURCE_SCOPE_DENIED");return {records:structuredClone(seed.records.slice(0,x.limit))};}};
  const authorization:TrustedReadAuthorization={async assertAuthorized(x){if(x.workspaceId!==seed.workspaceId||x.actorId!==seed.actorId||x.resourceKind!=="lead")reject("SYNTHETIC_AUTH_DENIED");}};
  const codec:TrustedCursorCodec={encode(){return reject("SYNTHETIC_CURSOR_DISABLED");},decode(){return undefined;}};
- const reader=new BusinessOsReadModelReader(workspaceId,port,authorization,codec,()=>stamp);
+ const reader=new BusinessOsReadModelReader(workspaceId,port,authorization,codec,()=>stamp,seed.mode);
  const request:ReadRequest={context:{workspaceId,actorId:seed.actorId,authorizedAt:stamp},sourceSystem:"BUSINESS_OS",resourceKind:"lead",limit:10};
  const read=await reader.read(request);
  if(read.completeness!=="COMPLETE"||read.errors.length||read.records.length!==seed.records.length)reject("SYNTHETIC_READ_INCOMPLETE");
  const subject:ApprovalSubject={workspaceId:seed.workspaceId,intentId:"synthetic:intent",reviewPacketId:"synthetic:review",proposalId:"synthetic:proposal",planId:"synthetic:plan",mode:seed.mode,domainService:"CRM",operation:"FOLLOW_UP",evidenceFingerprints:["synthetic:fingerprint"]};
  const authority:ApprovalAuthority={async resolveSession(){return {workspaceId:seed.workspaceId,actorId:seed.actorId,actorType:"HUMAN",sessionId:seed.sessionId,authenticatedAt:stamp};},async assertCurrentMembership(x){if(x.workspaceId!==seed.workspaceId||x.actorId!==seed.actorId||x.sessionId!==seed.sessionId||x.requiredRole!=="OWNER")reject("SYNTHETIC_MEMBERSHIP_DENIED");}};
- const policy:ApprovalPolicy={async evaluate(){return {allow:true,policyVersion:"synthetic:v1",reasonCode:"SYNTHETIC_ONLY",maxTtlMs:60000};}};
+ const policy:ApprovalPolicy={async evaluate(){return {allow:true,requiredRole:"OWNER",policyVersion:"synthetic:v1",reasonCode:"SYNTHETIC_ONLY",maxTtlMs:60000};}};
  const approvalLedger=new InMemoryApprovalLedger();
  const digest:ApprovalDigest={digest(x){let h=2166136261;for(let i=0;i<x.length;i++)h=Math.imul(h^x.charCodeAt(i),16777619);return "synthetic:"+String(h>>>0);}};
  const clock:ApprovalClock={now:()=>stamp};
