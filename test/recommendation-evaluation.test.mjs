@@ -1,10 +1,11 @@
+import {makeMetricFixture} from "./metric-fixture.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { analyzeCrossDomain } from "../dist/src/analysis/cross-domain.js";
 import { proposeRecommendation } from "../dist/src/recommendation/proposal.js";
 import { evaluateRecommendation } from "../dist/src/recommendation/evaluation.js";
 const now="2026-10-01T00:00:00.000Z",ctx={workspaceId:"clinic",actorId:"owner",authorizedAt:now};
-const metric=domain=>({workspaceId:"clinic",domain,metricKey:domain.toLowerCase(),periodStart:"2026-09-01T00:00:00.000Z",periodEnd:"2026-09-30T00:00:00.000Z",observedAt:now,unit:"COUNT",numerator:4,denominator:8,evidenceFingerprints:["source-"+domain],coverage:"COMPLETE",verification:"UNVERIFIED"});
+const metric=(domain,changes={})=>makeMetricFixture(domain,ctx.workspaceId,now,changes);
 const analysis=()=>analyzeCrossDomain(ctx,[metric("LEADS"),metric("APPOINTMENTS")],{asOf:now,maxEvidenceAgeMs:86400000,domains:["LEADS","APPOINTMENTS"]});
 const proposal=a=>proposeRecommendation(ctx,a,{proposalId:"p1",asOf:now,title:"Review process",rationale:"Candidate only",assumptions:["Capacity not independently established"],alternatives:[{id:"manual",description:"Manual review",tradeOffs:["Time"]},{id:"observe",description:"Collect evidence",tradeOffs:["Delay"]}],supportingEvidenceFingerprints:["source-LEADS","source-APPOINTMENTS"]});
 const deps=()=>({manual:["Owner time"],observe:["Access to observations"]});
