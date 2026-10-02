@@ -27,6 +27,8 @@ export interface MemoryQuery {
   readonly maxEvidenceAgeMs?: number;
 }
 export interface MemoryQueryResult {
+  /** asOf affects evidence freshness only; this result is NEVER a historical snapshot. */
+  readonly asOfSemantics: "EVIDENCE_FRESHNESS_ONLY";
   readonly items: readonly KnowledgeView[];
   readonly total: number;
   readonly nextOffset?: number;
@@ -60,6 +62,8 @@ export function queryBusinessKnowledge(
   const items: KnowledgeView[] = filtered.slice(offset, offset + limit).map(entry => {
     const limitations: string[] = [];
     const linked: KnowledgeEvidence[] = [];
+    // Current revision selection deliberately uses all recorded revisions, not an asOf snapshot.
+    if(Date.parse(entry.createdAt)>Date.parse(query.asOf))limitations.push("REVISION_POSTDATES_AS_OF");
     for (const fp of entry.evidenceFingerprints) {
       const item = byFingerprint.get(fp);
       if (!item) { limitations.push("EVIDENCE_MISSING"); continue; }
@@ -79,6 +83,6 @@ export function queryBusinessKnowledge(
     return { memory: entry, isCurrentRevision: latest.get(entry.key) === entry.id,
       evidence: linked, limitations: [...new Set(limitations)] };
   });
-  return structuredClone({ items, total: filtered.length,
+  return structuredClone({ asOfSemantics:"EVIDENCE_FRESHNESS_ONLY" as const,items, total: filtered.length,
     ...(offset + limit < filtered.length ? { nextOffset: offset + limit } : {}) });
 }
