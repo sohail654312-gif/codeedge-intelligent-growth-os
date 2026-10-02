@@ -44,3 +44,8 @@ test("source mismatch is quarantined rather than ingested",async()=>{
  assert.equal(response.completeness,"PARTIAL");assert.equal(response.accepted.length,0);
  assert.ok(response.errors.some(e=>e.code==="SOURCE_SCOPE_MISMATCH"));
 });
+
+
+test("M-01 malformed canonical records are quarantined without fingerprint alias",async()=>{const ledger=new InMemoryEvidenceLedger(A,()=>now);const bad=[null,record({observedAt:"yesterday"}),record({value:{n:NaN}}),record({value:{n:undefined}}),record({value:{n:1n}}),record({value:{n:Infinity}}),record({value:{nested:(()=>{let x={};for(let i=0;i<30;i++)x={child:x};return x;})()}})];const r=await ledger.ingest(context(),result([...bad,record()]),"BUSINESS_OS");assert.equal(r.accepted.length,1);assert.equal(r.completeness,"PARTIAL");assert.equal(ledger.list(context()).length,1);});
+test("M-01 fatal clock failure cannot partially commit staged valid batch",async()=>{let n=0;const ledger=new InMemoryEvidenceLedger(A,()=>{if(++n===2)throw Error("clock failed");return now;});await assert.rejects(ledger.ingest(context(),result([record(),record({reference:{sourceSystem:"BUSINESS_OS",externalReference:"lead:2"}})]),"BUSINESS_OS"),/clock failed/);assert.equal(ledger.list(context()).length,0);});
+test("M-01 same-batch duplicate is deduplicated before commit",async()=>{const ledger=new InMemoryEvidenceLedger(A,()=>now);const r=await ledger.ingest(context(),result([record(),record()]),"BUSINESS_OS");assert.equal(r.accepted.length,1);assert.equal(r.duplicates.length,1);assert.equal(ledger.list(context()).length,1);});
