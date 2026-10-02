@@ -21,6 +21,7 @@ export interface IntakeReport {
 /** Append-only, workspace-bound intelligence evidence, never an operational system of record. */
 export class InMemoryEvidenceLedger {
   private readonly entries: IntakeEntry[] = [];
+  private pending: Promise<void> = Promise.resolve();
   constructor(private readonly workspaceId: AuthorizedWorkspaceContext["workspaceId"],
     private readonly clock: () => string = () => new Date().toISOString()) {}
   list(context: AuthorizedWorkspaceContext): readonly IntakeEntry[] {
@@ -29,6 +30,13 @@ export class InMemoryEvidenceLedger {
     return structuredClone(this.entries);
   }
   async ingest(context: AuthorizedWorkspaceContext, result: ReadResult, expectedSourceSystem: ReadRequest["sourceSystem"]): Promise<IntakeReport> {
+    const prior=this.pending;
+    let release!:()=>void;
+    this.pending=new Promise<void>(resolve=>{release=resolve;});
+    await prior;
+    try{return await this.ingestSerialized(context,result,expectedSourceSystem);}finally{release();}
+  }
+  private async ingestSerialized(context: AuthorizedWorkspaceContext, result: ReadResult, expectedSourceSystem: ReadRequest["sourceSystem"]): Promise<IntakeReport> {
     if (!context?.workspaceId || context.workspaceId !== this.workspaceId || !context.actorId?.trim() || !context.authorizedAt)
       throw new Error("UNAUTHORIZED_WORKSPACE");
     if(!result||!Array.isArray(result.records)||!Array.isArray(result.errors))throw Error("INVALID_INTAKE_BATCH");
