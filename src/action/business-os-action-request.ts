@@ -18,8 +18,11 @@ export class BusinessOsActionRequestBoundary {
   let accepted=false;
   try{const g=await this.gate.verify({workspaceId:input.workspaceId,intentId:input.intentId,approvalId:input.approvalId,subject:structuredClone(subject),mode:input.mode,domainService:input.domainService,operation:input.operation});accepted=allNamedGates(g);}catch{/* Fail closed, never leak identity/provider errors. */}
   const receipt:DeniedActionReceipt={kind:"BUSINESS_OS_ACTION_REQUEST_DENIED",requestId:input.requestId,workspaceId:input.workspaceId,intentId:input.intentId,idempotencyKey:input.idempotencyKey,mode:input.mode,domainService:input.domainService,operation:input.operation,reason:accepted?"EFFECTS_DISABLED":"GATES_NOT_ACCEPTED",requestedEffects:0,performedEffects:0,dispatched:false,providerInvoked:false,status:"DENIED_NO_EFFECT"};
-  const saved=await this.ledger.record(receipt);
-  if(JSON.stringify(saved)!==JSON.stringify(receipt))throw Error("ACTION_LEDGER_INTEGRITY_FAILURE");
+  let saved:DeniedActionReceipt;
+  try{saved=await this.ledger.record(receipt);}catch{throw Error("ACTION_LEDGER_UNAVAILABLE_OR_CONFLICT");}
+  // A storage adapter is untrusted: check every field explicitly, including zero-effect invariants.
+  if(!saved||typeof saved!=="object"||Object.keys(saved).length!==Object.keys(receipt).length||
+   (Object.keys(receipt) as (keyof DeniedActionReceipt)[]).some(key=>!Object.prototype.hasOwnProperty.call(saved,key)||saved[key]!==receipt[key]))throw Error("ACTION_LEDGER_INTEGRITY_FAILURE");
   return structuredClone(saved);
  }
 }
