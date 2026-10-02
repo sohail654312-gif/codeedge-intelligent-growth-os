@@ -59,7 +59,8 @@ export class HumanApprovalBoundary {
   const existing=await this.ledger.lookup(subject.workspaceId,approvalId);
   if(existing){if(!sameDecision(existing,record))fail("APPROVAL_REPLAY_CONFLICT");if(!iso(existing.decidedAt)||!iso(existing.expiresAt)||Date.parse(now)>=Date.parse(existing.expiresAt)||Date.parse(now)<Date.parse(existing.decidedAt)||await this.ledger.isRevoked(subject.workspaceId,approvalId))fail("APPROVAL_REPLAY_EXPIRED_OR_REVOKED");return structuredClone(existing);}
   let saved:ApprovalRecord;
-  try{saved=await this.ledger.record(record);}catch(error){
+  try{// The ledger receives a detached copy: it cannot mutate the authoritative comparator in place.
+   saved=await this.ledger.record(structuredClone(record));}catch(error){
    // A concurrent writer may have inserted the same immutable decision first; never mask unrelated storage failures.
    if(!(error instanceof Error)||error.message!=="APPROVAL_REPLAY_CONFLICT")throw error;
    const winner=await this.ledger.lookup(subject.workspaceId,approvalId);
