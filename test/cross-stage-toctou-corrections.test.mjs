@@ -81,3 +81,17 @@ test("CROSS-02 R6 mutable ledger adapter cannot rewrite the original approval de
  const f=human();f.ledger.record=async row=>{row.subjectDigest="forged:digest";return row;};
  await assert.rejects(f.boundary.decide({approvalId:"approval:1",subject:sub(),decision:"APPROVE",requiredRole:"OWNER"}),/APPROVAL_LEDGER_INTEGRITY_FAILURE/);
 });
+
+test("CROSS-03 rejects conflicting same-identity records in a supposedly complete attested page",async()=>{
+ const observation={workspaceId:A,reference:{sourceSystem:"BUSINESS_OS",externalReference:"lead:1",version:"v1"},resourceKind:"lead",value:{status:"new"},observedAt:NOW};
+ const attestation={workspaceId:A,sourceSystem:"BUSINESS_OS",externalReference:"lead:1",fingerprint:await fingerprintOperationalRecord(observation),fetchedAt:NOW,adapterId:"server:fixture",receiptId:"receipt:1"};
+ const authority={async verifyReceipt(x){return x.receiptId==="receipt:1";}};
+ const otherVersionsOfSameIdentity=[
+  {...observation,value:{status:"closed"}},
+  {...observation,observedAt:"2026-10-01T12:00:01.000Z"},
+ ];
+ for(const conflicting of otherVersionsOfSameIdentity){
+  const page={records:[observation,conflicting],fetchedAt:NOW,completeness:"COMPLETE",errors:[]};
+  await assert.rejects(requireAttestedObservation(observation,page,attestation,authority),/UNTRUSTED_SOURCE_PROVENANCE/);
+ }
+});
