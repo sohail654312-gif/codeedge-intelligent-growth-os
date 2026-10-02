@@ -36,6 +36,8 @@ test("L-02 validated CycloneDX must cover locked name/version identities",()=>{
  assert.throws(()=>inspectSbom({...bom,bomFormat:"not-CycloneDX"},inventory),/INVALID_SBOM_HEADER/);
  assert.throws(()=>inspectSbom({...bom,components:[]},inventory),/SBOM_LOCK_MISMATCH/);
  assert.throws(()=>inspectSbom({...bom,components:[{name:"unrelated",version:"0.0.1"}]},inventory),/SBOM_LOCK_MISMATCH/);
+ assert.throws(()=>inspectSbom({...bom,components:[...components,{name:"undeclared-package",version:"9.9.9"}]},inventory),/SBOM_LOCK_MISMATCH/);
+ assert.throws(()=>inspectSbom({...bom,components:[...components,components[0]]},inventory),/SBOM_LOCK_MISMATCH/);
 });
 
 test("L-02 npm private repo root alias must match exact known checkout identity and version",()=>{
