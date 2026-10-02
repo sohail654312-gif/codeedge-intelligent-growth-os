@@ -29,5 +29,11 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   const bom=JSON.parse(readFileSync(resolve(process.argv[2]),"utf8"));
   const result=inspectSbom(bom,inventory);
   process.stdout.write(`CycloneDX inventory validated against lock: ${result.coveredLockedPackages} locked packages, ${result.sbomComponents} components.\n`);
- }catch(error){process.stderr.write(`SBOM_CHECK_FAILED: ${error.message}\n`);process.exitCode=1;}
+ }catch(error){
+  process.stderr.write(`SBOM_CHECK_FAILED: ${error.message}\n`);
+  try{const b=JSON.parse(readFileSync(resolve(process.argv[2]),"utf8"));
+   const c=b?.metadata?.component;
+   process.stderr.write(`SBOM_HEADER_DIAGNOSTIC: ${JSON.stringify({format:b.bomFormat,spec:b.specVersion,root:c?{name:c.name,group:c.group,version:c.version,type:c.type}:null,componentCount:b.components?.length,matchingRoot:b.components?.filter(x=>String(x.name).includes("cigo")).map(x=>({name:x.name,group:x.group,version:x.version})).slice(0,2)})}\n`);
+  }catch{/* fail-closed; no raw payload logging */}
+  process.exitCode=1;}
 }
