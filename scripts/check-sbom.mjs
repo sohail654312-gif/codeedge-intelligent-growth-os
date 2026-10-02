@@ -18,9 +18,10 @@ export function inspectSbom(bom,inventory){
   if(!entry||typeof entry.name!=="string"||typeof entry.version!=="string")throw Error("INVALID_SBOM_COMPONENT");
   components.add(entry.name+"@"+entry.version);
  }
- for(const entry of inventory.components){
-  if(!components.has(entry.name+"@"+entry.version))throw Error("SBOM_LOCK_MISMATCH");
- }
+ const expected=new Set(inventory.components.map(entry=>entry.name+"@"+entry.version));
+ if(bom.components.length!==inventory.components.length||components.size!==expected.size||
+   [...components].some(id=>!expected.has(id))||[...expected].some(id=>!components.has(id)))
+   throw Error("SBOM_LOCK_MISMATCH");
  // SBOM describes installed dependency inventory. Licenses in the lock are declarations pending legal review.
  return Object.freeze({coveredLockedPackages:inventory.components.length,sbomComponents:bom.components.length,specVersion:bom.specVersion});
 }
