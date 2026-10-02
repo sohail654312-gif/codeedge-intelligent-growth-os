@@ -71,3 +71,13 @@ test("CROSS-04 direct R8 collector ingress rejects frozen forged values despite 
  }
  assert.equal(c.snapshot().length,1);
 });
+
+test("CROSS-01 R7 mutable ledger adapter cannot rewrite the original receipt used as integrity comparator",async()=>{
+ const boundary=new BusinessOsActionRequestBoundary({async verify(){return {identity:true,membership:true,source:true,policy:true,humanApproval:true,durableAudit:false,adapter:false};}},
+  {async record(row){row.workspaceId=B;row.requestId="request:forged";return row;}});
+ await assert.rejects(boundary.submit(req(),sub()),/ACTION_LEDGER_INTEGRITY_FAILURE/);
+});
+test("CROSS-02 R6 mutable ledger adapter cannot rewrite the original approval decision used as integrity comparator",async()=>{
+ const f=human();f.ledger.record=async row=>{row.subjectDigest="forged:digest";return row;};
+ await assert.rejects(f.boundary.decide({approvalId:"approval:1",subject:sub(),decision:"APPROVE",requiredRole:"OWNER"}),/APPROVAL_LEDGER_INTEGRITY_FAILURE/);
+});
