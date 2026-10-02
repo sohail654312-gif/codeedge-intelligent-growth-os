@@ -24,7 +24,7 @@ test("M-04 workflows use immutable verified action refs and a pinned test databa
   "actions/upload-artifact":"ea165f8d65b6e75b540449e92b4886f43607fa02"
  };
  for(const flow of [ci,pg]){
-  const refs=[...flow.matchAll(/^\s*uses:\s*(actions\/[\w-]+)@([^\s#]+)/gm)];
+  const refs=[...flow.matchAll(/^\s*(?:-\s*)?uses:\s*(actions\/[\w-]+)@([^\s#]+)/gm)];
   assert.ok(refs.length>=2);
   for(const [,name,sha] of refs){
    assert.match(sha,/^[0-9a-f]{40}$/);
