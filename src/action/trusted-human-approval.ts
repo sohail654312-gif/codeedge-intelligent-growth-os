@@ -52,7 +52,8 @@ export class HumanApprovalBoundary {
    // A concurrent writer may have inserted the same immutable decision first; never mask unrelated storage failures.
    if(!(error instanceof Error)||error.message!=="APPROVAL_REPLAY_CONFLICT")throw error;
    const winner=await this.ledger.lookup(subject.workspaceId,approvalId);
-   if(!winner||!sameDecision(winner,record))fail("APPROVAL_REPLAY_CONFLICT");
+   if(!winner)throw Error("APPROVAL_REPLAY_CONFLICT");
+   if(!sameDecision(winner,record))throw Error("APPROVAL_REPLAY_CONFLICT");
    if(!iso(winner.decidedAt)||!iso(winner.expiresAt)||Date.parse(now)>=Date.parse(winner.expiresAt)||Date.parse(now)<Date.parse(winner.decidedAt)||await this.ledger.isRevoked(subject.workspaceId,approvalId))fail("APPROVAL_REPLAY_EXPIRED_OR_REVOKED");
    return structuredClone(winner);
   }
