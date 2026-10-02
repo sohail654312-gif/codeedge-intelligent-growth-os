@@ -98,7 +98,7 @@ export async function runSyntheticPilot(seed:SyntheticPilotSeed):Promise<Synthet
   x.subject.evidenceFingerprints.length===fingerprints.length&&x.subject.evidenceFingerprints.every((fp,i)=>fp===fingerprints[i]),
   requiredRole:"OWNER",policyVersion:"synthetic:v1",reasonCode:"SYNTHETIC_ONLY",maxTtlMs:60000};}};
  const approvalLedger=new InMemoryApprovalLedger();
- const digest:ApprovalDigest={digest:x=>createHmac("sha256",new TextEncoder().encode("M08_SYNTHETIC_NOT_AUTHORITY")).update(x).digest().toString("hex")};
+ const digest:ApprovalDigest={digest:x=>createHmac("sha256",new TextEncoder().encode("M08_SYNTHETIC_NOT_AUTHORITY")).update("").update(x).digest().toString("hex")};
  const clock:ApprovalClock={now:()=>stamp};
  const approval=new HumanApprovalBoundary(authority,policy,approvalLedger,digest,clock);
  const recorded=await approval.decide({approvalId:"synthetic:approval",subject,decision:"APPROVE",requiredRole:"OWNER"});
@@ -129,7 +129,7 @@ export async function runSyntheticPilot(seed:SyntheticPilotSeed):Promise<Synthet
   workspaceId,readCount:read.records.length,evidenceCount:admitted.length,
   admittedEvidence:Object.freeze(admittedEvidence),approvalEvidenceFingerprints:Object.freeze([...subject.evidenceFingerprints]),
   analysis:"UNVERIFIED_NON_ACTIONABLE" as const,analysisValue:insight.value!,verifiedFact:false as const,actionable:false as const,
-  approval:"VALID_NON_EXECUTABLE" as const,action:"DENIED_NO_EFFECT" as const,actionReason:denied.reason,
+  approval:"VALID_NON_EXECUTABLE" as const,action:"DENIED_NO_EFFECT" as const,actionReason:"GATES_NOT_ACCEPTED" as const,
   auditEvents:approvalLedger.audit.length+actionLedger.audit.length,
   providerCalls:0 as const,productionConnections:0 as const,performedEffects:0 as const});
 }
