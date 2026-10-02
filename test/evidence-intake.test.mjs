@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { InMemoryEvidenceLedger } from "../dist/src/evidence/intake.js";
+import { InMemoryEvidenceLedger, MAX_INTAKE_RECORDS,MAX_INTAKE_ERRORS,MAX_INTAKE_BATCH_BYTES } from "../dist/src/evidence/intake.js";
 import { validateOperationalRecord, MAX_CANONICAL_RECORD_BYTES, MAX_CANONICAL_STRING_BYTES } from "../dist/src/evidence/validation.js";
 import { normalizeOperationalRecord } from "../dist/src/evidence/normalize.js";
 import { fingerprintOperationalRecord } from "../dist/src/evidence/fingerprint.js";
@@ -86,4 +86,24 @@ test("M-01 stored observation fingerprint matches a detached canonical snapshot"
  assert.equal(stored.accepted[0].fingerprint,expected);
  assert.equal(ledger.list(context())[0].fingerprint,expected);
  assert.equal(ledger.list(context())[0].observation.value.status,"new");
+});
+
+test("M-01 oversized direct batch fails before any partial commit and queue recovers",async()=>{
+ const ledger=new InMemoryEvidenceLedger(A,()=>now);
+ const tooMany=Array.from({length:MAX_INTAKE_RECORDS+1},(_,i)=>record({reference:{sourceSystem:"BUSINESS_OS",externalReference:"lead:"+i}}));
+ await assert.rejects(ledger.ingest(context(),result(tooMany),"BUSINESS_OS"),/INVALID_INTAKE_BATCH/);
+ await assert.rejects(ledger.ingest(context(),result([record()],{errors:Array.from({length:MAX_INTAKE_ERRORS+1},()=>({code:"E",message:"err",retryable:false}))}),"BUSINESS_OS"),/INVALID_INTAKE_BATCH/);
+ const overBytes=Array.from({length:25},(_,i)=>record({reference:{sourceSystem:"BUSINESS_OS",externalReference:"lead:"+i},value:{text:"a".repeat(55_000)}}));
+ assert.ok(JSON.stringify(overBytes).length>MAX_INTAKE_BATCH_BYTES);
+ await assert.rejects(ledger.ingest(context(),result(overBytes),"BUSINESS_OS"),/INTAKE_BATCH_TOO_LARGE/);
+ assert.equal(ledger.list(context()).length,0);
+ const good=await ledger.ingest(context(),result([record()]),"BUSINESS_OS");
+ assert.equal(good.accepted.length,1);
+});
+test("M-01 oversized upstream error and cursor envelopes reject without exposure",async()=>{
+ const ledger=new InMemoryEvidenceLedger(A,()=>now);
+ for(const batch of [result([],{nextCursor:"x".repeat(4097)}),result([],{errors:[{code:"E",message:"private".repeat(700),retryable:false}]}),result([],{fetchedAt:"x".repeat(101)})]){
+  await assert.rejects(ledger.ingest(context(),batch,"BUSINESS_OS"),/INVALID_INTAKE_BATCH/);
+ }
+ assert.equal(ledger.list(context()).length,0);
 });
