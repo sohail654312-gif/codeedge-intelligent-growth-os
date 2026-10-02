@@ -15,7 +15,8 @@ jobs:
     timeout-minutes: 15
     services:
       postgres:
-        image: postgres:16@sha256:1a6ab3f5345eb6dbe04a1349529caabdb0ab09293a09590fad07b2246bfa4b54 # observed in exact PR run 36979054262 on linux/amd64        env:
+        image: postgres:16@sha256:1a6ab3f5345eb6dbe04a1349529caabdb0ab09293a09590fad07b2246bfa4b54 # observed in exact PR run 36979054262 on linux/amd64
+        env:
           POSTGRES_DB: cigo_r4_disposable_ci
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: r4_ci_ephemeral_only
