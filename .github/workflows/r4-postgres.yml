@@ -15,8 +15,7 @@ jobs:
     timeout-minutes: 15
     services:
       postgres:
-        image: postgres:16
-        env:
+        image: postgres:16@sha256:1a6ab3f5345eb6dbe04a1349529caabdb0ab09293a09590fad07b2246bfa4b54 # observed in exact PR run 36979054262 on linux/amd64        env:
           POSTGRES_DB: cigo_r4_disposable_ci
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: r4_ci_ephemeral_only
@@ -54,10 +53,10 @@ jobs:
         run: npm run security:provenance
       - name: High-severity dependency advisory check
         run: npm run security:dependencies
-      - name: Record pulled PostgreSQL image identity (tag remains mutable until verified digest pin)
+      - name: Verify pinned PostgreSQL image identity
         run: |
-          docker image inspect postgres:16 --format 'ImageID={{.Id}} RepoDigests={{json .RepoDigests}}'
-          test "$(docker image inspect postgres:16 --format '{{len .RepoDigests}}')" -ge 1
+          docker image inspect postgres@sha256:1a6ab3f5345eb6dbe04a1349529caabdb0ab09293a09590fad07b2246bfa4b54 --format 'ImageID={{.Id}} RepoDigests={{json .RepoDigests}}'
+          test "$(docker image inspect postgres@sha256:1a6ab3f5345eb6dbe04a1349529caabdb0ab09293a09590fad07b2246bfa4b54 --format '{{len .RepoDigests}}')" -ge 1
           psql -Atqc 'SHOW server_version'
       - name: Verify disposable database identity
         run: |
