@@ -141,3 +141,21 @@ test("M-08 live-shaped R7 reference denial remains zero-effect even after genuin
  assert.deepEqual([denied.requestedEffects,denied.performedEffects,denied.providerInvoked,denied.dispatched,externalCalls],[0,0,false,false,0]);
  assert.equal(audit.audit.length,1);
 });
+
+
+test("M-08 seed mode, actor, session and observation are frozen at admission across asynchronous reader work",async()=>{
+ const x=seed();
+ const original=await fingerprintOperationalRecord(x.records[0]);
+ const pending=runSyntheticPilot(x);
+ x.mode="PRODUCTION";
+ x.actorId="attacker:actor";
+ x.sessionId="attacker:session";
+ x.records[0].value.status="tampered-during-read";
+ const result=await pending;
+ assert.equal(result.mode,"DEMO");
+ assert.equal(result.modeBanner,"SYNTHETIC_DEMO_NO_EFFECT");
+ assert.equal(result.admittedEvidence[0].fingerprint,original);
+ assert.equal(result.approvalEvidenceFingerprints[0],original);
+ assert.equal(result.action,"DENIED_NO_EFFECT");
+ assert.equal(result.providerCalls,0);
+});
