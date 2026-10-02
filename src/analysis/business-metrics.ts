@@ -11,7 +11,9 @@ export type MetricDefinition = Readonly<{
 export const METRIC_CATALOG:readonly MetricDefinition[] = Object.freeze([
  {domain:"LEADS",metricKey:"leads-created",unit:"COUNT",aggregation:"SUM",numeratorMeaning:"Distinct leads created in reporting window",definitionVersion:"v1"},
  {domain:"CONVERSION",metricKey:"lead-conversion",unit:"COUNT",aggregation:"RATIO",numeratorMeaning:"Eligible leads converted in reporting window",denominatorMeaning:"Eligible leads assessed for conversion in the same reporting window",definitionVersion:"v1"},
+ {domain:"LEADS",metricKey:"lead-qualification-rate",unit:"COUNT",aggregation:"RATIO",numeratorMeaning:"Eligible leads qualified within reporting cohort",denominatorMeaning:"Eligible leads assessed for qualification in same reporting cohort",definitionVersion:"v1"},
  {domain:"APPOINTMENTS",metricKey:"appointments-booked",unit:"COUNT",aggregation:"SUM",numeratorMeaning:"Distinct appointments booked in reporting window",definitionVersion:"v1"},
+ {domain:"APPOINTMENTS",metricKey:"appointment-attendance-rate",unit:"COUNT",aggregation:"RATIO",numeratorMeaning:"Booked appointments attended in reporting cohort",denominatorMeaning:"Booked appointments scheduled in same reporting cohort",definitionVersion:"v1"},
  {domain:"MISSED_ENQUIRIES",metricKey:"missed-enquiries",unit:"COUNT",aggregation:"SUM",numeratorMeaning:"Distinct enquiries not answered in reporting window",definitionVersion:"v1"},
  {domain:"REVENUE_COST",metricKey:"revenue-gross",unit:"MINOR_CURRENCY_UNITS",aggregation:"SUM",numeratorMeaning:"Gross recorded revenue in stated currency minor units",definitionVersion:"v1"},
  {domain:"REVENUE_COST",metricKey:"cost-total",unit:"MINOR_CURRENCY_UNITS",aggregation:"SUM",numeratorMeaning:"Total recorded costs in stated currency minor units",definitionVersion:"v1"},
