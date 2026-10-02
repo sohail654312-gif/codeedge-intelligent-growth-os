@@ -70,3 +70,12 @@ test("M-02 reject ratio arithmetic across semantic units or incompatible cohorts
   projection({domain:"MARKETING",metricKey:"marketing-spend",unit:"MINOR_CURRENCY_UNITS",currency:"GBP",denominator:10}),
  ])assert.throws(()=>analyzeBusinessMetrics(ctx,[bad],req),/INVALID_METRIC_PROJECTION/);
 });
+
+test("M-02 exported metric catalog definitions resist mutation and cannot weaken unit semantics",()=>{
+ const original=METRIC_CATALOG[0].unit;
+ assert.equal(Object.isFrozen(METRIC_CATALOG),true);
+ assert.equal(Object.isFrozen(METRIC_CATALOG[0]),true);
+ assert.throws(()=>{METRIC_CATALOG[0].unit="MINOR_CURRENCY_UNITS"},TypeError);
+ assert.equal(METRIC_CATALOG[0].unit,original);
+ assert.throws(()=>analyzeBusinessMetrics(ctx,[projection({domain:"LEADS",metricKey:"leads-created",unit:"MINOR_CURRENCY_UNITS",currency:"GBP",denominator:undefined})],req),/INVALID_METRIC_PROJECTION/);
+});
