@@ -1,6 +1,6 @@
 # CIGO Manual Audit Remediation Register — R0
 
-Status: BASELINE_RECORDED_PENDING_INDEPENDENT_REVIEW. Feature work CIGO-P9-BLOCK2 remains frozen, not completed. This register does not modify STATE/HANDOFF or assert production readiness.
+> **Final reconciliation (2026-10-02):** Original audit text is recovered and all H-01–H-07/M-01–M-09/L-01–L-02 are mapped in [FINAL-REMEDIATION-CLOSURE-2026-10-02.md](FINAL-REMEDIATION-CLOSURE-2026-10-02.md). Earlier “source pending” below is an R0 historical checkpoint, NOT current status. Distinct review, M-05 owner governance and G1–G8 remain OPEN. Tested source SHA `6db2c82df798c15cfa2d8fc95da4a2ecda162fb7`: CI 36996085397 242/242; PG 36996085425 242/242 + 12/12.\n\nStatus: BASELINE_RECORDED_PENDING_INDEPENDENT_REVIEW. Feature work CIGO-P9-BLOCK2 remains frozen, not completed. This register does not modify STATE/HANDOFF or assert production readiness.
 
 ## Proven repository baseline
 - Scoped Part9 Block1 implementation f9402b0bf5696b912a987b5581e940b61aef2963; STATE records CI 36858404931 / job 110356325006, 112/112 tests and scoped PASS a86ecf362f578d754ed98072de3e2b5b62c465be. Exact external CI metadata must be independently rechecked before closure.
