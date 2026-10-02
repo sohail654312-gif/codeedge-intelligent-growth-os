@@ -24,7 +24,7 @@ export const METRIC_CATALOG:readonly MetricDefinition[] = Object.freeze([
 const catalog = new Map(METRIC_CATALOG.map(def=>[def.domain+"|"+def.metricKey,def]));
 /** Explicitly supported ISO 4217 currencies; additions require reviewed source/precision contract. */
 const currencies = new Set(["GBP","USD","EUR","PKR","AED","CAD","AUD","INR","SGD","NZD"]);
-const utc=(s:unknown):s is string=>typeof s==="string"&&/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$/.test(s)&&Number.isFinite(Date.parse(s))&&new Date(s).toISOString()===s;
+const utc=(s:unknown):s is string=>typeof s==="string"&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(s)&&Number.isFinite(Date.parse(s))&&new Date(s).toISOString()===s;
 const utcMidnight=(s:unknown)=>utc(s)&&s.endsWith("T00:00:00.000Z");
 export interface MetricProjection {
   readonly workspaceId:string;readonly domain:MetricDomain;readonly metricKey:string;
