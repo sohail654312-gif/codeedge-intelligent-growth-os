@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { InMemoryEvidenceLedger } from "../dist/src/evidence/intake.js";
+import { validateOperationalRecord, MAX_CANONICAL_RECORD_BYTES, MAX_CANONICAL_STRING_BYTES } from "../dist/src/evidence/validation.js";
+import { normalizeOperationalRecord } from "../dist/src/evidence/normalize.js";
+import { fingerprintOperationalRecord } from "../dist/src/evidence/fingerprint.js";
 const A="workspace:a", B="workspace:b", now="2026-10-01T00:00:00.000Z";
 const context=(workspaceId=A)=>({workspaceId,actorId:"human:owner",authorizedAt:now});
 const record=(overrides={})=>({workspaceId:A,reference:{sourceSystem:"BUSINESS_OS",externalReference:"lead:1",version:"1"},resourceKind:"lead",value:{status:"new"},observedAt:now,...overrides});
@@ -51,3 +54,24 @@ test("M-01 fatal clock failure cannot partially commit staged valid batch",async
 test("M-01 same-batch duplicate is deduplicated before commit",async()=>{const ledger=new InMemoryEvidenceLedger(A,()=>now);const r=await ledger.ingest(context(),result([record(),record()]),"BUSINESS_OS");assert.equal(r.accepted.length,1);assert.equal(r.duplicates.length,1);assert.equal(ledger.list(context()).length,1);});
 
 test("M-01 simultaneous duplicate ingestion commits once and releases serialization after failure",async()=>{const ledger=new InMemoryEvidenceLedger(A,()=>now);const [a,b]=await Promise.all([ledger.ingest(context(),result([record()]),"BUSINESS_OS"),ledger.ingest(context(),result([record()]),"BUSINESS_OS")]);assert.equal(a.accepted.length+b.accepted.length,1);assert.equal(a.duplicates.length+b.duplicates.length,1);assert.equal(ledger.list(context()).length,1);await assert.rejects(ledger.ingest(context(),null,"BUSINESS_OS"),/INVALID_INTAKE_BATCH/);const next=await ledger.ingest(context(),result([record({value:{status:"changed"}})]),"BUSINESS_OS");assert.equal(next.accepted.length,1);});
+
+test("M-01 canonical byte and string budgets quarantine oversized input without hashing",async()=>{
+ const ledger=new InMemoryEvidenceLedger(A,()=>now);
+ const overString=record({value:{description:"x".repeat(MAX_CANONICAL_STRING_BYTES+1)}});
+ const overTotal=record({value:{parts:Array.from({length:6},()=>("x".repeat(55_000)))}});
+ assert.ok(JSON.stringify(overTotal).length>MAX_CANONICAL_RECORD_BYTES);
+ for(const malformed of [overString,overTotal,record({extra:undefined}),record({value:{nested:Array.from({length:4},()=>("🙂".repeat(18_000)))}})]){
+  assert.equal(validateOperationalRecord(malformed,context()).ok,false);
+  assert.throws(()=>normalizeOperationalRecord(malformed),/INVALID_OPERATIONAL_RECORD/);
+  await assert.rejects(fingerprintOperationalRecord(malformed),/INVALID_OPERATIONAL_RECORD/);
+ }
+ const r=await ledger.ingest(context(),result([overString,overTotal,record()]),"BUSINESS_OS");
+ assert.equal(r.accepted.length,1);assert.equal(r.completeness,"PARTIAL");assert.equal(ledger.list(context()).length,1);
+});
+test("M-01 malformed direct inputs reject without fingerprint alias",async()=>{
+ for(const bad of [null,record({value:{n:NaN}}),record({value:{n:undefined}}),record({value:{n:1n}}),record({observedAt:"invalid"})]){
+  assert.equal(validateOperationalRecord(bad,context()).ok,false);
+  assert.throws(()=>normalizeOperationalRecord(bad),/INVALID_OPERATIONAL_RECORD/);
+  await assert.rejects(fingerprintOperationalRecord(bad),/INVALID_OPERATIONAL_RECORD/);
+ }
+});
