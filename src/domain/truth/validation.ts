@@ -59,7 +59,8 @@ export function validateTruthRecord(record: TruthRecord, trusted?: TrustedTruthC
     if (!record.authority?.actorId || !record.authority.evidenceReference) {
       errors.push("AUTHORITY_EVIDENCE_REQUIRED");
     }
-    if (record.authority?.approved && trusted?.isAuthorizedApproval(record) !== true) {
+    if (record.authority?.approved !== true) errors.push("ACTION_APPROVAL_REQUIRED");
+    if (trusted?.isAuthorizedApproval(record) !== true) {
       errors.push("TRUSTED_APPROVAL_REQUIRED");
     }
     if (record.authority?.actorType === "SYSTEM" && record.authority.approved) {
