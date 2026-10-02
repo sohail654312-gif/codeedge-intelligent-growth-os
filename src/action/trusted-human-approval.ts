@@ -7,7 +7,7 @@ export interface ApprovalAuthority {
  assertCurrentMembership(input:Readonly<{workspaceId:string;actorId:string;sessionId:string;requiredRole:"OWNER"|"APPROVER";operation:string}>):Promise<void>;
 }
 export interface ApprovalPolicy {
- evaluate(input:Readonly<{subject:ApprovalSubject;actorId:string;decision:"APPROVE"|"REJECT";now:string}>):Promise<Readonly<{allow:boolean;policyVersion:string;reasonCode:string;maxTtlMs:number}>>;
+ evaluate(input:Readonly<{subject:ApprovalSubject;actorId:string;decision:"APPROVE"|"REJECT";now:string}>):Promise<Readonly<{allow:boolean;requiredRole:"OWNER"|"APPROVER";policyVersion:string;reasonCode:string;maxTtlMs:number}>>;
 }
 export interface ApprovalRecord {readonly kind:"HUMAN_APPROVAL_DECISION";readonly workspaceId:string;readonly approvalId:string;readonly intentId:string;readonly subjectDigest:string;readonly actorId:string;readonly sessionId:string;readonly decision:"APPROVE"|"REJECT";readonly requiredRole:"OWNER"|"APPROVER";readonly policyVersion:string;readonly decidedAt:string;readonly expiresAt:string;readonly status:"RECORDED_NON_EXECUTABLE"}
 export interface ApprovalLedger {
@@ -39,10 +39,10 @@ export class HumanApprovalBoundary {
  async decide(input:Readonly<{approvalId:string;subject:ApprovalSubject;decision:"APPROVE"|"REJECT";requiredRole:"OWNER"|"APPROVER"}>):Promise<ApprovalRecord>{
   const {approvalId,subject,decision,requiredRole}=input??{};
   if(!valid(approvalId)||!subject||!valid(subject.workspaceId)||!valid(subject.intentId)||!valid(subject.reviewPacketId)||!valid(subject.proposalId)||!valid(subject.planId)||!valid(subject.domainService)||!valid(subject.operation)||!["DEMO","SANDBOX","PRODUCTION"].includes(subject.mode)||!Array.isArray(subject.evidenceFingerprints)||subject.evidenceFingerprints.length<1||subject.evidenceFingerprints.length>100||!subject.evidenceFingerprints.every(valid)||new Set(subject.evidenceFingerprints).size!==subject.evidenceFingerprints.length||!["APPROVE","REJECT"].includes(decision)||!["OWNER","APPROVER"].includes(requiredRole))fail("INVALID_APPROVAL_REQUEST");
-  const session=await this.identity(subject.workspaceId,subject.operation,requiredRole);
+  const session=await this.identity(subject.workspaceId,subject.operation,"OWNER");
   const now=this.clock.now();if(!iso(now))fail("INVALID_TRUSTED_CLOCK");
   const evaluation=await this.policy.evaluate({subject:structuredClone(subject),actorId:session.actorId,decision,now});
-  if(!evaluation?.allow||!valid(evaluation.policyVersion)||!Number.isSafeInteger(evaluation.maxTtlMs)||evaluation.maxTtlMs<1000||evaluation.maxTtlMs>86_400_000)fail("APPROVAL_POLICY_DENIED");
+  if(!evaluation?.allow||evaluation.requiredRole!==requiredRole||!valid(evaluation.policyVersion)||!Number.isSafeInteger(evaluation.maxTtlMs)||evaluation.maxTtlMs<1000||evaluation.maxTtlMs>86_400_000)fail("APPROVAL_POLICY_DENIED");
   const subjectDigest=this.digest.digest(canonical(subject));if(!valid(subjectDigest))fail("INVALID_TRUSTED_DIGEST");
   const record:ApprovalRecord={kind:"HUMAN_APPROVAL_DECISION",workspaceId:subject.workspaceId,approvalId,intentId:subject.intentId,subjectDigest,actorId:session.actorId,sessionId:session.sessionId,decision,requiredRole,policyVersion:evaluation.policyVersion,decidedAt:now,expiresAt:new Date(Date.parse(now)+evaluation.maxTtlMs).toISOString(),status:"RECORDED_NON_EXECUTABLE"};
   const existing=await this.ledger.lookup(subject.workspaceId,approvalId);
@@ -75,7 +75,7 @@ export class HumanApprovalBoundary {
    if(!iso(saved.decidedAt)||!iso(saved.expiresAt)||!iso(now)||Date.parse(now)>=Date.parse(saved.expiresAt)||Date.parse(now)<Date.parse(saved.decidedAt))return denied("APPROVAL_EXPIRED_OR_INVALID");
    if(await this.ledger.isRevoked(input.workspaceId,input.approvalId))return denied("APPROVAL_REVOKED");
    const evaluation=await this.policy.evaluate({subject:structuredClone(input.subject),actorId:session.actorId,decision:"APPROVE",now});
-   if(!evaluation?.allow||evaluation.policyVersion!==saved.policyVersion)return denied("POLICY_CHANGED_OR_DENIED");
+   if(!evaluation?.allow||evaluation.requiredRole!==saved.requiredRole||evaluation.policyVersion!==saved.policyVersion)return denied("POLICY_CHANGED_OR_DENIED");
   }catch{return denied("APPROVAL_DEPENDENCY_UNAVAILABLE");}
   return {status:"VALID_NON_EXECUTABLE",reason:"REQUIRES_SEPARATE_R7_EFFECT_AUTHORIZATION"};
  }
