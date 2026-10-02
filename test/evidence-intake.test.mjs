@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { InMemoryEvidenceLedger } from "../dist/src/evidence/intake.js";
+import { InMemoryEvidenceLedger, MAX_INTAKE_RECORDS,MAX_INTAKE_ERRORS,MAX_INTAKE_BATCH_BYTES } from "../dist/src/evidence/intake.js";
+import { validateOperationalRecord, MAX_CANONICAL_RECORD_BYTES, MAX_CANONICAL_STRING_BYTES } from "../dist/src/evidence/validation.js";
+import { normalizeOperationalRecord } from "../dist/src/evidence/normalize.js";
+import { fingerprintOperationalRecord } from "../dist/src/evidence/fingerprint.js";
 const A="workspace:a", B="workspace:b", now="2026-10-01T00:00:00.000Z";
 const context=(workspaceId=A)=>({workspaceId,actorId:"human:owner",authorizedAt:now});
 const record=(overrides={})=>({workspaceId:A,reference:{sourceSystem:"BUSINESS_OS",externalReference:"lead:1",version:"1"},resourceKind:"lead",value:{status:"new"},observedAt:now,...overrides});
@@ -43,4 +46,64 @@ test("source mismatch is quarantined rather than ingested",async()=>{
  const response=await ledger.ingest(context(),result([record({reference:{sourceSystem:"MVP",externalReference:"lead:1"}})]),"BUSINESS_OS");
  assert.equal(response.completeness,"PARTIAL");assert.equal(response.accepted.length,0);
  assert.ok(response.errors.some(e=>e.code==="SOURCE_SCOPE_MISMATCH"));
+});
+
+
+test("M-01 malformed canonical records are quarantined without fingerprint alias",async()=>{const ledger=new InMemoryEvidenceLedger(A,()=>now);const bad=[null,record({observedAt:"yesterday"}),record({value:{n:NaN}}),record({value:{n:undefined}}),record({value:{n:1n}}),record({value:{n:Infinity}}),record({value:{nested:(()=>{let x={};for(let i=0;i<30;i++)x={child:x};return x;})()}})];const r=await ledger.ingest(context(),result([...bad,record()]),"BUSINESS_OS");assert.equal(r.accepted.length,1);assert.equal(r.completeness,"PARTIAL");assert.equal(ledger.list(context()).length,1);});
+test("M-01 fatal clock failure cannot partially commit staged valid batch",async()=>{let n=0;const ledger=new InMemoryEvidenceLedger(A,()=>{if(++n===2)throw Error("clock failed");return now;});await assert.rejects(ledger.ingest(context(),result([record(),record({reference:{sourceSystem:"BUSINESS_OS",externalReference:"lead:2"}})]),"BUSINESS_OS"),/clock failed/);assert.equal(ledger.list(context()).length,0);});
+test("M-01 same-batch duplicate is deduplicated before commit",async()=>{const ledger=new InMemoryEvidenceLedger(A,()=>now);const r=await ledger.ingest(context(),result([record(),record()]),"BUSINESS_OS");assert.equal(r.accepted.length,1);assert.equal(r.duplicates.length,1);assert.equal(ledger.list(context()).length,1);});
+
+test("M-01 simultaneous duplicate ingestion commits once and releases serialization after failure",async()=>{const ledger=new InMemoryEvidenceLedger(A,()=>now);const [a,b]=await Promise.all([ledger.ingest(context(),result([record()]),"BUSINESS_OS"),ledger.ingest(context(),result([record()]),"BUSINESS_OS")]);assert.equal(a.accepted.length+b.accepted.length,1);assert.equal(a.duplicates.length+b.duplicates.length,1);assert.equal(ledger.list(context()).length,1);await assert.rejects(ledger.ingest(context(),null,"BUSINESS_OS"),/INVALID_INTAKE_BATCH/);const next=await ledger.ingest(context(),result([record({value:{status:"changed"}})]),"BUSINESS_OS");assert.equal(next.accepted.length,1);});
+
+test("M-01 canonical byte and string budgets quarantine oversized input without hashing",async()=>{
+ const ledger=new InMemoryEvidenceLedger(A,()=>now);
+ const overString=record({value:{description:"x".repeat(MAX_CANONICAL_STRING_BYTES+1)}});
+ const overTotal=record({value:{parts:Array.from({length:6},()=>("x".repeat(55_000)))}});
+ assert.ok(JSON.stringify(overTotal).length>MAX_CANONICAL_RECORD_BYTES);
+ for(const malformed of [overString,overTotal,record({extra:undefined}),record({value:{nested:Array.from({length:4},()=>("🙂".repeat(18_000)))}})]){
+  assert.equal(validateOperationalRecord(malformed,context()).ok,false);
+  assert.throws(()=>normalizeOperationalRecord(malformed),/INVALID_OPERATIONAL_RECORD/);
+  await assert.rejects(fingerprintOperationalRecord(malformed),/INVALID_OPERATIONAL_RECORD/);
+ }
+ const r=await ledger.ingest(context(),result([overString,overTotal,record()]),"BUSINESS_OS");
+ assert.equal(r.accepted.length,1);assert.equal(r.completeness,"PARTIAL");assert.equal(ledger.list(context()).length,1);
+});
+test("M-01 malformed direct inputs reject without fingerprint alias",async()=>{
+ for(const bad of [null,record({value:{n:NaN}}),record({value:{n:undefined}}),record({value:{n:1n}}),record({observedAt:"invalid"})]){
+  assert.equal(validateOperationalRecord(bad,context()).ok,false);
+  assert.throws(()=>normalizeOperationalRecord(bad),/INVALID_OPERATIONAL_RECORD/);
+  await assert.rejects(fingerprintOperationalRecord(bad),/INVALID_OPERATIONAL_RECORD/);
+ }
+});
+
+test("M-01 stored observation fingerprint matches a detached canonical snapshot",async()=>{
+ const mutable=record({value:{status:"new"}});
+ const expected=await fingerprintOperationalRecord(mutable);
+ const ledger=new InMemoryEvidenceLedger(A,()=>now);
+ const pending=ledger.ingest(context(),result([mutable]),"BUSINESS_OS");
+ const stored=await pending;
+ mutable.value.status="mutated-after-ingestion";
+ assert.equal(stored.accepted[0].fingerprint,expected);
+ assert.equal(ledger.list(context())[0].fingerprint,expected);
+ assert.equal(ledger.list(context())[0].observation.value.status,"new");
+});
+
+test("M-01 oversized direct batch fails before any partial commit and queue recovers",async()=>{
+ const ledger=new InMemoryEvidenceLedger(A,()=>now);
+ const tooMany=Array.from({length:MAX_INTAKE_RECORDS+1},(_,i)=>record({reference:{sourceSystem:"BUSINESS_OS",externalReference:"lead:"+i}}));
+ await assert.rejects(ledger.ingest(context(),result(tooMany),"BUSINESS_OS"),/INVALID_INTAKE_BATCH/);
+ await assert.rejects(ledger.ingest(context(),result([record()],{errors:Array.from({length:MAX_INTAKE_ERRORS+1},()=>({code:"E",message:"err",retryable:false}))}),"BUSINESS_OS"),/INVALID_INTAKE_BATCH/);
+ const overBytes=Array.from({length:25},(_,i)=>record({reference:{sourceSystem:"BUSINESS_OS",externalReference:"lead:"+i},value:{text:"a".repeat(55_000)}}));
+ assert.ok(JSON.stringify(overBytes).length>MAX_INTAKE_BATCH_BYTES);
+ await assert.rejects(ledger.ingest(context(),result(overBytes),"BUSINESS_OS"),/INTAKE_BATCH_TOO_LARGE/);
+ assert.equal(ledger.list(context()).length,0);
+ const good=await ledger.ingest(context(),result([record()]),"BUSINESS_OS");
+ assert.equal(good.accepted.length,1);
+});
+test("M-01 oversized upstream error and cursor envelopes reject without exposure",async()=>{
+ const ledger=new InMemoryEvidenceLedger(A,()=>now);
+ for(const batch of [result([],{nextCursor:"x".repeat(4097)}),result([],{errors:[{code:"E",message:"private".repeat(700),retryable:false}]}),result([],{fetchedAt:"x".repeat(101)})]){
+  await assert.rejects(ledger.ingest(context(),batch,"BUSINESS_OS"),/INVALID_INTAKE_BATCH/);
+ }
+ assert.equal(ledger.list(context()).length,0);
 });

@@ -1,0 +1,7 @@
+# R5 post-audit confidentiality correction — scoped evidence
+
+Exact implementation SHA `8bf8a82e5e6bde04171f4600692f3690d48b2a96`. Added `src/integration/aead-business-os-cursor.ts`: AES-256-GCM version 2 token with fresh random 96-bit nonce, 128-bit authenticated tag, domain AAD, server-held 32-byte keys and key rotation. Encrypts provider cursor plus tenant, actor, resource, page-size and expiry. Strict length, scope, time and keyring checks; invalid/tampered/expired/foreign tokens fail closed. Exports `AeadBusinessOsCursorCodec`; original HMAC v1 remains separately available for compatibility but is NOT confidential and must not be used for sensitive provider cursors. No automatic live wiring, production keys or Business OS calls.
+
+Four required adversarial tests in `test/r5-aead-cursor.test.mjs`: ciphertext concealment and randomization, scope/expiry/tamper rejection, key rotation/legacy isolation and bounds/invalid key rejection. Standard CI https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/36960320220 SUCCESS 181/181 tests 0 FAIL/SKIP, dependency audit 0 known vulnerabilities. R4 disposable PostgreSQL CI is a separate suite and not proof of encrypted cursor integration.
+
+G3 remains OPEN pending owner-authorized live read adapter, real server-managed secret/key lifecycle, cross-instance rotation and actor session/revocation, error and rate controls, independently witnessed staging and security review. R6/R7 and all other production gates unchanged. PR #6 draft/unmerged.

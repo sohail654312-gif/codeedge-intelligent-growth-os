@@ -18,9 +18,18 @@ export interface IntakeReport {
   readonly fetchedAt: string;
   readonly nextCursor?: string;
 }
+/** Hard limits prevent bypass of the reader page contract through direct ledger calls. */
+export const MAX_INTAKE_RECORDS=100;
+export const MAX_INTAKE_ERRORS=100;
+export const MAX_INTAKE_BATCH_BYTES=1_048_576;
+const byteLength=(value:unknown):number=>{
+ try{const serialized=JSON.stringify(value);return typeof serialized==="string"?new TextEncoder().encode(serialized).byteLength:0;}
+ catch{return 0;} // Non-JSON records are quarantined by canonical per-record validation.
+};
 /** Append-only, workspace-bound intelligence evidence, never an operational system of record. */
 export class InMemoryEvidenceLedger {
   private readonly entries: IntakeEntry[] = [];
+  private pending: Promise<void> = Promise.resolve();
   constructor(private readonly workspaceId: AuthorizedWorkspaceContext["workspaceId"],
     private readonly clock: () => string = () => new Date().toISOString()) {}
   list(context: AuthorizedWorkspaceContext): readonly IntakeEntry[] {
@@ -29,13 +38,34 @@ export class InMemoryEvidenceLedger {
     return structuredClone(this.entries);
   }
   async ingest(context: AuthorizedWorkspaceContext, result: ReadResult, expectedSourceSystem: ReadRequest["sourceSystem"]): Promise<IntakeReport> {
+    const prior=this.pending;
+    let release!:()=>void;
+    this.pending=new Promise<void>(resolve=>{release=resolve;});
+    await prior;
+    try{return await this.ingestSerialized(context,result,expectedSourceSystem);}finally{release();}
+  }
+  private async ingestSerialized(context: AuthorizedWorkspaceContext, result: ReadResult, expectedSourceSystem: ReadRequest["sourceSystem"]): Promise<IntakeReport> {
     if (!context?.workspaceId || context.workspaceId !== this.workspaceId || !context.actorId?.trim() || !context.authorizedAt)
       throw new Error("UNAUTHORIZED_WORKSPACE");
+    if(!result||!Array.isArray(result.records)||!Array.isArray(result.errors))throw Error("INVALID_INTAKE_BATCH");
+    if(result.records.length>MAX_INTAKE_RECORDS||result.errors.length>MAX_INTAKE_ERRORS||
+      !["COMPLETE","PARTIAL"].includes(result.completeness)||
+      typeof result.fetchedAt!=="string"||result.fetchedAt.length>100||
+      (result.nextCursor!==undefined&&(typeof result.nextCursor!=="string"||result.nextCursor.length>4096))||
+      result.errors.some(e=>!e||typeof e.code!=="string"||e.code.length>200||typeof e.message!=="string"||e.message.length>4096||typeof e.retryable!=="boolean"))
+      throw Error("INVALID_INTAKE_BATCH");
+    let batchBytes=byteLength({fetchedAt:result.fetchedAt,completeness:result.completeness,nextCursor:result.nextCursor,errors:result.errors});
+    if(batchBytes>MAX_INTAKE_BATCH_BYTES)throw Error("INTAKE_BATCH_TOO_LARGE");
+    for(const record of result.records){
+      batchBytes+=byteLength(record);
+      if(batchBytes>MAX_INTAKE_BATCH_BYTES)throw Error("INTAKE_BATCH_TOO_LARGE");
+    }
     const errors: ReadError[] = [...result.errors.map(e => ({ ...e }))];
     const accepted: IntakeEntry[] = [], duplicates: string[] = [];
+    // Stage the complete batch before committing; fatal normalization, hashing or clock failures cannot partially append.
     for (const record of result.records) {
       const validation = validateOperationalRecord(record, context);
-      if (!expectedSourceSystem || record.reference?.sourceSystem !== expectedSourceSystem) {
+      if (!expectedSourceSystem || record?.reference?.sourceSystem !== expectedSourceSystem) {
         errors.push({ code: "SOURCE_SCOPE_MISMATCH", message: "Evidence source does not match authorized intake", retryable: false });
         continue;
       }
@@ -43,10 +73,12 @@ export class InMemoryEvidenceLedger {
         errors.push(...validation.errors.map(code => ({ code, message: "Evidence intake validation failed", retryable: false })));
         continue;
       }
-      const fingerprint = await fingerprintOperationalRecord(record);
-      if (this.entries.some(e => e.fingerprint === fingerprint)) { duplicates.push(fingerprint); continue; }
-      const observation = normalizeOperationalRecord(record);
-      const previous = [...this.entries].reverse().find(e =>
+      // Snapshot once before asynchronous hashing: fingerprint and stored observation must describe identical bytes.
+      const snapshot = structuredClone(record);
+      const fingerprint = await fingerprintOperationalRecord(snapshot);
+      if ([...this.entries,...accepted].some(e => e.fingerprint === fingerprint)) { duplicates.push(fingerprint); continue; }
+      const observation = normalizeOperationalRecord(snapshot);
+      const previous = [...this.entries,...accepted].reverse().find(e =>
         e.observation.workspaceId === observation.workspaceId &&
         e.observation.sourceSystem === observation.sourceSystem &&
         e.observation.externalReference === observation.externalReference &&
@@ -55,8 +87,9 @@ export class InMemoryEvidenceLedger {
         fingerprint, observation: structuredClone(observation), ingestedAt: this.clock(),
         ...(previous ? { supersedes: previous.fingerprint } : {}), verification: "UNVERIFIED"
       };
-      this.entries.push(entry); accepted.push(structuredClone(entry));
+      accepted.push(structuredClone(entry));
     }
+    this.entries.push(...structuredClone(accepted));
     return {
       accepted, duplicates, errors,
       completeness: result.completeness === "COMPLETE" && errors.length === 0 ? "COMPLETE" : "PARTIAL",

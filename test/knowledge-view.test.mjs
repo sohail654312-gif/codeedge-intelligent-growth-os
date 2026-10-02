@@ -41,3 +41,22 @@ test("tenant isolation, bounded input and unknown future freshness fail safely",
  const item=queryBusinessKnowledge(ctx(),memory,ledger,{asOf:"2026-08-01T00:00:00.000Z",key:"pipeline"}).items[0];
  assert.equal(item.evidence[0].freshness,"UNKNOWN");assert.ok(item.limitations.includes("FRESHNESS_UNKNOWN"));
 });
+
+test("M-03 asOf is evidence freshness only and never a historical snapshot selector",async()=>{
+ const {ledger,memory,fp}=await fixture();
+ const early="2026-09-15T00:00:00.000Z";
+ const current=queryBusinessKnowledge(ctx(),memory,ledger,{asOf:early,key:"pipeline"});
+ assert.equal(current.asOfSemantics,"EVIDENCE_FRESHNESS_ONLY");
+ assert.equal(current.items[0].memory.value.trend,"flat");
+ assert.equal(current.items[0].isCurrentRevision,true);
+ assert.ok(current.items[0].limitations.includes("REVISION_POSTDATES_AS_OF"));
+ const history=queryBusinessKnowledge(ctx(),memory,ledger,{asOf:early,key:"pipeline",view:"HISTORY"});
+ assert.equal(history.asOfSemantics,"EVIDENCE_FRESHNESS_ONLY");
+ assert.equal(history.total,2);
+ assert.equal(history.items[0].memory.value.trend,"up");
+ assert.equal(history.items[1].memory.value.trend,"flat");
+ assert.ok(history.items.every(item=>item.limitations.includes("REVISION_POSTDATES_AS_OF")));
+ const later=queryBusinessKnowledge(ctx(),memory,ledger,{asOf:"2026-10-02T00:00:00.000Z",key:"pipeline"});
+ assert.ok(!later.items[0].limitations.includes("REVISION_POSTDATES_AS_OF"));
+ assert.equal(later.items[0].evidence[0].fingerprint,fp);
+});

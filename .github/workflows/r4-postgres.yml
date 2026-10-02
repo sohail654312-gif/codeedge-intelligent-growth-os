@@ -1,0 +1,90 @@
+name: R4 disposable PostgreSQL acceptance
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  disposable-postgres:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16@sha256:1a6ab3f5345eb6dbe04a1349529caabdb0ab09293a09590fad07b2246bfa4b54 # observed in exact PR run 36979054262 on linux/amd64
+        env:
+          POSTGRES_DB: cigo_r4_disposable_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: r4_ci_ephemeral_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d cigo_r4_disposable_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGDATABASE: cigo_r4_disposable_ci
+      PGUSER: postgres
+      PGPASSWORD: r4_ci_ephemeral_only
+      CIGO_R4_DISPOSABLE_TEST_CONFIRM: I_CONFIRM_DISPOSABLE_ONLY
+      CIGO_R4_REQUIRE_POSTGRES_TESTS: "true"
+      CIGO_R4_DISPOSABLE_DATABASE_URL: postgres://cigo_r4_app:r4_ci_app_ephemeral_only@localhost:5432/cigo_r4_disposable_ci
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24.21.0"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Require committed manifest/lock and log exact toolchain
+        run: |
+          git ls-files --error-unmatch package-lock.json
+          node --version
+          npm --version
+      - name: Validate manifest and locked component provenance
+        run: npm run security:provenance
+      - name: High-severity dependency advisory check
+        run: npm run security:dependencies
+      - name: Verify pinned PostgreSQL image identity
+        run: |
+          docker image inspect postgres@sha256:1a6ab3f5345eb6dbe04a1349529caabdb0ab09293a09590fad07b2246bfa4b54 --format 'ImageID={{.Id}} RepoDigests={{json .RepoDigests}}'
+          test "$(docker image inspect postgres@sha256:1a6ab3f5345eb6dbe04a1349529caabdb0ab09293a09590fad07b2246bfa4b54 --format '{{len .RepoDigests}}')" -ge 1
+          psql -Atqc 'SHOW server_version'
+      - name: Verify disposable database identity
+        run: |
+          test "$PGDATABASE" = cigo_r4_disposable_ci
+          test "$(psql -Atqc 'SELECT current_database()')" = cigo_r4_disposable_ci
+          psql -v ON_ERROR_STOP=1 -c "CREATE ROLE cigo_r4_app LOGIN PASSWORD 'r4_ci_app_ephemeral_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS"
+      - name: Apply reference migration as owner
+        run: psql -v ON_ERROR_STOP=1 -f docs/architecture/sql/R4-REFERENCE-MIGRATION.sql
+      - name: Grant least privilege to disposable app role
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          GRANT USAGE ON SCHEMA cigo TO cigo_r4_app;
+          GRANT SELECT, INSERT ON cigo.intake_requests, cigo.evidence, cigo.audit_events TO cigo_r4_app;
+          SQL
+      - name: Provision synthetic tenant-scoped roles and RLS policies
+        run: psql -v ON_ERROR_STOP=1 -f docs/architecture/sql/R4-DISPOSABLE-TENANT-ROLES.sql
+      - name: Check authoritative STATE / HANDOFF mirror (M-07)
+        run: node scripts/check-governance-mirror.mjs
+      - name: Typecheck and mandatory non-skipped unit tests
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run verify | tee "$RUNNER_TEMP/cigo-unit-tests.log"
+          node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-unit-tests.log" 213
+      - name: Mandatory non-skipped real PostgreSQL fail-closed integration tests
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run test:postgres | tee "$RUNNER_TEMP/cigo-postgres-tests.log"
+          node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-postgres-tests.log" 12

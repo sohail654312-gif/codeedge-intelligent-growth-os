@@ -1,11 +1,12 @@
+import {makeMetricFixture} from "./metric-fixture.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { analyzeCrossDomain } from "../dist/src/analysis/cross-domain.js";
 const now="2026-10-01T00:00:00.000Z", context={workspaceId:"tenant-a",actorId:"owner",authorizedAt:now};
-const p=(domain,changes={})=>({workspaceId:"tenant-a",domain,metricKey:domain.toLowerCase(),periodStart:"2026-09-01T00:00:00.000Z",periodEnd:"2026-09-30T00:00:00.000Z",observedAt:now,unit:"COUNT",numerator:4,denominator:8,evidenceFingerprints:["e-"+domain],coverage:"COMPLETE",verification:"UNVERIFIED",...changes});
+const p=(domain,changes={})=>makeMetricFixture(domain,context.workspaceId,now,changes,"e-");
 const request={asOf:now,maxEvidenceAgeMs:86400000,domains:["LEADS","APPOINTMENTS"]};
 test("cross-domain results preserve individual evidence, periods, units and non-actionable uncertainty",()=>{
- const input=[p("LEADS"),p("APPOINTMENTS",{unit:"MINOR_CURRENCY_UNITS",denominator:undefined})];
+ const input=[p("LEADS"),p("APPOINTMENTS",{metricKey:"appointments-booked",denominator:undefined})];
  const r=analyzeCrossDomain(context,input,request);
  assert.equal(r.status,"AVAILABLE");assert.equal(r.confidence,"INSUFFICIENT");assert.equal(r.verifiedFact,false);assert.equal(r.actionable,false);
  assert.deepEqual(r.evidenceFingerprints,["e-APPOINTMENTS","e-LEADS"]);

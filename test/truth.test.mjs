@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import {BusinessOsActionRequestBoundary} from "../dist/src/action/business-os-action-request.js";
+import {InMemoryDeniedActionLedger} from "../dist/src/action/in-memory-denied-action-ledger.js";
 import {
   canonicalId,
   preservesHistory,
@@ -148,7 +150,9 @@ test("assumptions remain assumptions until verified evidence explicitly promotes
     /VERIFIED_EVIDENCE_REQUIRED/,
   );
 
-  const promoted = promoteAssumption(assumption, [evidence()]);
+  assert.throws(() => promoteAssumption(assumption, [evidence()]), /VERIFIED_EVIDENCE_REQUIRED/);
+  const trusted = { isVerifiedEvidence: (item, subject) => item.id === evidence().id && item.workspaceId === subject.workspaceId, isAuthorizedApproval: () => false };
+  const promoted = promoteAssumption(assumption, [evidence()], trusted);
   assert.equal(promoted.truthClass, "FACT");
   assert.equal(promoted.evidence[0].verification, "VERIFIED");
 });
@@ -178,4 +182,32 @@ test("domain kernel contains no direct provider implementations", () => {
       );
     }
   }
+});
+
+
+test("R1 rejects forged VERIFIED and untrusted approval by default", () => {
+  const forged = record();
+  assert.ok(validateTruthRecord(forged).errors.includes("FACT_VERIFICATION_REQUIRED"));
+  const decision = record({ truthClass: "DECISION", sourceSystem: "CIGO", ownership: "CIGO_OWNED", evidence: [], authority: { actorId: "human:claimed", actorType: "HUMAN", approved: true, approvedAt: now, evidenceReference: "claim:1" } });
+  assert.ok(validateTruthRecord(decision).errors.includes("TRUSTED_APPROVAL_REQUIRED"));
+  assert.ok(validateTruthRecord(decision, { isVerifiedEvidence: () => false, isAuthorizedApproval: () => false }).errors.includes("TRUSTED_APPROVAL_REQUIRED"));
+  assert.equal(validateTruthRecord(forged, { isVerifiedEvidence: (item, subject) => item.workspaceId === subject.workspaceId && item.id === evidence().id, isAuthorizedApproval: () => false }).ok, true);
+});
+
+
+test("H-03 structural action or decision cannot substitute for actual authority",()=>{for(const truthClass of ["ACTION","DECISION"]){for(const approved of [false,true]){const r=record({truthClass,sourceSystem:"CIGO",ownership:"CIGO_OWNED",evidence:[],authority:{actorId:"human:1",actorType:"HUMAN",approved,approvedAt:now,evidenceReference:"proposal:1"}});const x=validateTruthRecord(r);assert.equal(x.ok,false);assert.ok(x.errors.includes("TRUSTED_APPROVAL_REQUIRED"));if(!approved)assert.ok(x.errors.includes("ACTION_APPROVAL_REQUIRED"));}}});
+
+test("H-03 trusted structural truth result is not an effect capability, even with all claimed R7 gates",async()=>{
+ const subject={workspaceId:WS_A,intentId:"intent:1",reviewPacketId:"review:1",proposalId:"proposal:1",planId:"plan:1",mode:"SANDBOX",domainService:"CRM",operation:"FOLLOW_UP",evidenceFingerprints:["fingerprint:1"]};
+ const actionTruth=record({truthClass:"ACTION",sourceSystem:"CIGO",ownership:"CIGO_OWNED",evidence:[],authority:{actorId:"human:1",actorType:"HUMAN",approved:true,approvedAt:now,evidenceReference:"review:1"}});
+ assert.equal(validateTruthRecord(actionTruth,{isVerifiedEvidence:()=>false,isAuthorizedApproval:()=>true}).ok,true);
+ const ledger=new InMemoryDeniedActionLedger();
+ let verified=0;
+ const boundary=new BusinessOsActionRequestBoundary({async verify(){verified++;return {identity:true,membership:true,source:true,policy:true,humanApproval:true,durableAudit:true,adapter:true};}},ledger);
+ const receipt=await boundary.submit({requestId:"request:1",workspaceId:WS_A,intentId:"intent:1",approvalId:"approval:1",mode:"SANDBOX",domainService:"CRM",operation:"FOLLOW_UP",payload:null,idempotencyKey:"idem:1"},subject);
+ assert.equal(verified,1);
+ assert.equal(receipt.status,"DENIED_NO_EFFECT");
+ assert.equal(receipt.reason,"EFFECTS_DISABLED");
+ assert.equal(receipt.performedEffects,0);assert.equal(receipt.providerInvoked,false);assert.equal(receipt.dispatched,false);
+ assert.equal(ledger.audit.length,1);
 });

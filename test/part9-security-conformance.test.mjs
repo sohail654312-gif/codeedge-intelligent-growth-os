@@ -1,3 +1,4 @@
+import {makeMetricFixture} from "./metric-fixture.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -18,7 +19,7 @@ import {summarizeDeniedActionLifecycle} from "../dist/src/action/denial-lifecycl
 const A="workspace:a",B="workspace:b",NOW="2026-10-01T00:00:00.000Z";
 const ctx=(workspaceId=A)=>({workspaceId,actorId:"model",authorizedAt:NOW});
 const record=(extra={})=>({workspaceId:A,reference:{sourceSystem:"BUSINESS_OS",externalReference:"lead:1"},resourceKind:"lead",value:{status:"new"},observedAt:NOW,...extra});
-const metric=domain=>({workspaceId:A,domain,metricKey:domain.toLowerCase(),periodStart:"2026-09-01T00:00:00.000Z",periodEnd:"2026-09-30T00:00:00.000Z",observedAt:NOW,unit:"COUNT",numerator:4,denominator:8,evidenceFingerprints:["source-"+domain],coverage:"COMPLETE",verification:"UNVERIFIED"});
+const metric=(domain,changes={})=>makeMetricFixture(domain,A,NOW,changes);
 const fixture=mode=>{
  const context=ctx();
  const analysis=analyzeCrossDomain(context,[metric("LEADS"),metric("APPOINTMENTS")],{asOf:NOW,maxEvidenceAgeMs:86400000,domains:["LEADS","APPOINTMENTS"]});
