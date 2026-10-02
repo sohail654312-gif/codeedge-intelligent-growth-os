@@ -19,3 +19,26 @@ test("R5 authorization is checked before decoding attacker cursor",async()=>{con
 
 
 test("R5 read boundary cannot downgrade AEAD in any mode, including omitted and forged synthetic modes",()=>{const port={version:"v1",async readPage(){return {records:[]}}},auth={async assertAuthorized(){}},unsafe={encode:()=>"",decode:()=>undefined};for(const mode of [undefined,"PRODUCTION","DEMO","SANDBOX"])assert.throws(()=>new BusinessOsReadModelReader(A,port,auth,unsafe,()=>NOW,mode),/CONFIDENTIAL_CURSOR_CODEC_REQUIRED/);const secure=new AeadBusinessOsCursorCodec(new Map([["key1",Buffer.alloc(32,7)]]),"key1");assert.doesNotThrow(()=>new BusinessOsReadModelReader(A,port,auth,secure,()=>NOW));});
+
+test("R5 subclass and instance overrides cannot impersonate confidential AEAD",()=>{
+ const port={version:"v1",async readPage(){return {records:[]}}},authorization={async assertAuthorized(){}};
+ const keys=new Map([["fixture",Buffer.alloc(32,7)]]);
+ class Downgraded extends AeadBusinessOsCursorCodec{encode(){return "plain:secret";}decode(){return "plain:secret";}}
+ const subclass=new Downgraded(keys,"fixture");
+ assert.throws(()=>new BusinessOsReadModelReader(A,port,authorization,subclass),/CONFIDENTIAL_CURSOR_CODEC_REQUIRED/);
+ const overridden=new AeadBusinessOsCursorCodec(keys,"fixture");
+ overridden.encode=()=> "plain:secret";
+ assert.throws(()=>new BusinessOsReadModelReader(A,port,authorization,overridden),/CONFIDENTIAL_CURSOR_CODEC_REQUIRED/);
+});
+test("R5 server factory composes genuine AEAD and refuses injected codec or mode",async()=>{
+ const port={version:"v1",async readPage(){return {records:[rec()],nextCursor:"sensitive-upstream"}}},authorization={async assertAuthorized(){}};
+ const config={workspaceId:A,port,authorization,cursorKeys:new Map([["fixture",Buffer.alloc(32,9)]]),activeKeyId:"fixture",clock:()=>NOW};
+ for(const injected of [{...config,mode:"DEMO"},{...config,cursors:{encode:()=> "plain",decode:()=> "raw"}}])
+  assert.throws(()=>BusinessOsReadModelReader.create(injected),/INVALID_READ_MODEL_COMPOSITION/);
+ const reader=BusinessOsReadModelReader.create(config);
+ const first=await reader.read(req());
+ assert.ok(first.nextCursor.startsWith("v2."));
+ assert.ok(!first.nextCursor.includes("sensitive-upstream"));
+ const second=await reader.read(req({cursor:first.nextCursor}));
+ assert.equal(second.completeness,"COMPLETE");
+});
