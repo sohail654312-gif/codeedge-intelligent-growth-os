@@ -8,7 +8,9 @@ export function inspectSbom(bom,inventory){
  const root=bom?.metadata?.component;
  const expectedRoot=inventory.root.startsWith("@")?inventory.root.split("/"):["",inventory.root];
  const rootMatches=!!root&&root.version===inventory.rootVersion&&(
-   root.name===inventory.root||(root.group===expectedRoot[0]&&root.name===expectedRoot[1]));
+   root.name===inventory.root||(root.group===expectedRoot[0]&&root.name===expectedRoot[1])||
+   // npm names this private repo by the checked-out folder, rather than the scoped manifest name.
+   (inventory.root==="@codeedge/cigo"&&root.name==="codeedge-intelligent-growth-os"));
  if(!bom||bom.bomFormat!=="CycloneDX"||!/^1\.[4-9]$/.test(bom.specVersion)||
    !Array.isArray(bom.components)||!rootMatches)throw Error("INVALID_SBOM_HEADER");
  const components=new Set();
