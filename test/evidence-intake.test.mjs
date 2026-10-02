@@ -75,3 +75,15 @@ test("M-01 malformed direct inputs reject without fingerprint alias",async()=>{
   await assert.rejects(fingerprintOperationalRecord(bad),/INVALID_OPERATIONAL_RECORD/);
  }
 });
+
+test("M-01 stored observation fingerprint matches a detached canonical snapshot",async()=>{
+ const mutable=record({value:{status:"new"}});
+ const expected=await fingerprintOperationalRecord(mutable);
+ const ledger=new InMemoryEvidenceLedger(A,()=>now);
+ const pending=ledger.ingest(context(),result([mutable]),"BUSINESS_OS");
+ const stored=await pending;
+ mutable.value.status="mutated-after-ingestion";
+ assert.equal(stored.accepted[0].fingerprint,expected);
+ assert.equal(ledger.list(context())[0].fingerprint,expected);
+ assert.equal(ledger.list(context())[0].observation.value.status,"new");
+});
