@@ -30,19 +30,28 @@ export interface ApprovalDigest {digest(canonicalSubject:string):string}
 export class HumanApprovalBoundary {
  constructor(private readonly authority:ApprovalAuthority,private readonly policy:ApprovalPolicy,private readonly ledger:ApprovalLedger,
   private readonly digest:ApprovalDigest,private readonly clock:ApprovalClock){}
- private async identity(workspaceId:string,operation:string,role:"OWNER"|"APPROVER"){
+ private async session(workspaceId:string):Promise<TrustedHumanSession>{
   const session=await this.authority.resolveSession();
   if(!session||session.actorType!=="HUMAN"||session.workspaceId!==workspaceId||!valid(session.actorId)||!valid(session.sessionId)||!iso(session.authenticatedAt))fail("TRUSTED_HUMAN_SESSION_REQUIRED");
-  await this.authority.assertCurrentMembership({workspaceId,actorId:session.actorId,sessionId:session.sessionId,requiredRole:role,operation});
+  return session;
+ }
+ private async membership(session:TrustedHumanSession,operation:string,requiredRole:"OWNER"|"APPROVER"):Promise<void>{
+  await this.authority.assertCurrentMembership({workspaceId:session.workspaceId,actorId:session.actorId,sessionId:session.sessionId,requiredRole,operation});
+ }
+ private async identity(workspaceId:string,operation:string,role:"OWNER"|"APPROVER"){
+  const session=await this.session(workspaceId);
+  await this.membership(session,operation,role);
   return session;
  }
  async decide(input:Readonly<{approvalId:string;subject:ApprovalSubject;decision:"APPROVE"|"REJECT";requiredRole:"OWNER"|"APPROVER"}>):Promise<ApprovalRecord>{
   const {approvalId,subject,decision,requiredRole}=input??{};
   if(!valid(approvalId)||!subject||!valid(subject.workspaceId)||!valid(subject.intentId)||!valid(subject.reviewPacketId)||!valid(subject.proposalId)||!valid(subject.planId)||!valid(subject.domainService)||!valid(subject.operation)||!["DEMO","SANDBOX","PRODUCTION"].includes(subject.mode)||!Array.isArray(subject.evidenceFingerprints)||subject.evidenceFingerprints.length<1||subject.evidenceFingerprints.length>100||!subject.evidenceFingerprints.every(valid)||new Set(subject.evidenceFingerprints).size!==subject.evidenceFingerprints.length||!["APPROVE","REJECT"].includes(decision)||!["OWNER","APPROVER"].includes(requiredRole))fail("INVALID_APPROVAL_REQUEST");
-  const session=await this.identity(subject.workspaceId,subject.operation,"OWNER");
+  const session=await this.session(subject.workspaceId);
   const now=this.clock.now();if(!iso(now))fail("INVALID_TRUSTED_CLOCK");
   const evaluation=await this.policy.evaluate({subject:structuredClone(subject),actorId:session.actorId,decision,now});
   if(!evaluation?.allow||evaluation.requiredRole!==requiredRole||!valid(evaluation.policyVersion)||!Number.isSafeInteger(evaluation.maxTtlMs)||evaluation.maxTtlMs<1000||evaluation.maxTtlMs>86_400_000)fail("APPROVAL_POLICY_DENIED");
+  // A caller cannot choose a weaker role; only the trusted policy supplies the membership requirement.
+  await this.membership(session,subject.operation,evaluation.requiredRole);
   const subjectDigest=this.digest.digest(canonical(subject));if(!valid(subjectDigest))fail("INVALID_TRUSTED_DIGEST");
   const record:ApprovalRecord={kind:"HUMAN_APPROVAL_DECISION",workspaceId:subject.workspaceId,approvalId,intentId:subject.intentId,subjectDigest,actorId:session.actorId,sessionId:session.sessionId,decision,requiredRole,policyVersion:evaluation.policyVersion,decidedAt:now,expiresAt:new Date(Date.parse(now)+evaluation.maxTtlMs).toISOString(),status:"RECORDED_NON_EXECUTABLE"};
   const existing=await this.ledger.lookup(subject.workspaceId,approvalId);
@@ -64,10 +73,12 @@ export class HumanApprovalBoundary {
   const denied=(reason:string)=>({status:"DENIED" as const,reason});
   if(!input||!valid(input.workspaceId)||!valid(input.approvalId)||!input.subject||input.subject.workspaceId!==input.workspaceId)return denied("INVALID_SCOPE");
   let session:TrustedHumanSession;
-  try{session=await this.identity(input.workspaceId,input.subject.operation,input.requiredRole);}catch{return denied("IDENTITY_OR_MEMBERSHIP_DENIED");}
+  try{session=await this.session(input.workspaceId);}catch{return denied("IDENTITY_OR_MEMBERSHIP_DENIED");}
   let saved:ApprovalRecord|undefined;
   try{saved=await this.ledger.lookup(input.workspaceId,input.approvalId);}catch{return denied("APPROVAL_LEDGER_UNAVAILABLE");}
-  if(!saved||saved.kind!=="HUMAN_APPROVAL_DECISION"||saved.status!=="RECORDED_NON_EXECUTABLE"||saved.decision!=="APPROVE"||saved.actorId!==session.actorId||saved.sessionId!==session.sessionId||saved.requiredRole!==input.requiredRole)return denied("APPROVAL_NOT_VALID");
+  if(!saved||saved.kind!=="HUMAN_APPROVAL_DECISION"||saved.status!=="RECORDED_NON_EXECUTABLE"||saved.decision!=="APPROVE"||saved.actorId!==session.actorId||saved.sessionId!==session.sessionId||!["OWNER","APPROVER"].includes(saved.requiredRole)||saved.requiredRole!==input.requiredRole)return denied("APPROVAL_NOT_VALID");
+  // Recheck current membership against the stored, immutable policy role, never a caller-only claim.
+  try{await this.membership(session,input.subject.operation,saved.requiredRole);}catch{return denied("IDENTITY_OR_MEMBERSHIP_DENIED");}
   let now:string;
   try{
    if(saved.intentId!==input.subject.intentId||saved.subjectDigest!==this.digest.digest(canonical(input.subject)))return denied("SUBJECT_MISMATCH");
