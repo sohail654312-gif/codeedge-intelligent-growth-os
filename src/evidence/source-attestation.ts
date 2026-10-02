@@ -40,8 +40,13 @@ export async function requireAttestedObservation(record:OperationalRecord,result
    if(!validateOperationalRecord(candidate,{workspaceId:observation.workspaceId} as Parameters<typeof validateOperationalRecord>[1]).ok||
       candidate.workspaceId!==observation.workspaceId||candidate.reference?.sourceSystem!==observation.reference.sourceSystem||
       candidate.resourceKind!==observation.resourceKind)fail();
+   // A COMPLETE page cannot contain two conflicting snapshots for the same
+   // source identity/version and still authenticate one arbitrarily chosen record.
    if(candidate.reference.externalReference===observation.reference.externalReference &&
-      await fingerprintOperationalRecord(candidate)===fingerprint)matches++;
+      candidate.reference.version===observation.reference.version){
+    if(await fingerprintOperationalRecord(candidate)!==fingerprint)fail();
+    matches++;
+   }
   }
   if(matches!==1||await authority.verifyReceipt(structuredClone(receipt))!==true)fail();
   return structuredClone(receipt);
