@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import {BusinessOsActionRequestBoundary} from "../dist/src/action/business-os-action-request.js";
+import {InMemoryDeniedActionLedger} from "../dist/src/action/in-memory-denied-action-ledger.js";
 import {
   canonicalId,
   preservesHistory,
@@ -194,3 +196,18 @@ test("R1 rejects forged VERIFIED and untrusted approval by default", () => {
 
 
 test("H-03 structural action or decision cannot substitute for actual authority",()=>{for(const truthClass of ["ACTION","DECISION"]){for(const approved of [false,true]){const r=record({truthClass,sourceSystem:"CIGO",ownership:"CIGO_OWNED",evidence:[],authority:{actorId:"human:1",actorType:"HUMAN",approved,approvedAt:now,evidenceReference:"proposal:1"}});const x=validateTruthRecord(r);assert.equal(x.ok,false);assert.ok(x.errors.includes("TRUSTED_APPROVAL_REQUIRED"));if(!approved)assert.ok(x.errors.includes("ACTION_APPROVAL_REQUIRED"));}}});
+
+test("H-03 trusted structural truth result is not an effect capability, even with all claimed R7 gates",async()=>{
+ const subject={workspaceId:WS_A,intentId:"intent:1",reviewPacketId:"review:1",proposalId:"proposal:1",planId:"plan:1",mode:"SANDBOX",domainService:"CRM",operation:"FOLLOW_UP",evidenceFingerprints:["fingerprint:1"]};
+ const actionTruth=record({truthClass:"ACTION",sourceSystem:"CIGO",ownership:"CIGO_OWNED",evidence:[],authority:{actorId:"human:1",actorType:"HUMAN",approved:true,approvedAt:now,evidenceReference:"review:1"}});
+ assert.equal(validateTruthRecord(actionTruth,{isVerifiedEvidence:()=>false,isAuthorizedApproval:()=>true}).ok,true);
+ const ledger=new InMemoryDeniedActionLedger();
+ let verified=0;
+ const boundary=new BusinessOsActionRequestBoundary({async verify(){verified++;return {identity:true,membership:true,source:true,policy:true,humanApproval:true,durableAudit:true,adapter:true};}},ledger);
+ const receipt=await boundary.submit({requestId:"request:1",workspaceId:WS_A,intentId:"intent:1",approvalId:"approval:1",mode:"SANDBOX",domainService:"CRM",operation:"FOLLOW_UP",payload:null,idempotencyKey:"idem:1"},subject);
+ assert.equal(verified,1);
+ assert.equal(receipt.status,"DENIED_NO_EFFECT");
+ assert.equal(receipt.reason,"EFFECTS_DISABLED");
+ assert.equal(receipt.performedEffects,0);assert.equal(receipt.providerInvoked,false);assert.equal(receipt.dispatched,false);
+ assert.equal(ledger.audit.length,1);
+});
