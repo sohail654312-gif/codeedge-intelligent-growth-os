@@ -64,7 +64,7 @@ export function analyzeBusinessMetrics(context:AuthorizedWorkspaceContext,projec
       p.denominator!==undefined)||
     (p.unit==="MINOR_CURRENCY_UNITS"?!currencies.has(p.currency??""):p.currency!==undefined)||
     !Array.isArray(p.evidenceFingerprints)||!p.evidenceFingerprints.length||
-    p.evidenceFingerprints.some(fp=>typeof fp!=="string"||!fp.trim()||fp.length>200)||
+    p.evidenceFingerprints.some((fp:string)=>typeof fp!=="string"||!fp.trim()||fp.length>200)||
     new Set(p.evidenceFingerprints).size!==p.evidenceFingerprints.length||
     !["COMPLETE","PARTIAL"].includes(p.coverage)||p.verification!=="UNVERIFIED")throw Error("INVALID_METRIC_PROJECTION");
   const key=[p.domain,p.metricKey,p.periodStart,p.periodEnd].join("|");
