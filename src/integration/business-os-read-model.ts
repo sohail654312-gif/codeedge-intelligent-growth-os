@@ -24,7 +24,7 @@ export class BusinessOsReadModelReader implements SourceReader {
  readonly sourceSystem="BUSINESS_OS" as const;
  constructor(private readonly workspaceId:WorkspaceId,private readonly port:BusinessOsReadModelPort,
   private readonly authorization:TrustedReadAuthorization,private readonly cursors:TrustedCursorCodec,
-  private readonly clock:()=>string=()=>new Date().toISOString(),private readonly mode:"DEMO"|"SANDBOX"|"PRODUCTION"="DEMO") {
+  private readonly clock:()=>string=()=>new Date().toISOString(),private readonly mode:"DEMO"|"SANDBOX"|"PRODUCTION"="PRODUCTION") {
   if(port.version!=="v1") throw new Error("UNSUPPORTED_BUSINESS_OS_READ_MODEL");
   if(mode==="PRODUCTION" && !(cursors instanceof AeadBusinessOsCursorCodec))throw Error("CONFIDENTIAL_CURSOR_CODEC_REQUIRED");
  }
