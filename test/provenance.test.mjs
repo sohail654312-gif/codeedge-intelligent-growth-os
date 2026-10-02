@@ -37,3 +37,13 @@ test("L-02 validated CycloneDX must cover locked name/version identities",()=>{
  assert.throws(()=>inspectSbom({...bom,components:[]},inventory),/SBOM_LOCK_MISMATCH/);
  assert.throws(()=>inspectSbom({...bom,components:[{name:"unrelated",version:"0.0.1"}]},inventory),/SBOM_LOCK_MISMATCH/);
 });
+
+test("L-02 npm private repo root alias must match exact known checkout identity and version",()=>{
+ const inventory=inspectProvenance(manifest,lock);
+ const components=inventory.components.map(x=>({type:"library",name:x.name,version:x.version}));
+ const base={bomFormat:"CycloneDX",specVersion:"1.5",components};
+ const alias={...base,metadata:{component:{type:"library",name:"codeedge-intelligent-growth-os",version:inventory.rootVersion}}};
+ assert.equal(inspectSbom(alias,inventory).coveredLockedPackages,inventory.components.length);
+ assert.throws(()=>inspectSbom({...alias,metadata:{component:{...alias.metadata.component,name:"another-repo"}}},inventory),/INVALID_SBOM_HEADER/);
+ assert.throws(()=>inspectSbom({...alias,metadata:{component:{...alias.metadata.component,version:"0.0.0"}}},inventory),/INVALID_SBOM_HEADER/);
+});
