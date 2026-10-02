@@ -22,6 +22,8 @@ const valid=(s:unknown):s is string=>typeof s==="string"&&s.trim().length>0&&s.l
 const iso=(s:unknown):s is string=>typeof s==="string"&&Number.isFinite(Date.parse(s))&&new Date(s).toISOString()===s;
 const fail=(code:string):never=>{throw Error(code)};
 const same=(a:ApprovalRecord,b:ApprovalRecord)=>JSON.stringify(a)===JSON.stringify(b);
+/** Replay identity deliberately excludes clock-derived timestamps; a retry cannot extend the original expiry. */
+const sameDecision=(a:ApprovalRecord,b:ApprovalRecord)=>a.kind===b.kind&&a.status===b.status&&a.workspaceId===b.workspaceId&&a.approvalId===b.approvalId&&a.intentId===b.intentId&&a.subjectDigest===b.subjectDigest&&a.actorId===b.actorId&&a.sessionId===b.sessionId&&a.decision===b.decision&&a.policyVersion===b.policyVersion;
 const canonical=(s:ApprovalSubject)=>JSON.stringify([s.workspaceId,s.intentId,s.reviewPacketId,s.proposalId,s.planId,s.mode,s.domainService,s.operation,[...s.evidenceFingerprints].sort()]);
 /** Hashing supplied by trusted server. No model/caller digest is accepted as an approval subject. */
 export interface ApprovalDigest {digest(canonicalSubject:string):string}
@@ -44,8 +46,16 @@ export class HumanApprovalBoundary {
   const subjectDigest=this.digest.digest(canonical(subject));if(!valid(subjectDigest))fail("INVALID_TRUSTED_DIGEST");
   const record:ApprovalRecord={kind:"HUMAN_APPROVAL_DECISION",workspaceId:subject.workspaceId,approvalId,intentId:subject.intentId,subjectDigest,actorId:session.actorId,sessionId:session.sessionId,decision,policyVersion:evaluation.policyVersion,decidedAt:now,expiresAt:new Date(Date.parse(now)+evaluation.maxTtlMs).toISOString(),status:"RECORDED_NON_EXECUTABLE"};
   const existing=await this.ledger.lookup(subject.workspaceId,approvalId);
-  if(existing){if(!same(existing,record))fail("APPROVAL_REPLAY_CONFLICT");return structuredClone(existing);}
-  const saved=await this.ledger.record(record);
+  if(existing){if(!sameDecision(existing,record))fail("APPROVAL_REPLAY_CONFLICT");if(!iso(existing.decidedAt)||!iso(existing.expiresAt)||Date.parse(now)>=Date.parse(existing.expiresAt)||Date.parse(now)<Date.parse(existing.decidedAt)||await this.ledger.isRevoked(subject.workspaceId,approvalId))fail("APPROVAL_REPLAY_EXPIRED_OR_REVOKED");return structuredClone(existing);}
+  let saved:ApprovalRecord;
+  try{saved=await this.ledger.record(record);}catch(error){
+   // A concurrent writer may have inserted the same immutable decision first; never mask unrelated storage failures.
+   if(!(error instanceof Error)||error.message!=="APPROVAL_REPLAY_CONFLICT")throw error;
+   const winner=await this.ledger.lookup(subject.workspaceId,approvalId);
+   if(!winner||!sameDecision(winner,record))fail("APPROVAL_REPLAY_CONFLICT");
+   if(!iso(winner.decidedAt)||!iso(winner.expiresAt)||Date.parse(now)>=Date.parse(winner.expiresAt)||Date.parse(now)<Date.parse(winner.decidedAt)||await this.ledger.isRevoked(subject.workspaceId,approvalId))fail("APPROVAL_REPLAY_EXPIRED_OR_REVOKED");
+   return structuredClone(winner);
+  }
   if(!same(saved,record))fail("APPROVAL_LEDGER_INTEGRITY_FAILURE");
   return structuredClone(saved);
  }
