@@ -62,7 +62,7 @@ export function analyzeBusinessMetrics(context:AuthorizedWorkspaceContext,projec
     Date.parse(p.periodStart)>=Date.parse(p.periodEnd)||!utc(p.observedAt)||
     p.unit!==def.unit||!Number.isSafeInteger(p.numerator)||p.numerator<0||
     (def.aggregation==="RATIO"?
-      !Number.isSafeInteger(p.denominator)||p.denominator!<0||p.numerator>p.denominator!:
+      !Number.isSafeInteger(p.denominator)||p.denominator!<0||(p.denominator!>0&&p.numerator>p.denominator!):
       p.denominator!==undefined)||
     (p.unit==="MINOR_CURRENCY_UNITS"?!currencies.has(p.currency??""):p.currency!==undefined)||
     !Array.isArray(p.evidenceFingerprints)||!p.evidenceFingerprints.length||
