@@ -1,3 +1,4 @@
+import {makeMetricFixture} from "./metric-fixture.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { analyzeCrossDomain } from "../dist/src/analysis/cross-domain.js";
@@ -5,7 +6,7 @@ import { proposeRecommendation } from "../dist/src/recommendation/proposal.js";
 import { evaluateRecommendation } from "../dist/src/recommendation/evaluation.js";
 import { prepareDecisionReview } from "../dist/src/recommendation/decision-review.js";
 const now="2026-10-01T00:00:00.000Z",ctx={workspaceId:"clinic",actorId:"model",authorizedAt:now};
-const metric=domain=>({workspaceId:"clinic",domain,metricKey:domain.toLowerCase(),periodStart:"2026-09-01T00:00:00.000Z",periodEnd:"2026-09-30T00:00:00.000Z",observedAt:now,unit:"COUNT",numerator:4,denominator:8,evidenceFingerprints:["source-"+domain],coverage:"COMPLETE",verification:"UNVERIFIED"});
+const metric=(domain,changes={})=>makeMetricFixture(domain,ctx.workspaceId,now,changes);
 const evaluation=()=>{const a=analyzeCrossDomain(ctx,[metric("LEADS"),metric("APPOINTMENTS")],{asOf:now,maxEvidenceAgeMs:86400000,domains:["LEADS","APPOINTMENTS"]});const p=proposeRecommendation(ctx,a,{proposalId:"p1",asOf:now,title:"Review workflow",rationale:"Unverified candidate",assumptions:["Staff availability unknown"],alternatives:[{id:"a",description:"Review",tradeOffs:["Time"]},{id:"b",description:"Wait",tradeOffs:["Delay"]}],supportingEvidenceFingerprints:["source-LEADS","source-APPOINTMENTS"]});return evaluateRecommendation(ctx,a,p,{a:["Owner time"],b:["More data"]});};
 const request=()=>({recordId:"packet-1",asOf:now,expiresAt:"2026-10-02T00:00:00.000Z",purpose:"Human consideration only",reviewerRoleRequired:"owner"});
 test("decision packet cannot impersonate human approval, choose or execute",()=>{const e=evaluation(),r=prepareDecisionReview(ctx,e,request());assert.equal(r.reviewStatus,"AWAITING_INDEPENDENT_HUMAN_REVIEW");assert.equal(r.reviewerIdentity,null);assert.equal(r.approval,null);assert.equal(r.decision,null);assert.equal(r.authority,"NONE");assert.equal(r.executable,false);assert.equal(r.selectedAlternativeId,null);assert.deepEqual(r,prepareDecisionReview(ctx,e,request()));r.uncertainty.push("tampered");assert.deepEqual(prepareDecisionReview(ctx,e,request()).uncertainty,e.uncertainty);});
