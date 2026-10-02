@@ -1,5 +1,5 @@
 import type { AuthorizedWorkspaceContext, OperationalRecord, ValidationResult } from "../integration/contracts.js";
-const iso=(s:unknown)=>typeof s==="string"&&Number.isFinite(Date.parse(s))&&new Date(s).toISOString()===s;
+const iso=(s:unknown)=>typeof s==="string"&&/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$/.test(s)&&Number.isFinite(Date.parse(s))&&(new Date(s).toISOString()===s||new Date(s).toISOString()===s.replace("Z",".000Z"));
 function jsonSafe(value:unknown,seen=new Set<object>(),depth=0):boolean{
  if(depth>24)return false;
  if(value===null||typeof value==="string"||typeof value==="boolean")return true;
