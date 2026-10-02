@@ -53,9 +53,11 @@ export class InMemoryEvidenceLedger {
         errors.push(...validation.errors.map(code => ({ code, message: "Evidence intake validation failed", retryable: false })));
         continue;
       }
-      const fingerprint = await fingerprintOperationalRecord(record);
+      // Snapshot once before asynchronous hashing: fingerprint and stored observation must describe identical bytes.
+      const snapshot = structuredClone(record);
+      const fingerprint = await fingerprintOperationalRecord(snapshot);
       if ([...this.entries,...accepted].some(e => e.fingerprint === fingerprint)) { duplicates.push(fingerprint); continue; }
-      const observation = normalizeOperationalRecord(record);
+      const observation = normalizeOperationalRecord(snapshot);
       const previous = [...this.entries,...accepted].reverse().find(e =>
         e.observation.workspaceId === observation.workspaceId &&
         e.observation.sourceSystem === observation.sourceSystem &&
