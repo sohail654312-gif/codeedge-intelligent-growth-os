@@ -130,7 +130,8 @@ test("M-06 non-executable trusted approval is rechecked at action gate; even val
  assert.equal(stillDenied.providerInvoked,false);
  assert.equal(denied.performedEffects,0);
  assert.equal(gateCalls,2);
- assert.ok(membershipChecks>=4);
+ // The substituted actor is denied on identity mismatch before membership; never credit it as a passed membership check.
+ assert.equal(membershipChecks,3);
  assert.equal(approvalLedger.audit.length,1);
  assert.equal(actionLedger.audit.length,2);
  assert.equal(providerCalls,0);
