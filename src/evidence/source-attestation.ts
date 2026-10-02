@@ -23,7 +23,8 @@ const fail=():never=>{throw Error("UNTRUSTED_SOURCE_PROVENANCE");};
 export async function requireAttestedObservation(record:OperationalRecord,result:ReadResult,
  attestation:SourceAttestation|undefined,authority?:TrustedSourceAuthority):Promise<SourceAttestation> {
  try {
-  if(!authority?.verifyReceipt||!attestation||!record||!result)fail();
+  if(!authority||!attestation||!record||!result)throw Error("UNTRUSTED_SOURCE_PROVENANCE");
+  if(typeof authority.verifyReceipt!=="function")fail();
   // Snapshot all three untrusted arguments before fingerprinting or invoking an async authority.
   const observation=structuredClone(record),page=structuredClone(result),receipt=structuredClone(attestation);
   if(!receipt.adapterId?.trim()||!receipt.receiptId?.trim()||!page.fetchedAt||
