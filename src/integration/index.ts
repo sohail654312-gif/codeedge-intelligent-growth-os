@@ -14,3 +14,5 @@ export { InMemorySourceReader } from "./in-memory-source-reader.js";
 export { BusinessOsReadModelReader } from "./business-os-read-model.js";
 export type { BusinessOsReadModelPort, TrustedCursorCodec, TrustedReadAuthorization } from "./business-os-read-model.js";
 export { HmacBusinessOsCursorCodec } from "./hmac-business-os-cursor.js";
+
+export { AeadBusinessOsCursorCodec } from "./aead-business-os-cursor.js";
