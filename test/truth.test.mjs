@@ -191,3 +191,6 @@ test("R1 rejects forged VERIFIED and untrusted approval by default", () => {
   assert.ok(validateTruthRecord(decision, { isVerifiedEvidence: () => false, isAuthorizedApproval: () => false }).errors.includes("TRUSTED_APPROVAL_REQUIRED"));
   assert.equal(validateTruthRecord(forged, { isVerifiedEvidence: (item, subject) => item.workspaceId === subject.workspaceId && item.id === evidence().id, isAuthorizedApproval: () => false }).ok, true);
 });
+
+
+test("H-03 structural action or decision cannot substitute for actual authority",()=>{for(const truthClass of ["ACTION","DECISION"]){for(const approved of [false,true]){const r=record({truthClass,sourceSystem:"CIGO",ownership:"CIGO_OWNED",evidence:[],authority:{actorId:"human:1",actorType:"HUMAN",approved,approvedAt:now,evidenceReference:"proposal:1"}});const x=validateTruthRecord(r);assert.equal(x.ok,false);assert.ok(x.errors.includes("TRUSTED_APPROVAL_REQUIRED"));if(!approved)assert.ok(x.errors.includes("ACTION_APPROVAL_REQUIRED"));}}});
