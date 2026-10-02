@@ -20,7 +20,7 @@ export const METRIC_CATALOG:readonly MetricDefinition[] = Object.freeze([
  {domain:"MARKETING",metricKey:"marketing-spend",unit:"MINOR_CURRENCY_UNITS",aggregation:"SUM",numeratorMeaning:"Recorded marketing spend in stated currency minor units",definitionVersion:"v1"},
  {domain:"RETENTION",metricKey:"customer-retention",unit:"COUNT",aggregation:"RATIO",numeratorMeaning:"Customers retained from eligible reporting cohort",denominatorMeaning:"Customers in eligible reporting cohort",definitionVersion:"v1"},
  {domain:"CAPACITY",metricKey:"available-slots",unit:"COUNT",aggregation:"SUM",numeratorMeaning:"Available bookable slots in reporting window",definitionVersion:"v1"},
-]);
+].map(def=>Object.freeze(def)));
 const catalog = new Map(METRIC_CATALOG.map(def=>[def.domain+"|"+def.metricKey,def]));
 /** Explicitly supported ISO 4217 currencies; additions require reviewed source/precision contract. */
 const currencies = new Set(["GBP","USD","EUR","PKR","AED","CAD","AUD","INR","SGD","NZD"]);
