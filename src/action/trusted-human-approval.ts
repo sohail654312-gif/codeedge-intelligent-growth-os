@@ -65,13 +65,18 @@ export class HumanApprovalBoundary {
   if(!input||!valid(input.workspaceId)||!valid(input.approvalId)||!input.subject||input.subject.workspaceId!==input.workspaceId)return denied("INVALID_SCOPE");
   let session:TrustedHumanSession;
   try{session=await this.identity(input.workspaceId,input.subject.operation,input.requiredRole);}catch{return denied("IDENTITY_OR_MEMBERSHIP_DENIED");}
-  const saved=await this.ledger.lookup(input.workspaceId,input.approvalId);
+  let saved:ApprovalRecord|undefined;
+  try{saved=await this.ledger.lookup(input.workspaceId,input.approvalId);}catch{return denied("APPROVAL_LEDGER_UNAVAILABLE");}
   if(!saved||saved.kind!=="HUMAN_APPROVAL_DECISION"||saved.status!=="RECORDED_NON_EXECUTABLE"||saved.decision!=="APPROVE"||saved.actorId!==session.actorId||saved.sessionId!==session.sessionId)return denied("APPROVAL_NOT_VALID");
-  if(saved.intentId!==input.subject.intentId||saved.subjectDigest!==this.digest.digest(canonical(input.subject)))return denied("SUBJECT_MISMATCH");
-  if(!iso(saved.decidedAt)||!iso(saved.expiresAt)||!iso(this.clock.now())||Date.parse(this.clock.now())>=Date.parse(saved.expiresAt)||Date.parse(this.clock.now())<Date.parse(saved.decidedAt))return denied("APPROVAL_EXPIRED_OR_INVALID");
-  if(await this.ledger.isRevoked(input.workspaceId,input.approvalId))return denied("APPROVAL_REVOKED");
-  const evaluation=await this.policy.evaluate({subject:structuredClone(input.subject),actorId:session.actorId,decision:"APPROVE",now:this.clock.now()});
-  if(!evaluation?.allow||evaluation.policyVersion!==saved.policyVersion)return denied("POLICY_CHANGED_OR_DENIED");
+  let now:string;
+  try{
+   if(saved.intentId!==input.subject.intentId||saved.subjectDigest!==this.digest.digest(canonical(input.subject)))return denied("SUBJECT_MISMATCH");
+   now=this.clock.now();
+   if(!iso(saved.decidedAt)||!iso(saved.expiresAt)||!iso(now)||Date.parse(now)>=Date.parse(saved.expiresAt)||Date.parse(now)<Date.parse(saved.decidedAt))return denied("APPROVAL_EXPIRED_OR_INVALID");
+   if(await this.ledger.isRevoked(input.workspaceId,input.approvalId))return denied("APPROVAL_REVOKED");
+   const evaluation=await this.policy.evaluate({subject:structuredClone(input.subject),actorId:session.actorId,decision:"APPROVE",now});
+   if(!evaluation?.allow||evaluation.policyVersion!==saved.policyVersion)return denied("POLICY_CHANGED_OR_DENIED");
+  }catch{return denied("APPROVAL_DEPENDENCY_UNAVAILABLE");}
   return {status:"VALID_NON_EXECUTABLE",reason:"REQUIRES_SEPARATE_R7_EFFECT_AUTHORIZATION"};
  }
  async revoke(input:Readonly<{workspaceId:string;approvalId:string;operation:string}>):Promise<void>{
