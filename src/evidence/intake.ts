@@ -37,7 +37,7 @@ export class InMemoryEvidenceLedger {
     // Stage the complete batch before committing; fatal normalization, hashing or clock failures cannot partially append.
     for (const record of result.records) {
       const validation = validateOperationalRecord(record, context);
-      if (!expectedSourceSystem || record.reference?.sourceSystem !== expectedSourceSystem) {
+      if (!expectedSourceSystem || record?.reference?.sourceSystem !== expectedSourceSystem) {
         errors.push({ code: "SOURCE_SCOPE_MISMATCH", message: "Evidence source does not match authorized intake", retryable: false });
         continue;
       }
