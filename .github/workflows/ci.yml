@@ -25,3 +25,16 @@ jobs:
         run: npm run verify
       - name: High-severity dependency audit
         run: npm run security:dependencies
+      - name: Validate locked component provenance
+        run: npm run security:provenance
+      - name: Generate and verify CycloneDX SBOM
+        run: |
+          npm sbom --sbom-format cyclonedx > "$RUNNER_TEMP/cigo-sbom.cdx.json"
+          node scripts/check-sbom.mjs "$RUNNER_TEMP/cigo-sbom.cdx.json"
+      - name: Attach exact-build SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: cigo-cyclonedx-sbom
+          path: ${{ runner.temp }}/cigo-sbom.cdx.json
+          if-no-files-found: error
+          retention-days: 7
