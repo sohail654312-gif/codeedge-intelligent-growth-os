@@ -43,7 +43,8 @@ export async function runSyntheticPilot(seed:SyntheticPilotSeed):Promise<Synthet
   !Array.isArray(seed.records)||seed.records.length<1||seed.records.length>10)
   reject("INVALID_SYNTHETIC_PILOT_SEED");
  const workspaceId=seed.workspaceId as WorkspaceId;
- const context={workspaceId,actorId:seed.actorId,authorizedAt:stamp};
+ const mode:PilotMode=seed.mode,actorId=seed.actorId,sessionId=seed.sessionId;
+ const context={workspaceId,actorId,authorizedAt:stamp};
  const references=new Set<string>();
  for(const record of seed.records){
   if(!record||record.workspaceId!==workspaceId||record.reference?.sourceSystem!=="BUSINESS_OS"||
@@ -61,7 +62,7 @@ export async function runSyntheticPilot(seed:SyntheticPilotSeed):Promise<Synthet
   return {records:structuredClone(records.slice(0,x.limit))};
  }};
  const authorization:TrustedReadAuthorization={async assertAuthorized(x){
-  if(x.workspaceId!==workspaceId||x.actorId!==seed.actorId||x.resourceKind!=="lead")reject("SYNTHETIC_AUTH_DENIED");
+  if(x.workspaceId!==workspaceId||x.actorId!==actorId||x.resourceKind!=="lead")reject("SYNTHETIC_AUTH_DENIED");
  }};
  // The same strict confidential AEAD constructor as the reference R5 reader; new disposable key each run.
  const reader=BusinessOsReadModelReader.create({workspaceId,port,authorization,
@@ -87,14 +88,14 @@ export async function runSyntheticPilot(seed:SyntheticPilotSeed):Promise<Synthet
  if(!insight||insight.status!=="AVAILABLE"||insight.value!==admitted.length||insight.verifiedFact!==false||
   insight.actionable!==false||insight.evidenceFingerprints.some((x,i)=>x!==fingerprints[i]))reject("SYNTHETIC_ANALYSIS_INVALID");
  const subject:ApprovalSubject={workspaceId,intentId:"synthetic:intent",reviewPacketId:"synthetic:review",
-  proposalId:"synthetic:proposal",planId:"synthetic:plan",mode:seed.mode,domainService:"CRM",operation:"FOLLOW_UP",
+  proposalId:"synthetic:proposal",planId:"synthetic:plan",mode:mode,domainService:"CRM",operation:"FOLLOW_UP",
   evidenceFingerprints:[...fingerprints]};
  const authority:ApprovalAuthority={
-  async resolveSession(){return {workspaceId,actorId:seed.actorId,actorType:"HUMAN",sessionId:seed.sessionId,authenticatedAt:stamp};},
-  async assertCurrentMembership(x){if(x.workspaceId!==workspaceId||x.actorId!==seed.actorId||x.sessionId!==seed.sessionId||
+  async resolveSession(){return {workspaceId,actorId:actorId,actorType:"HUMAN",sessionId:sessionId,authenticatedAt:stamp};},
+  async assertCurrentMembership(x){if(x.workspaceId!==workspaceId||x.actorId!==actorId||x.sessionId!==sessionId||
    x.requiredRole!=="OWNER"||x.operation!=="FOLLOW_UP")reject("SYNTHETIC_MEMBERSHIP_DENIED");}
  };
- const policy:ApprovalPolicy={async evaluate(x){return {allow:x.subject.workspaceId===workspaceId&&x.subject.mode===seed.mode&&
+ const policy:ApprovalPolicy={async evaluate(x){return {allow:x.subject.workspaceId===workspaceId&&x.subject.mode===mode&&
   x.subject.evidenceFingerprints.length===fingerprints.length&&x.subject.evidenceFingerprints.every((fp,i)=>fp===fingerprints[i]),
   requiredRole:"OWNER",policyVersion:"synthetic:v1",reasonCode:"SYNTHETIC_ONLY",maxTtlMs:60000};}};
  const approvalLedger=new InMemoryApprovalLedger();
@@ -107,7 +108,7 @@ export async function runSyntheticPilot(seed:SyntheticPilotSeed):Promise<Synthet
  const actionLedger=new InMemoryDeniedActionLedger();
  const action=new BusinessOsActionRequestBoundary({async verify(x){
   const actual=await approval.check({workspaceId:x.workspaceId,approvalId:x.approvalId,subject:x.subject,requiredRole:"OWNER"});
-  const sourceBound=x.workspaceId===workspaceId&&x.intentId===subject.intentId&&x.mode===seed.mode&&
+  const sourceBound=x.workspaceId===workspaceId&&x.intentId===subject.intentId&&x.mode===mode&&
    x.domainService===subject.domainService&&x.operation===subject.operation&&
    x.subject.evidenceFingerprints.length===fingerprints.length&&x.subject.evidenceFingerprints.every((fp,i)=>fp===fingerprints[i])&&
    evidenceLedger.list(context).every((entry,i)=>entry.fingerprint===fingerprints[i]&&entry.verification==="UNVERIFIED");
@@ -117,15 +118,15 @@ export async function runSyntheticPilot(seed:SyntheticPilotSeed):Promise<Synthet
    durableAudit:false,adapter:false};
  }},actionLedger);
  const denied=await action.submit({requestId:"synthetic:request",workspaceId,intentId:subject.intentId,
-  approvalId:recorded.approvalId,mode:seed.mode,domainService:subject.domainService,operation:subject.operation,
+  approvalId:recorded.approvalId,mode:mode,domainService:subject.domainService,operation:subject.operation,
   payload:null,idempotencyKey:"synthetic:idempotency"},subject);
  if(denied.status!=="DENIED_NO_EFFECT"||denied.reason!=="GATES_NOT_ACCEPTED"||
   denied.performedEffects!==0||denied.providerInvoked!==false||denied.dispatched!==false||
   approvalLedger.audit.length!==1||actionLedger.audit.length!==1)reject("SYNTHETIC_EFFECT_INVARIANT_FAILED");
  const admittedEvidence=admitted.map(entry=>Object.freeze({fingerprint:entry.fingerprint,
   externalReference:entry.observation.externalReference,verification:"UNVERIFIED" as const}));
- return Object.freeze({kind:"R9_SYNTHETIC_NO_EFFECT_ACCEPTANCE" as const,mode:seed.mode,
-  modeBanner:seed.mode==="DEMO"?"SYNTHETIC_DEMO_NO_EFFECT" as const:"SYNTHETIC_SANDBOX_NO_EFFECT" as const,
+ return Object.freeze({kind:"R9_SYNTHETIC_NO_EFFECT_ACCEPTANCE" as const,mode:mode,
+  modeBanner:mode==="DEMO"?"SYNTHETIC_DEMO_NO_EFFECT" as const:"SYNTHETIC_SANDBOX_NO_EFFECT" as const,
   workspaceId,readCount:read.records.length,evidenceCount:admitted.length,
   admittedEvidence:Object.freeze(admittedEvidence),approvalEvidenceFingerprints:Object.freeze([...subject.evidenceFingerprints]),
   analysis:"UNVERIFIED_NON_ACTIONABLE" as const,analysisValue:insight.value!,verifiedFact:false as const,actionable:false as const,
