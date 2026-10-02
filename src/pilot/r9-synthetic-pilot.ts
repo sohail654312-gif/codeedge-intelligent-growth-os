@@ -1,6 +1,6 @@
 import {BusinessOsReadModelReader} from "../integration/business-os-read-model.js";
 import type {BusinessOsReadModelPort,TrustedReadAuthorization} from "../integration/business-os-read-model.js";
-import {createHash,randomBytes} from "node:crypto";
+import {createHmac,randomBytes} from "node:crypto";
 import {validateOperationalRecord} from "../evidence/validation.js";
 import {InMemoryEvidenceLedger} from "../evidence/intake.js";
 import {analyzeBusinessMetrics} from "../analysis/business-metrics.js";
@@ -52,8 +52,8 @@ export async function runSyntheticPilot(seed:SyntheticPilotSeed):Promise<Synthet
   references.add(record.reference.externalReference);
  }
  // Capture a detached, validated snapshot BEFORE the first await: caller mutation must not change admission.
- let records:OperationalRecord[];
- try{records=structuredClone(seed.records);}catch{reject("INVALID_SYNTHETIC_PILOT_SEED");}
+ let records:OperationalRecord[]=[];
+ try{records=structuredClone([...seed.records]);}catch{return reject("INVALID_SYNTHETIC_PILOT_SEED");}
  const fault=seed.fixtureFault;
  const port:BusinessOsReadModelPort={version:"v1",async readPage(x){
   if(x.workspaceId!==workspaceId||x.resourceKind!=="lead"||x.cursor!==undefined)reject("SYNTHETIC_SOURCE_SCOPE_DENIED");
@@ -71,8 +71,7 @@ export async function runSyntheticPilot(seed:SyntheticPilotSeed):Promise<Synthet
  if(read.completeness!=="COMPLETE"||read.errors.length||read.records.length!==records.length||read.nextCursor!==undefined)
   reject("SYNTHETIC_READ_INCOMPLETE");
  const evidenceLedger=new InMemoryEvidenceLedger(workspaceId,()=>fault==="INTAKE_CLOCK_FAILURE"?reject("SYNTHETIC_INTAKE_CLOCK_FAULT"):stamp);
- let report:Awaited<ReturnType<InMemoryEvidenceLedger["ingest"]>>;
- try{report=await evidenceLedger.ingest(context,read,"BUSINESS_OS");}catch{reject("SYNTHETIC_INTAKE_FAILED");}
+ const report=await evidenceLedger.ingest(context,read,"BUSINESS_OS").catch(()=>reject("SYNTHETIC_INTAKE_FAILED"));
  if(report.completeness!=="COMPLETE"||report.errors.length||report.duplicates.length||
   report.accepted.length!==records.length||report.accepted.some(x=>x.verification!=="UNVERIFIED"||x.observation.workspaceId!==workspaceId||
   !/^cigo:observation:v1:[a-f0-9]{64}$/.test(x.fingerprint)))reject("SYNTHETIC_EVIDENCE_INCOMPLETE");
@@ -99,7 +98,7 @@ export async function runSyntheticPilot(seed:SyntheticPilotSeed):Promise<Synthet
   x.subject.evidenceFingerprints.length===fingerprints.length&&x.subject.evidenceFingerprints.every((fp,i)=>fp===fingerprints[i]),
   requiredRole:"OWNER",policyVersion:"synthetic:v1",reasonCode:"SYNTHETIC_ONLY",maxTtlMs:60000};}};
  const approvalLedger=new InMemoryApprovalLedger();
- const digest:ApprovalDigest={digest:x=>createHash("sha256").update(x).digest("hex")};
+ const digest:ApprovalDigest={digest:x=>createHmac("sha256",new TextEncoder().encode("M08_SYNTHETIC_NOT_AUTHORITY")).update(x).digest().toString("hex")};
  const clock:ApprovalClock={now:()=>stamp};
  const approval=new HumanApprovalBoundary(authority,policy,approvalLedger,digest,clock);
  const recorded=await approval.decide({approvalId:"synthetic:approval",subject,decision:"APPROVE",requiredRole:"OWNER"});
@@ -129,7 +128,7 @@ export async function runSyntheticPilot(seed:SyntheticPilotSeed):Promise<Synthet
   modeBanner:seed.mode==="DEMO"?"SYNTHETIC_DEMO_NO_EFFECT" as const:"SYNTHETIC_SANDBOX_NO_EFFECT" as const,
   workspaceId,readCount:read.records.length,evidenceCount:admitted.length,
   admittedEvidence:Object.freeze(admittedEvidence),approvalEvidenceFingerprints:Object.freeze([...subject.evidenceFingerprints]),
-  analysis:"UNVERIFIED_NON_ACTIONABLE" as const,analysisValue:insight.value,verifiedFact:false as const,actionable:false as const,
+  analysis:"UNVERIFIED_NON_ACTIONABLE" as const,analysisValue:insight.value!,verifiedFact:false as const,actionable:false as const,
   approval:"VALID_NON_EXECUTABLE" as const,action:"DENIED_NO_EFFECT" as const,actionReason:denied.reason,
   auditEvents:approvalLedger.audit.length+actionLedger.audit.length,
   providerCalls:0 as const,productionConnections:0 as const,performedEffects:0 as const});
