@@ -31,7 +31,7 @@ export class AeadBusinessOsCursorCodec implements TrustedCursorCodec {
   const [version,kid,iv,body,tag]=token.split(".");const key=this.keys.get(kid);if(!key||version!=="v2")return undefined;
   try{
    const nonce=Buffer.from(iv,"base64url"),authTag=Buffer.from(tag,"base64url"),encrypted=Buffer.from(body,"base64url");
-   if(nonce.length!==12||authTag.length!==16||!encrypted.length||encrypted.length>3072)return undefined;
+   if(nonce.length!==12||authTag.length!==16||!encrypted.length||encrypted.length>3072||nonce.toString("base64url")!==iv||authTag.toString("base64url")!==tag||encrypted.toString("base64url")!==body)return undefined;
    const decipher=createDecipheriv("aes-256-gcm",key,nonce);decipher.setAAD(domain);decipher.setAuthTag(authTag);
    const plaintext=Buffer.concat([decipher.update(encrypted),decipher.final()]).toString("utf8");
    const p:Payload=JSON.parse(plaintext);const now=this.now();
