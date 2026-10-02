@@ -1,3 +1,4 @@
+import { AeadBusinessOsCursorCodec } from "./aead-business-os-cursor.js";
 import type { WorkspaceId } from "../domain/truth/types.js";
 import { validateOperationalRecord } from "../evidence/validation.js";
 import type { OperationalRecord, ReadError, ReadRequest, ReadResult } from "./contracts.js";
@@ -23,8 +24,9 @@ export class BusinessOsReadModelReader implements SourceReader {
  readonly sourceSystem="BUSINESS_OS" as const;
  constructor(private readonly workspaceId:WorkspaceId,private readonly port:BusinessOsReadModelPort,
   private readonly authorization:TrustedReadAuthorization,private readonly cursors:TrustedCursorCodec,
-  private readonly clock:()=>string=()=>new Date().toISOString()) {
+  private readonly clock:()=>string=()=>new Date().toISOString(),private readonly mode:"DEMO"|"SANDBOX"|"PRODUCTION"="DEMO") {
   if(port.version!=="v1") throw new Error("UNSUPPORTED_BUSINESS_OS_READ_MODEL");
+  if(mode==="PRODUCTION" && !(cursors instanceof AeadBusinessOsCursorCodec))throw Error("CONFIDENTIAL_CURSOR_CODEC_REQUIRED");
  }
  async read(request:ReadRequest):Promise<ReadResult>{
   const fetchedAt=this.clock();
