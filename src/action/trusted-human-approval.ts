@@ -9,7 +9,7 @@ export interface ApprovalAuthority {
 export interface ApprovalPolicy {
  evaluate(input:Readonly<{subject:ApprovalSubject;actorId:string;decision:"APPROVE"|"REJECT";now:string}>):Promise<Readonly<{allow:boolean;policyVersion:string;reasonCode:string;maxTtlMs:number}>>;
 }
-export interface ApprovalRecord {readonly kind:"HUMAN_APPROVAL_DECISION";readonly workspaceId:string;readonly approvalId:string;readonly intentId:string;readonly subjectDigest:string;readonly actorId:string;readonly sessionId:string;readonly decision:"APPROVE"|"REJECT";readonly policyVersion:string;readonly decidedAt:string;readonly expiresAt:string;readonly status:"RECORDED_NON_EXECUTABLE"}
+export interface ApprovalRecord {readonly kind:"HUMAN_APPROVAL_DECISION";readonly workspaceId:string;readonly approvalId:string;readonly intentId:string;readonly subjectDigest:string;readonly actorId:string;readonly sessionId:string;readonly decision:"APPROVE"|"REJECT";readonly requiredRole:"OWNER"|"APPROVER";readonly policyVersion:string;readonly decidedAt:string;readonly expiresAt:string;readonly status:"RECORDED_NON_EXECUTABLE"}
 export interface ApprovalLedger {
  /** Durable production implementation must atomically enforce unique workspace + approvalId, deny conflicting replay and append audit. */
  record(input:ApprovalRecord):Promise<ApprovalRecord>;
@@ -23,7 +23,7 @@ const iso=(s:unknown):s is string=>typeof s==="string"&&Number.isFinite(Date.par
 const fail=(code:string):never=>{throw Error(code)};
 const same=(a:ApprovalRecord,b:ApprovalRecord)=>JSON.stringify(a)===JSON.stringify(b);
 /** Replay identity deliberately excludes clock-derived timestamps; a retry cannot extend the original expiry. */
-const sameDecision=(a:ApprovalRecord,b:ApprovalRecord)=>a.kind===b.kind&&a.status===b.status&&a.workspaceId===b.workspaceId&&a.approvalId===b.approvalId&&a.intentId===b.intentId&&a.subjectDigest===b.subjectDigest&&a.actorId===b.actorId&&a.sessionId===b.sessionId&&a.decision===b.decision&&a.policyVersion===b.policyVersion;
+const sameDecision=(a:ApprovalRecord,b:ApprovalRecord)=>a.kind===b.kind&&a.status===b.status&&a.workspaceId===b.workspaceId&&a.approvalId===b.approvalId&&a.intentId===b.intentId&&a.subjectDigest===b.subjectDigest&&a.actorId===b.actorId&&a.sessionId===b.sessionId&&a.decision===b.decision&&a.requiredRole===b.requiredRole&&a.policyVersion===b.policyVersion;
 const canonical=(s:ApprovalSubject)=>JSON.stringify([s.workspaceId,s.intentId,s.reviewPacketId,s.proposalId,s.planId,s.mode,s.domainService,s.operation,[...s.evidenceFingerprints].sort()]);
 /** Hashing supplied by trusted server. No model/caller digest is accepted as an approval subject. */
 export interface ApprovalDigest {digest(canonicalSubject:string):string}
@@ -44,7 +44,7 @@ export class HumanApprovalBoundary {
   const evaluation=await this.policy.evaluate({subject:structuredClone(subject),actorId:session.actorId,decision,now});
   if(!evaluation?.allow||!valid(evaluation.policyVersion)||!Number.isSafeInteger(evaluation.maxTtlMs)||evaluation.maxTtlMs<1000||evaluation.maxTtlMs>86_400_000)fail("APPROVAL_POLICY_DENIED");
   const subjectDigest=this.digest.digest(canonical(subject));if(!valid(subjectDigest))fail("INVALID_TRUSTED_DIGEST");
-  const record:ApprovalRecord={kind:"HUMAN_APPROVAL_DECISION",workspaceId:subject.workspaceId,approvalId,intentId:subject.intentId,subjectDigest,actorId:session.actorId,sessionId:session.sessionId,decision,policyVersion:evaluation.policyVersion,decidedAt:now,expiresAt:new Date(Date.parse(now)+evaluation.maxTtlMs).toISOString(),status:"RECORDED_NON_EXECUTABLE"};
+  const record:ApprovalRecord={kind:"HUMAN_APPROVAL_DECISION",workspaceId:subject.workspaceId,approvalId,intentId:subject.intentId,subjectDigest,actorId:session.actorId,sessionId:session.sessionId,decision,requiredRole,policyVersion:evaluation.policyVersion,decidedAt:now,expiresAt:new Date(Date.parse(now)+evaluation.maxTtlMs).toISOString(),status:"RECORDED_NON_EXECUTABLE"};
   const existing=await this.ledger.lookup(subject.workspaceId,approvalId);
   if(existing){if(!sameDecision(existing,record))fail("APPROVAL_REPLAY_CONFLICT");if(!iso(existing.decidedAt)||!iso(existing.expiresAt)||Date.parse(now)>=Date.parse(existing.expiresAt)||Date.parse(now)<Date.parse(existing.decidedAt)||await this.ledger.isRevoked(subject.workspaceId,approvalId))fail("APPROVAL_REPLAY_EXPIRED_OR_REVOKED");return structuredClone(existing);}
   let saved:ApprovalRecord;
@@ -67,7 +67,7 @@ export class HumanApprovalBoundary {
   try{session=await this.identity(input.workspaceId,input.subject.operation,input.requiredRole);}catch{return denied("IDENTITY_OR_MEMBERSHIP_DENIED");}
   let saved:ApprovalRecord|undefined;
   try{saved=await this.ledger.lookup(input.workspaceId,input.approvalId);}catch{return denied("APPROVAL_LEDGER_UNAVAILABLE");}
-  if(!saved||saved.kind!=="HUMAN_APPROVAL_DECISION"||saved.status!=="RECORDED_NON_EXECUTABLE"||saved.decision!=="APPROVE"||saved.actorId!==session.actorId||saved.sessionId!==session.sessionId)return denied("APPROVAL_NOT_VALID");
+  if(!saved||saved.kind!=="HUMAN_APPROVAL_DECISION"||saved.status!=="RECORDED_NON_EXECUTABLE"||saved.decision!=="APPROVE"||saved.actorId!==session.actorId||saved.sessionId!==session.sessionId||saved.requiredRole!==input.requiredRole)return denied("APPROVAL_NOT_VALID");
   let now:string;
   try{
    if(saved.intentId!==input.subject.intentId||saved.subjectDigest!==this.digest.digest(canonical(input.subject)))return denied("SUBJECT_MISMATCH");
