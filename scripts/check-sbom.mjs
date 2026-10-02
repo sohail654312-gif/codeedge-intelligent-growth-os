@@ -5,9 +5,12 @@ import {checkRepositoryProvenance} from "./check-provenance.mjs";
 
 /** Validate independently generated npm CycloneDX output against the exact lockfile package/version inventory. */
 export function inspectSbom(bom,inventory){
+ const root=bom?.metadata?.component;
+ const expectedRoot=inventory.root.startsWith("@")?inventory.root.split("/"):["",inventory.root];
+ const rootMatches=!!root&&root.version===inventory.rootVersion&&(
+   root.name===inventory.root||(root.group===expectedRoot[0]&&root.name===expectedRoot[1]));
  if(!bom||bom.bomFormat!=="CycloneDX"||!/^1\.[4-9]$/.test(bom.specVersion)||
-   !Array.isArray(bom.components)||bom.metadata?.component?.name!==inventory.root||
-   bom.metadata?.component?.version!==inventory.rootVersion)throw Error("INVALID_SBOM_HEADER");
+   !Array.isArray(bom.components)||!rootMatches)throw Error("INVALID_SBOM_HEADER");
  const components=new Set();
  for(const entry of bom.components){
   if(!entry||typeof entry.name!=="string"||typeof entry.version!=="string")throw Error("INVALID_SBOM_COMPONENT");
