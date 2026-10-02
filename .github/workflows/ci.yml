@@ -30,7 +30,9 @@ jobs:
           npm --version
       - name: Install from reviewed lockfile only
         run: npm ci --ignore-scripts
-      - name: Check authoritative STATE / HANDOFF mirror (M-07)\n        run: node scripts/check-governance-mirror.mjs\n      - name: Verify typecheck, build and mandatory non-skipped unit tests
+      - name: Check authoritative STATE / HANDOFF mirror (M-07)
+        run: node scripts/check-governance-mirror.mjs
+      - name: Verify typecheck, build and mandatory non-skipped unit tests
         shell: bash
         run: |
           set -o pipefail

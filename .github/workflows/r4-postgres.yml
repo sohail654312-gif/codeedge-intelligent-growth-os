@@ -74,7 +74,9 @@ jobs:
           SQL
       - name: Provision synthetic tenant-scoped roles and RLS policies
         run: psql -v ON_ERROR_STOP=1 -f docs/architecture/sql/R4-DISPOSABLE-TENANT-ROLES.sql
-      - name: Check authoritative STATE / HANDOFF mirror (M-07)\n        run: node scripts/check-governance-mirror.mjs\n      - name: Typecheck and mandatory non-skipped unit tests
+      - name: Check authoritative STATE / HANDOFF mirror (M-07)
+        run: node scripts/check-governance-mirror.mjs
+      - name: Typecheck and mandatory non-skipped unit tests
         shell: bash
         run: |
           set -o pipefail

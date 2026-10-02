@@ -23,5 +23,5 @@ if(process.argv[1]&&fileURLToPath(import.meta.url)===process.argv[1]){
  const state=JSON.parse(readFileSync("ops/STATE.json","utf8"));
  const handoff=readFileSync("ops/HANDOFF.md","utf8");
  const ok=verifyGovernanceMirror(state,handoff);
- process.stdout.write("M-07 governance mirror verified: "+ok.task+" / "+ok.lastVerified+"\\n");
+ console.log("M-07 governance mirror verified: "+ok.task+" / "+ok.lastVerified);
 }
