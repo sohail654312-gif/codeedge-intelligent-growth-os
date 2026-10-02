@@ -43,7 +43,7 @@ test("all domains use named reviewed measures, never arbitrary keys",()=>{
   numerator:5,denominator:def.aggregation==="RATIO"?10:undefined,
   ...(def.unit==="MINOR_CURRENCY_UNITS"?{currency:"GBP"}:{})}));
  const result=analyzeBusinessMetrics(ctx,data,req);
- assert.equal(result.insights.length,8);
+ assert.equal(result.insights.length,measures.length);
  assert.ok(result.insights.every(x=>x.status==="AVAILABLE"&&x.actionable===false));
  assert.ok(result.insights.every(x=>x.value===(x.aggregation==="RATIO"?0.5:5)));
 });
