@@ -44,7 +44,9 @@ export class HumanApprovalBoundary {
   return session;
  }
  async decide(input:Readonly<{approvalId:string;subject:ApprovalSubject;decision:"APPROVE"|"REJECT";requiredRole:"OWNER"|"APPROVER"}>):Promise<ApprovalRecord>{
-  const {approvalId,subject,decision,requiredRole}=input??{};
+  const {approvalId,decision,requiredRole}=input??{};
+  // Copy the subject before the first await. Policy, membership, digest and ledger must see one identity.
+  const subject:ApprovalSubject=(()=>{try{return structuredClone(input?.subject);}catch{return fail("INVALID_APPROVAL_REQUEST");}})();
   if(!valid(approvalId)||!subject||!valid(subject.workspaceId)||!valid(subject.intentId)||!valid(subject.reviewPacketId)||!valid(subject.proposalId)||!valid(subject.planId)||!valid(subject.domainService)||!valid(subject.operation)||!["DEMO","SANDBOX","PRODUCTION"].includes(subject.mode)||!Array.isArray(subject.evidenceFingerprints)||subject.evidenceFingerprints.length<1||subject.evidenceFingerprints.length>100||!subject.evidenceFingerprints.every(valid)||new Set(subject.evidenceFingerprints).size!==subject.evidenceFingerprints.length||!["APPROVE","REJECT"].includes(decision)||!["OWNER","APPROVER"].includes(requiredRole))fail("INVALID_APPROVAL_REQUEST");
   const session=await this.session(subject.workspaceId);
   const now=this.clock.now();if(!iso(now))fail("INVALID_TRUSTED_CLOCK");
@@ -71,21 +73,23 @@ export class HumanApprovalBoundary {
  }
  async check(input:Readonly<{workspaceId:string;approvalId:string;subject:ApprovalSubject;requiredRole:"OWNER"|"APPROVER"}>):Promise<Readonly<{status:"VALID_NON_EXECUTABLE"|"DENIED";reason:string}>>{
   const denied=(reason:string)=>({status:"DENIED" as const,reason});
-  if(!input||!valid(input.workspaceId)||!valid(input.approvalId)||!input.subject||input.subject.workspaceId!==input.workspaceId)return denied("INVALID_SCOPE");
+  let frozen:typeof input;
+  try{frozen=structuredClone(input);}catch{return denied("INVALID_SCOPE");}
+  if(!frozen||!valid(frozen.workspaceId)||!valid(frozen.approvalId)||!frozen.subject||frozen.subject.workspaceId!==frozen.workspaceId)return denied("INVALID_SCOPE");
   let session:TrustedHumanSession;
-  try{session=await this.session(input.workspaceId);}catch{return denied("IDENTITY_OR_MEMBERSHIP_DENIED");}
+  try{session=await this.session(frozen.workspaceId);}catch{return denied("IDENTITY_OR_MEMBERSHIP_DENIED");}
   let saved:ApprovalRecord|undefined;
-  try{saved=await this.ledger.lookup(input.workspaceId,input.approvalId);}catch{return denied("APPROVAL_LEDGER_UNAVAILABLE");}
-  if(!saved||saved.kind!=="HUMAN_APPROVAL_DECISION"||saved.status!=="RECORDED_NON_EXECUTABLE"||saved.decision!=="APPROVE"||saved.actorId!==session.actorId||saved.sessionId!==session.sessionId||!["OWNER","APPROVER"].includes(saved.requiredRole)||saved.requiredRole!==input.requiredRole)return denied("APPROVAL_NOT_VALID");
+  try{saved=await this.ledger.lookup(frozen.workspaceId,frozen.approvalId);}catch{return denied("APPROVAL_LEDGER_UNAVAILABLE");}
+  if(!saved||saved.kind!=="HUMAN_APPROVAL_DECISION"||saved.status!=="RECORDED_NON_EXECUTABLE"||saved.decision!=="APPROVE"||saved.actorId!==session.actorId||saved.sessionId!==session.sessionId||!["OWNER","APPROVER"].includes(saved.requiredRole)||saved.requiredRole!==frozen.requiredRole)return denied("APPROVAL_NOT_VALID");
   // Recheck current membership against the stored, immutable policy role, never a caller-only claim.
-  try{await this.membership(session,input.subject.operation,saved.requiredRole);}catch{return denied("IDENTITY_OR_MEMBERSHIP_DENIED");}
+  try{await this.membership(session,frozen.subject.operation,saved.requiredRole);}catch{return denied("IDENTITY_OR_MEMBERSHIP_DENIED");}
   let now:string;
   try{
-   if(saved.intentId!==input.subject.intentId||saved.subjectDigest!==this.digest.digest(canonical(input.subject)))return denied("SUBJECT_MISMATCH");
+   if(saved.intentId!==frozen.subject.intentId||saved.subjectDigest!==this.digest.digest(canonical(frozen.subject)))return denied("SUBJECT_MISMATCH");
    now=this.clock.now();
    if(!iso(saved.decidedAt)||!iso(saved.expiresAt)||!iso(now)||Date.parse(now)>=Date.parse(saved.expiresAt)||Date.parse(now)<Date.parse(saved.decidedAt))return denied("APPROVAL_EXPIRED_OR_INVALID");
-   if(await this.ledger.isRevoked(input.workspaceId,input.approvalId))return denied("APPROVAL_REVOKED");
-   const evaluation=await this.policy.evaluate({subject:structuredClone(input.subject),actorId:session.actorId,decision:"APPROVE",now});
+   if(await this.ledger.isRevoked(frozen.workspaceId,frozen.approvalId))return denied("APPROVAL_REVOKED");
+   const evaluation=await this.policy.evaluate({subject:structuredClone(frozen.subject),actorId:session.actorId,decision:"APPROVE",now});
    if(!evaluation?.allow||evaluation.requiredRole!==saved.requiredRole||evaluation.policyVersion!==saved.policyVersion)return denied("POLICY_CHANGED_OR_DENIED");
   }catch{return denied("APPROVAL_DEPENDENCY_UNAVAILABLE");}
   return {status:"VALID_NON_EXECUTABLE",reason:"REQUIRES_SEPARATE_R7_EFFECT_AUTHORIZATION"};

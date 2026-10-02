@@ -1,3 +1,4 @@
+import {isSafeSecurityEvent} from "./safe-event.js";
 import type {SecurityEvent,SecurityEventSink} from "./safe-event.js";
 /** R8 synthetic-only bounded collector: no network, filesystem, external alert or customer telemetry. */
 export class SyntheticSecurityEventCollector implements SecurityEventSink {
@@ -7,7 +8,7 @@ export class SyntheticSecurityEventCollector implements SecurityEventSink {
  }
  async emit(event:SecurityEvent):Promise<void>{
   // This fixture only accepts exact, already projected events; never store arbitrary caller properties.
-  if(!event||!Object.isFrozen(event)||Object.keys(event).sort().join(",")!==["code","correlationId","effectCount","mode","occurredAt","severity","stage"].sort().join(",")||event.effectCount!==0)throw Error("UNSAFE_SYNTHETIC_EVENT");
+  if(!Object.isFrozen(event)||!isSafeSecurityEvent(event))throw Error("UNSAFE_SYNTHETIC_EVENT");
   if(this.events.length>=this.capacity)throw Error("SYNTHETIC_EVENT_CAPACITY_EXCEEDED");
   this.events.push(Object.freeze({...event}));
  }

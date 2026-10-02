@@ -11,13 +11,17 @@ const allNamedGates=(value:unknown):boolean=>!!value&&typeof value==="object"&&!
 export class BusinessOsActionRequestBoundary {
  constructor(private readonly gate:TrustedActionGate,private readonly ledger:ActionRequestLedger){}
  async submit(input:ActionRequest,subject:ApprovalSubject):Promise<DeniedActionReceipt>{
-  if(!input||!valid(input.requestId)||!valid(input.workspaceId)||!valid(input.intentId)||!valid(input.approvalId)||!valid(input.domainService)||!valid(input.operation)||!valid(input.idempotencyKey)||!modes.includes(input.mode)||!subject||
-   subject.workspaceId!==input.workspaceId||subject.intentId!==input.intentId||subject.mode!==input.mode||subject.domainService!==input.domainService||subject.operation!==input.operation)throw Error("INVALID_OR_CROSS_TENANT_ACTION_REQUEST");
+  // Clone both caller-controlled inputs synchronously, BEFORE any trusted gate or ledger await.
+  // The same validated snapshot must determine verification, tenant scope, idempotency and receipt.
+  if(!input||input.payload!==null)throw Error(input?"UNTRUSTED_ACTION_PAYLOAD":"INVALID_OR_CROSS_TENANT_ACTION_REQUEST");
+  let request:ActionRequest,approvedSubject:ApprovalSubject;
+  try{request=structuredClone(input);approvedSubject=structuredClone(subject);}catch{throw Error("INVALID_OR_CROSS_TENANT_ACTION_REQUEST");}
+  if(!valid(request.requestId)||!valid(request.workspaceId)||!valid(request.intentId)||!valid(request.approvalId)||!valid(request.domainService)||!valid(request.operation)||!valid(request.idempotencyKey)||!modes.includes(request.mode)||!approvedSubject||
+   approvedSubject.workspaceId!==request.workspaceId||approvedSubject.intentId!==request.intentId||approvedSubject.mode!==request.mode||approvedSubject.domainService!==request.domainService||approvedSubject.operation!==request.operation)throw Error("INVALID_OR_CROSS_TENANT_ACTION_REQUEST");
   // No arbitrary payload or provider credentials are allowed through the closed reference boundary.
-  if(input.payload!==null)throw Error("UNTRUSTED_ACTION_PAYLOAD");
   let accepted=false;
-  try{const g=await this.gate.verify({workspaceId:input.workspaceId,intentId:input.intentId,approvalId:input.approvalId,subject:structuredClone(subject),mode:input.mode,domainService:input.domainService,operation:input.operation});accepted=allNamedGates(g);}catch{/* Fail closed, never leak identity/provider errors. */}
-  const receipt:DeniedActionReceipt={kind:"BUSINESS_OS_ACTION_REQUEST_DENIED",requestId:input.requestId,workspaceId:input.workspaceId,intentId:input.intentId,idempotencyKey:input.idempotencyKey,mode:input.mode,domainService:input.domainService,operation:input.operation,reason:accepted?"EFFECTS_DISABLED":"GATES_NOT_ACCEPTED",requestedEffects:0,performedEffects:0,dispatched:false,providerInvoked:false,status:"DENIED_NO_EFFECT"};
+  try{const g=await this.gate.verify({workspaceId:request.workspaceId,intentId:request.intentId,approvalId:request.approvalId,subject:structuredClone(approvedSubject),mode:request.mode,domainService:request.domainService,operation:request.operation});accepted=allNamedGates(g);}catch{/* Fail closed, never leak identity/provider errors. */}
+  const receipt:DeniedActionReceipt={kind:"BUSINESS_OS_ACTION_REQUEST_DENIED",requestId:request.requestId,workspaceId:request.workspaceId,intentId:request.intentId,idempotencyKey:request.idempotencyKey,mode:request.mode,domainService:request.domainService,operation:request.operation,reason:accepted?"EFFECTS_DISABLED":"GATES_NOT_ACCEPTED",requestedEffects:0,performedEffects:0,dispatched:false,providerInvoked:false,status:"DENIED_NO_EFFECT"};
   let saved:DeniedActionReceipt;
   try{saved=await this.ledger.record(receipt);}catch{throw Error("ACTION_LEDGER_UNAVAILABLE_OR_CONFLICT");}
   // A storage adapter is untrusted: check every field explicitly, including zero-effect invariants.
