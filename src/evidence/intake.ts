@@ -31,8 +31,10 @@ export class InMemoryEvidenceLedger {
   async ingest(context: AuthorizedWorkspaceContext, result: ReadResult, expectedSourceSystem: ReadRequest["sourceSystem"]): Promise<IntakeReport> {
     if (!context?.workspaceId || context.workspaceId !== this.workspaceId || !context.actorId?.trim() || !context.authorizedAt)
       throw new Error("UNAUTHORIZED_WORKSPACE");
+    if(!result||!Array.isArray(result.records)||!Array.isArray(result.errors))throw Error("INVALID_INTAKE_BATCH");
     const errors: ReadError[] = [...result.errors.map(e => ({ ...e }))];
     const accepted: IntakeEntry[] = [], duplicates: string[] = [];
+    // Stage the complete batch before committing; fatal normalization, hashing or clock failures cannot partially append.
     for (const record of result.records) {
       const validation = validateOperationalRecord(record, context);
       if (!expectedSourceSystem || record.reference?.sourceSystem !== expectedSourceSystem) {
@@ -44,9 +46,9 @@ export class InMemoryEvidenceLedger {
         continue;
       }
       const fingerprint = await fingerprintOperationalRecord(record);
-      if (this.entries.some(e => e.fingerprint === fingerprint)) { duplicates.push(fingerprint); continue; }
+      if ([...this.entries,...accepted].some(e => e.fingerprint === fingerprint)) { duplicates.push(fingerprint); continue; }
       const observation = normalizeOperationalRecord(record);
-      const previous = [...this.entries].reverse().find(e =>
+      const previous = [...this.entries,...accepted].reverse().find(e =>
         e.observation.workspaceId === observation.workspaceId &&
         e.observation.sourceSystem === observation.sourceSystem &&
         e.observation.externalReference === observation.externalReference &&
@@ -55,8 +57,9 @@ export class InMemoryEvidenceLedger {
         fingerprint, observation: structuredClone(observation), ingestedAt: this.clock(),
         ...(previous ? { supersedes: previous.fingerprint } : {}), verification: "UNVERIFIED"
       };
-      this.entries.push(entry); accepted.push(structuredClone(entry));
+      accepted.push(structuredClone(entry));
     }
+    this.entries.push(...structuredClone(accepted));
     return {
       accepted, duplicates, errors,
       completeness: result.completeness === "COMPLETE" && errors.length === 0 ? "COMPLETE" : "PARTIAL",
