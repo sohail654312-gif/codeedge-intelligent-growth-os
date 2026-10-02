@@ -18,6 +18,14 @@ export interface IntakeReport {
   readonly fetchedAt: string;
   readonly nextCursor?: string;
 }
+/** Hard limits prevent bypass of the reader page contract through direct ledger calls. */
+export const MAX_INTAKE_RECORDS=100;
+export const MAX_INTAKE_ERRORS=100;
+export const MAX_INTAKE_BATCH_BYTES=1_048_576;
+const byteLength=(value:unknown):number=>{
+ try{const serialized=JSON.stringify(value);return typeof serialized==="string"?new TextEncoder().encode(serialized).byteLength:0;}
+ catch{return 0;} // Non-JSON records are quarantined by canonical per-record validation.
+};
 /** Append-only, workspace-bound intelligence evidence, never an operational system of record. */
 export class InMemoryEvidenceLedger {
   private readonly entries: IntakeEntry[] = [];
@@ -40,6 +48,18 @@ export class InMemoryEvidenceLedger {
     if (!context?.workspaceId || context.workspaceId !== this.workspaceId || !context.actorId?.trim() || !context.authorizedAt)
       throw new Error("UNAUTHORIZED_WORKSPACE");
     if(!result||!Array.isArray(result.records)||!Array.isArray(result.errors))throw Error("INVALID_INTAKE_BATCH");
+    if(result.records.length>MAX_INTAKE_RECORDS||result.errors.length>MAX_INTAKE_ERRORS||
+      !["COMPLETE","PARTIAL"].includes(result.completeness)||
+      typeof result.fetchedAt!=="string"||result.fetchedAt.length>100||
+      (result.nextCursor!==undefined&&(typeof result.nextCursor!=="string"||result.nextCursor.length>4096))||
+      result.errors.some(e=>!e||typeof e.code!=="string"||e.code.length>200||typeof e.message!=="string"||e.message.length>4096||typeof e.retryable!=="boolean"))
+      throw Error("INVALID_INTAKE_BATCH");
+    let batchBytes=byteLength({fetchedAt:result.fetchedAt,completeness:result.completeness,nextCursor:result.nextCursor,errors:result.errors});
+    if(batchBytes>MAX_INTAKE_BATCH_BYTES)throw Error("INTAKE_BATCH_TOO_LARGE");
+    for(const record of result.records){
+      batchBytes+=byteLength(record);
+      if(batchBytes>MAX_INTAKE_BATCH_BYTES)throw Error("INTAKE_BATCH_TOO_LARGE");
+    }
     const errors: ReadError[] = [...result.errors.map(e => ({ ...e }))];
     const accepted: IntakeEntry[] = [], duplicates: string[] = [];
     // Stage the complete batch before committing; fatal normalization, hashing or clock failures cannot partially append.
