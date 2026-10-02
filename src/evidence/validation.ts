@@ -19,7 +19,8 @@ export function validateOperationalRecord(record:OperationalRecord,context:Autho
  if(!record.reference||typeof record.reference!=="object"||typeof record.reference.sourceSystem!=="string"||!record.reference.sourceSystem.trim())errors.push("SOURCE_SYSTEM_REQUIRED");
  if(typeof record.reference?.externalReference!=="string"||!record.reference.externalReference.trim())errors.push("EXTERNAL_REFERENCE_REQUIRED");
  if(typeof record.resourceKind!=="string"||!record.resourceKind.trim())errors.push("RESOURCE_KIND_REQUIRED");
- if(!iso(record.observedAt))errors.push("INVALID_OBSERVED_AT");
+ if(!record.observedAt)errors.push("OBSERVED_AT_REQUIRED");
+ else if(!iso(record.observedAt))errors.push("INVALID_OBSERVED_AT");
  if(!jsonSafe(record.value))errors.push("INVALID_JSON_VALUE");
  if(record.reference?.version!==undefined&&(typeof record.reference.version!=="string"||!record.reference.version.trim()))errors.push("INVALID_SOURCE_VERSION");
  return {ok:errors.length===0,errors:[...new Set(errors)]};
