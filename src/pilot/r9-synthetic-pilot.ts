@@ -1,5 +1,7 @@
 import {BusinessOsReadModelReader} from "../integration/business-os-read-model.js";
-import type {BusinessOsReadModelPort,TrustedReadAuthorization,TrustedCursorCodec} from "../integration/business-os-read-model.js";
+import type {BusinessOsReadModelPort,TrustedReadAuthorization} from "../integration/business-os-read-model.js";
+import {AeadBusinessOsCursorCodec} from "../integration/aead-business-os-cursor.js";
+import {randomBytes} from "node:crypto";
 import {HumanApprovalBoundary} from "../action/trusted-human-approval.js";
 import type {ApprovalAuthority,ApprovalClock,ApprovalDigest,ApprovalPolicy,ApprovalSubject} from "../action/trusted-human-approval.js";
 import {InMemoryApprovalLedger} from "../action/in-memory-approval-ledger.js";
@@ -21,8 +23,9 @@ export async function runSyntheticPilot(seed:SyntheticPilotSeed):Promise<Synthet
  const workspaceId=seed.workspaceId as WorkspaceId;
  const port:BusinessOsReadModelPort={version:"v1",async readPage(x){if(x.workspaceId!==seed.workspaceId||x.resourceKind!=="lead"||x.cursor!==undefined)reject("SYNTHETIC_SOURCE_SCOPE_DENIED");return {records:structuredClone(seed.records.slice(0,x.limit))};}};
  const authorization:TrustedReadAuthorization={async assertAuthorized(x){if(x.workspaceId!==seed.workspaceId||x.actorId!==seed.actorId||x.resourceKind!=="lead")reject("SYNTHETIC_AUTH_DENIED");}};
- const codec:TrustedCursorCodec={encode(){return reject("SYNTHETIC_CURSOR_DISABLED");},decode(){return undefined;}};
- const reader=new BusinessOsReadModelReader(workspaceId,port,authorization,codec,()=>stamp,seed.mode);
+ // Disposable synthetic key is never a production credential; the same confidential reader boundary applies.
+ const codec=new AeadBusinessOsCursorCodec(new Map([["synthetic",randomBytes(32)]]),"synthetic",()=>Date.parse(stamp));
+ const reader=new BusinessOsReadModelReader(workspaceId,port,authorization,codec,()=>stamp);
  const request:ReadRequest={context:{workspaceId,actorId:seed.actorId,authorizedAt:stamp},sourceSystem:"BUSINESS_OS",resourceKind:"lead",limit:10};
  const read=await reader.read(request);
  if(read.completeness!=="COMPLETE"||read.errors.length||read.records.length!==seed.records.length)reject("SYNTHETIC_READ_INCOMPLETE");
