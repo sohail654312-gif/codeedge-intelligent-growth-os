@@ -5,6 +5,7 @@ import {
   BusinessOsHttpReadModelPort,
   createBusinessOsHttpReaderFromEnvironment,
 } from "../dist/src/integration/index.js";
+import { requireAttestedObservation } from "../dist/src/evidence/source-attestation.js";
 
 const A="10000000-0000-4000-8000-000000000001";
 const B="10000000-0000-4000-8000-000000000002";
@@ -186,4 +187,25 @@ test("environment config rejects unsafe endpoints, weak secrets and unapproved r
       CIGO_BUSINESS_OS_READERS_JSON:JSON.stringify(config),
     }),/BUSINESS_OS_READ_UNAVAILABLE/);
   }
+});
+
+
+test("real HTTP evidence still fails closed at source-attestation without a trusted receipt authority",async()=>{
+  const port=BusinessOsHttpReadModelPort.fromEnvironment(A,env(),{
+    fetch:async()=>response(envelope({pagination:{}})),
+    sleep:async()=>{},
+  });
+  const page=await port.readPage({workspaceId:A,resourceKind:"lead",limit:10});
+  const record=page.records[0];
+  const readResult={
+    records:page.records,
+    fetchedAt:NOW,
+    completeness:"COMPLETE",
+    errors:[],
+  };
+  await assert.rejects(
+    requireAttestedObservation(record,readResult,undefined,undefined),
+    /UNTRUSTED_SOURCE_PROVENANCE/,
+  );
+  assert.equal(record.verification,undefined);
 });
