@@ -47,3 +47,17 @@ Authenticated HTTPS plus a workspace-bound Business OS service credential establ
 Returned records remain `BUSINESS_OS` operational evidence with the source record identity and source revision. They still pass through CIGO evidence intake and the existing provenance/source-attestation and truth-validation architecture before memory and analysis. The existing `TrustedSourceAuthority` receipt boundary remains fail-closed; this integration does not fabricate a receipt or mark observations as FACT merely because HTTP succeeded.
 
 This deliberately closes the real read transport portion of the former G3 gap while leaving independent source-attestation/semantic verification and deployed identity acceptance to their own explicit gates. No CIGO → Business OS effect path is introduced.
+
+
+## Remaining production acceptance gates
+
+The repository implementation is not, by itself, production acceptance. The following remain explicit before G3 can be closed as a deployed production gate:
+
+1. **Business OS endpoint abuse control** — the companion endpoint currently authenticates and bounds each read, but deployed per-key/per-workspace rate limiting and abuse telemetry are not yet evidenced.
+2. **Database-layer tenant containment** — the Business OS security-definer projection filters every query by the requested business ID and the service credential is workspace-bound at the server boundary. A separate database-level proof should demonstrate that misuse of the CIGO database capability cannot widen tenant scope outside that trusted composition.
+3. **Source authenticity authority** — authenticated transport is not an independent source-attestation receipt. CIGO now has regression coverage proving a real HTTP observation still fails `requireAttestedObservation` when no trusted receipt/authority exists.
+4. **Credential lifecycle acceptance** — staging must prove grant creation, rotation and revocation for both Business OS service credentials and cursor keyrings without committing secrets.
+5. **Isolated staging conformance** — exercise at least two synthetic workspaces, including positive same-workspace reads and negative cross-workspace attempts, partial/unavailable responses, cursor tamper/expiry and revocation.
+6. **Operational evidence** — verify safe logging/redaction, alerting for repeated authorization failures and rollback of the integration without modifying Business OS operational data.
+
+Until those checks are evidenced, describe this work as **implemented and exact-SHA tested read transport**, not a fully production-accepted G3 closure.
