@@ -12,6 +12,7 @@ const SOURCE_SYSTEM = "BUSINESS_OS";
 const MAX_RESPONSE_BYTES = 8 * 1024 * 1024;
 const DEFAULT_TIMEOUT_MS = 4_000;
 const DEFAULT_RETRIES = 1;
+const responseEncoder = new TextEncoder();
 const allowedResourceKinds = new Set([
   "business_profile",
   "service",
@@ -25,6 +26,13 @@ const allowedResourceKinds = new Set([
 
 type FetchLike = typeof fetch;
 type Sleep = (milliseconds: number) => Promise<void>;
+
+function runtimeEnvironment(): Record<string, string | undefined> {
+  const runtime = globalThis as typeof globalThis & {
+    process?: { env?: Record<string, string | undefined> };
+  };
+  return runtime.process?.env ?? {};
+}
 
 type ServerReaderConfig = Readonly<{
   baseUrl: string;
@@ -256,7 +264,7 @@ export class BusinessOsHttpReadModelPort implements BusinessOsReadModelPort {
 
   static fromEnvironment(
     workspaceId: WorkspaceId,
-    env: Record<string, string | undefined> = process.env,
+    env: Record<string, string | undefined> = runtimeEnvironment(),
     dependencies: BusinessOsHttpAdapterDependencies = {},
   ) {
     return new BusinessOsHttpReadModelPort(
@@ -327,7 +335,7 @@ export class BusinessOsHttpReadModelPort implements BusinessOsReadModelPort {
     } catch {
       return genericError();
     }
-    if (!text || Buffer.byteLength(text, "utf8") > MAX_RESPONSE_BYTES) genericError();
+    if (!text || responseEncoder.encode(text).byteLength > MAX_RESPONSE_BYTES) genericError();
 
     let payload: unknown;
     try {
@@ -365,7 +373,7 @@ export function createBusinessOsHttpReaderFromEnvironment(input: Readonly<{
   cursorNow?: () => number;
   cursorTtlMs?: number;
 }>) {
-  const env = input.env ?? process.env;
+  const env = input.env ?? runtimeEnvironment();
   const port = BusinessOsHttpReadModelPort.fromEnvironment(
     input.workspaceId,
     env,
