@@ -11,7 +11,10 @@
     "test:postgres": "npm run build && node --test test/r4-postgres-integration.test.mjs test/r4-postgres-concurrency.test.mjs test/business-os-source-receipts-postgres.test.mjs",
     "security:dependencies": "npm audit --audit-level=high --ignore-scripts",
     "security:provenance": "node scripts/check-provenance.mjs",
-    "test:pilot": "npm run build && node --test test/r9-synthetic-pilot.test.mjs"
+    "test:pilot": "npm run build && node --test test/r9-synthetic-pilot.test.mjs",
+    "preview:build": "npm run build && node apps/preview/build.mjs",
+    "preview:serve": "node apps/preview/serve.mjs",
+    "test:preview": "npm run preview:build && node --test test/preview-ui.test.mjs"
   },
   "devDependencies": {
     "typescript": "5.9.3",
