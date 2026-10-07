@@ -37,7 +37,7 @@ jobs:
         run: |
           set -o pipefail
           npm run verify | tee "$RUNNER_TEMP/cigo-unit-tests.log"
-          node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-unit-tests.log" 213
+          node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-unit-tests.log" 270
       - name: High-severity dependency audit
         run: npm run security:dependencies
       - name: Validate locked component provenance

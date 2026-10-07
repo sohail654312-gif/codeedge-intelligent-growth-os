@@ -8,7 +8,7 @@ import { validateReadRequest, type SourceReader } from "./source-reader.js";
 export interface BusinessOsReadModelPort {
   readonly version: "v1";
   readPage(input: Readonly<{workspaceId:WorkspaceId; resourceKind:string; limit:number; cursor?:string}>):
-    Promise<Readonly<{records:readonly OperationalRecord[]; nextCursor?:string; partial?:boolean}>>;
+    Promise<Readonly<{records:readonly OperationalRecord[]; nextCursor?:string; partial?:boolean; fetchedAt?:string}>>;
 }
 /** A server-held, opaque cursor registry/codec. Implementations MUST authenticate tenant, source, resource and page size. */
 export interface TrustedCursorCodec {
@@ -39,9 +39,11 @@ export class BusinessOsReadModelReader implements SourceReader {
     Object.prototype.hasOwnProperty.call(cursors,"encode")||Object.prototype.hasOwnProperty.call(cursors,"decode"))
     throw Error("CONFIDENTIAL_CURSOR_CODEC_REQUIRED");
  }
- async read(request:ReadRequest):Promise<ReadResult>{
-  const fetchedAt=this.clock();
+ async read(suppliedRequest:ReadRequest):Promise<ReadResult>{
+  let fetchedAt=this.clock();
   const denied=(code:string,retryable=false):ReadResult=>({records:[],fetchedAt,completeness:"PARTIAL",errors:[safeError(code,retryable)]});
+  let request:ReadRequest;
+  try{request=structuredClone(suppliedRequest);}catch{return denied("INVALID_READ_REQUEST");}
   const valid=validateReadRequest(request);
   if(!valid.ok) return denied("INVALID_READ_REQUEST");
   if(request.context.workspaceId!==this.workspaceId) return denied("WORKSPACE_SCOPE_MISMATCH");
@@ -60,6 +62,11 @@ export class BusinessOsReadModelReader implements SourceReader {
   let page:Awaited<ReturnType<BusinessOsReadModelPort["readPage"]>>;
   try{page=await this.port.readPage({workspaceId:this.workspaceId,resourceKind:request.resourceKind,limit,...(cursor===undefined?{}:{cursor})});}
   catch{return denied("SOURCE_UNAVAILABLE",true);}
+  if(page?.fetchedAt!==undefined){
+   if(typeof page.fetchedAt!=="string" || !Number.isFinite(Date.parse(page.fetchedAt)) || new Date(page.fetchedAt).toISOString()!==page.fetchedAt)
+    return denied("INVALID_SOURCE_PAGE");
+   fetchedAt=page.fetchedAt;
+  }
   if(!page || !Array.isArray(page.records) || page.records.length>limit ||
     (page.nextCursor!==undefined && (typeof page.nextCursor!=="string" || !page.nextCursor || page.nextCursor.length>4096)))
     return denied("INVALID_SOURCE_PAGE");

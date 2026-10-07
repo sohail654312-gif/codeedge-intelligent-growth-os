@@ -16,3 +16,10 @@ export type { BusinessOsReadModelPort, TrustedCursorCodec, TrustedReadAuthorizat
 export { HmacBusinessOsCursorCodec } from "./hmac-business-os-cursor.js";
 
 export { AeadBusinessOsCursorCodec } from "./aead-business-os-cursor.js";
+
+export {
+  BusinessOsHttpReadModelPort,
+  createBusinessOsHttpReaderFromEnvironment,
+} from "./business-os-http-adapter.js";
+export type { BusinessOsHttpAdapterDependencies } from "./business-os-http-adapter.js";
+export { createAttestedBusinessOsHttpReader, createPostgresSourceAuthority } from "./attested-business-os-reader.js";
