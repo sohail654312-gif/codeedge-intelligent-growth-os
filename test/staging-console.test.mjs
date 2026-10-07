@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 import {createStagingIdentity} from '../dist/src/staging/session.js';
 import {createSupabaseSession,readCookie,sessionCookie,COOKIE} from '../apps/staging/supabase-session.mjs';
-import {handleStaging,SAFE_HEADERS,loadServerConfiguration} from '../apps/staging/runtime.mjs';
+import {handleStaging,SAFE_HEADERS,loadServerConfiguration,nodeHandler} from '../apps/staging/runtime.mjs';
 import {projectStagingSnapshot} from '../apps/staging/presentation.mjs';
 const NOW='2026-10-07T12:00:00.000Z',FUTURE='2026-10-07T12:30:00.000Z';
 const actor='11111111-1111-4111-8111-111111111111',A='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',B='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',sid='22222222-2222-4222-8222-222222222222';
@@ -101,4 +101,11 @@ test('private server artifact is fixed-path, outside Git/browser output, and mal
   for(const bad of ['null','[]','invalid'])assert.throws(()=>loadServerConfiguration({CIGO_STAGING_SERVER_JSON:bad}));
   assert.ok(!fs.existsSync('apps/staging/site/staging-runtime-private.json'));assert.ok(!fs.readFileSync('apps/staging/site/staging.js','utf8').includes('PRIVATE_TEST_SERVER_CONFIG'));
  }finally{fs.unlinkSync(path);}
+});
+test('Vercel empty or forged GET body never substitutes for a session or breaks fail-closed status',async()=>{
+ for(const body of ['',{actorId:actor,role:'OWNER',workspaceId:A}]){
+  let status,text;const response={writeHead(code){status=code;},end(value){text=value;}};
+  await nodeHandler({method:'GET',url:'/api/staging/session',headers:{},body},response,cfg);
+  assert.equal(status,401);assert.equal(JSON.parse(text).authenticated,undefined);
+ }
 });

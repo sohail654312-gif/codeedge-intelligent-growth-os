@@ -65,8 +65,12 @@ export async function handleStaging(request,config,dependencies={}){
 export async function nodeHandler(req,res,configuration){
  let body;
  try{
-  if(req.body!==undefined){if(Buffer.byteLength(JSON.stringify(req.body))>4096)throw Error('SIZE');body=typeof req.body==='string'?JSON.parse(req.body):req.body;}
-  else {let text='';for await(const chunk of req){text+=chunk;if(Buffer.byteLength(text)>4096)throw Error('SIZE');}if(text)body=JSON.parse(text);}
+  // Vercel may preparse an empty GET/DELETE body as ''. Only login consumes JSON;
+  // read identity and authority never come from body data, including GET bodies.
+  if(req.method==='POST'){
+   if(req.body!==undefined){if(Buffer.byteLength(JSON.stringify(req.body))>4096)throw Error('SIZE');body=typeof req.body==='string'?JSON.parse(req.body):req.body;}
+   else {let text='';for await(const chunk of req){text+=chunk;if(Buffer.byteLength(text)>4096)throw Error('SIZE');}if(text)body=JSON.parse(text);}
+  }
  }catch{res.writeHead(400,SAFE_HEADERS);res.end(JSON.stringify({error:'Invalid request'}));return;}
  let config;try{config=configuration??loadServerConfiguration();}catch{res.writeHead(503,SAFE_HEADERS);res.end(JSON.stringify({error:'Staging unavailable'}));return;}
  // VERCEL_URL is a platform-owned deployment hostname, never an incoming Host header.
