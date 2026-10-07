@@ -1,10 +1,19 @@
 import pg from 'pg';
+import fs from 'node:fs';
 import {createSupabaseSession,readCookie,sessionCookie} from './supabase-session.mjs';
 import {loadStagingSnapshot} from './pipeline.mjs';
 const pools=new Map();
 export const CSP="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
 export const SAFE_HEADERS={'Cache-Control':'private, no-store, max-age=0','Vary':'Cookie','Content-Type':'application/json; charset=utf-8',
  'X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','Content-Security-Policy':CSP};
+/** Trusted server configuration only. The optional private artifact is injected by the
+ * deployment owner outside Git, under dist (function includeFiles), never static output.
+ * No URL/body/header can choose this path or supply a configuration override. */
+export function loadServerConfiguration(environment=process.env){
+ const text=environment.CIGO_STAGING_SERVER_JSON??fs.readFileSync(new URL('../../dist/staging-runtime-private.json',import.meta.url),'utf8');
+ const config=JSON.parse(text);if(!config||typeof config!=='object'||Array.isArray(config))throw Error('STAGING_CONFIGURATION_UNAVAILABLE');
+ return config;
+}
 function poolFor(url,ca){
  if(!pools.has(url)){const u=new URL(url);if(u.protocol!=='postgresql:'||!u.hostname.endsWith('.pooler.supabase.com')||!u.username.startsWith('cigo_stage_'))throw Error('INVALID_SERVER_CONFIGURATION');
   pools.set(url,new pg.Pool({host:u.hostname,port:Number(u.port),user:decodeURIComponent(u.username),password:decodeURIComponent(u.password),database:u.pathname.slice(1),
@@ -59,7 +68,7 @@ export async function nodeHandler(req,res,configuration){
   if(req.body!==undefined){if(Buffer.byteLength(JSON.stringify(req.body))>4096)throw Error('SIZE');body=typeof req.body==='string'?JSON.parse(req.body):req.body;}
   else {let text='';for await(const chunk of req){text+=chunk;if(Buffer.byteLength(text)>4096)throw Error('SIZE');}if(text)body=JSON.parse(text);}
  }catch{res.writeHead(400,SAFE_HEADERS);res.end(JSON.stringify({error:'Invalid request'}));return;}
- let config;try{config=configuration??JSON.parse(process.env.CIGO_STAGING_SERVER_JSON??'null');if(!config)throw Error('CONFIG');}catch{res.writeHead(503,SAFE_HEADERS);res.end(JSON.stringify({error:'Staging unavailable'}));return;}
+ let config;try{config=configuration??loadServerConfiguration();}catch{res.writeHead(503,SAFE_HEADERS);res.end(JSON.stringify({error:'Staging unavailable'}));return;}
  // VERCEL_URL is a platform-owned deployment hostname, never an incoming Host header.
  if(process.env.VERCEL_URL)config={...config,origin:'https://'+process.env.VERCEL_URL};
  const result=await handleStaging({url:req.url,method:req.method,headers:req.headers,body},config);

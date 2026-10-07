@@ -51,7 +51,7 @@ jobs:
         run: |
           set -o pipefail
           npm run test:staging | tee "$RUNNER_TEMP/cigo-staging-tests.log"
-          node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-staging-tests.log" 29
+          node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-staging-tests.log" 30
       - name: Validate locked component provenance
         run: npm run security:provenance
       - name: Generate and verify CycloneDX SBOM

@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 import {createStagingIdentity} from '../dist/src/staging/session.js';
 import {createSupabaseSession,readCookie,sessionCookie,COOKIE} from '../apps/staging/supabase-session.mjs';
-import {handleStaging,SAFE_HEADERS} from '../apps/staging/runtime.mjs';
+import {handleStaging,SAFE_HEADERS,loadServerConfiguration} from '../apps/staging/runtime.mjs';
 import {projectStagingSnapshot} from '../apps/staging/presentation.mjs';
 const NOW='2026-10-07T12:00:00.000Z',FUTURE='2026-10-07T12:30:00.000Z';
 const actor='11111111-1111-4111-8111-111111111111',A='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',B='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',sid='22222222-2222-4222-8222-222222222222';
@@ -93,4 +93,12 @@ test('presentation refuses FACT/action authority and suppresses unavailable numb
 test('staging entry is separate and never imports demo data or silently falls back',()=>{
  const html=fs.readFileSync('apps/staging/site/staging.html','utf8'),entry=fs.readFileSync('apps/staging/public/staging.js','utf8');
  assert.ok(html.includes('data-mode="staging"'));assert.ok(html.includes('Authenticated staging'));assert.ok(!html.includes('id="scenario"'));assert.ok(!entry.includes('demo-data'));assert.ok(!/localStorage|sessionStorage|setInterval|WebSocket/.test(entry));assert.ok(entry.includes('clearStagingSnapshot'));assert.ok(entry.includes('current!==generation'));assert.ok(SAFE_HEADERS['Content-Security-Policy'].includes("connect-src 'self'"));
+});
+test('private server artifact is fixed-path, outside Git/browser output, and malformed configuration fails closed',()=>{
+ const path='dist/staging-runtime-private.json';assert.equal(fs.existsSync(path),false);
+ try{fs.writeFileSync(path,JSON.stringify({enabled:false,privateMarker:'PRIVATE_TEST_SERVER_CONFIG'}));
+  assert.equal(loadServerConfiguration({}).enabled,false);assert.equal(loadServerConfiguration({CIGO_STAGING_SERVER_JSON:'{"enabled":true}'}).enabled,true);
+  for(const bad of ['null','[]','invalid'])assert.throws(()=>loadServerConfiguration({CIGO_STAGING_SERVER_JSON:bad}));
+  assert.ok(!fs.existsSync('apps/staging/site/staging-runtime-private.json'));assert.ok(!fs.readFileSync('apps/staging/site/staging.js','utf8').includes('PRIVATE_TEST_SERVER_CONFIG'));
+ }finally{fs.unlinkSync(path);}
 });
