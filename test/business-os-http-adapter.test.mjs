@@ -52,6 +52,19 @@ const response=(body,status=200)=>new Response(JSON.stringify(body),{
   headers:{"content-type":"application/json"},
 });
 
+test("HTTP body deadline remains active after headers and cancels stalled streams",async()=>{
+ let cancelled=false;
+ const port=BusinessOsHttpReadModelPort.fromEnvironment(A,env(),{fetch:async()=>new Response(new ReadableStream({pull(){return new Promise(()=>{});},cancel(){cancelled=true;}})),sleep:async()=>{}});
+ await assert.rejects(port.readPage({workspaceId:A,resourceKind:"lead",limit:10}),/BUSINESS_OS_READ_UNAVAILABLE/);
+ assert.equal(cancelled,true);
+});
+test("chunked HTTP body stops at the byte bound without buffering the whole source",async()=>{
+ let chunks=0,cancelled=false;
+ const port=BusinessOsHttpReadModelPort.fromEnvironment(A,env(),{fetch:async()=>new Response(new ReadableStream({pull(controller){chunks++;controller.enqueue(new Uint8Array(1024*1024));},cancel(){cancelled=true;}})),sleep:async()=>{}});
+ await assert.rejects(port.readPage({workspaceId:A,resourceKind:"lead",limit:10}),/BUSINESS_OS_READ_UNAVAILABLE/);
+ assert.ok(chunks<=22,"bounded across the configured retry");assert.equal(cancelled,true);
+});
+
 test("real Business OS port uses only server-selected endpoint/credential and preserves provenance",async()=>{
   const calls=[];
   const port=BusinessOsHttpReadModelPort.fromEnvironment(A,env(),{

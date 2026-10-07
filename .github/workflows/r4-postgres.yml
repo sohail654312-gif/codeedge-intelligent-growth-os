@@ -74,6 +74,10 @@ jobs:
           SQL
       - name: Provision synthetic tenant-scoped roles and RLS policies
         run: psql -v ON_ERROR_STOP=1 -f docs/architecture/sql/R4-DISPOSABLE-TENANT-ROLES.sql
+      - name: Provision additive trusted source receipt storage and synthetic restricted roles
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/architecture/sql/BUSINESS-OS-SOURCE-RECEIPTS.sql
+          psql -v ON_ERROR_STOP=1 -f docs/architecture/sql/BUSINESS-OS-DISPOSABLE-RECEIPT-ROLES.sql
       - name: Check authoritative STATE / HANDOFF mirror (M-07)
         run: node scripts/check-governance-mirror.mjs
       - name: Typecheck and mandatory non-skipped unit tests
@@ -81,10 +85,10 @@ jobs:
         run: |
           set -o pipefail
           npm run verify | tee "$RUNNER_TEMP/cigo-unit-tests.log"
-          node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-unit-tests.log" 213
+          node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-unit-tests.log" 270
       - name: Mandatory non-skipped real PostgreSQL fail-closed integration tests
         shell: bash
         run: |
           set -o pipefail
           npm run test:postgres | tee "$RUNNER_TEMP/cigo-postgres-tests.log"
-          node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-postgres-tests.log" 12
+          node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-postgres-tests.log" 14

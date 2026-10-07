@@ -1,6 +1,7 @@
 import type { OperationalRecord, ReadResult } from "../integration/contracts.js";
 import { fingerprintOperationalRecord } from "./fingerprint.js";
 import { validateOperationalRecord } from "./validation.js";
+import { fingerprintReadPage } from "./read-page-fingerprint.js";
 
 /** Source provenance is independently attested by a server-owned adapter; never by a caller flag. */
 export interface SourceAttestation {
@@ -11,6 +12,9 @@ export interface SourceAttestation {
  readonly fetchedAt: string;
  readonly adapterId: string;
  readonly receiptId: string;
+ /** Production Business OS receipts bind the entire page, not only one row. */
+ readonly pageFingerprint?: string;
+ readonly expiresAt?: string;
 }
 export interface TrustedSourceAuthority {
  /** Must consult authenticated adapter receipt storage, not the request payload. */
@@ -19,7 +23,7 @@ export interface TrustedSourceAuthority {
 const fail=():never=>{throw Error("UNTRUSTED_SOURCE_PROVENANCE");};
 /** A source receipt MUST describe exactly one actual record in its complete read page, not
  * merely share fetchedAt with an unrelated or empty caller-assembled result. This remains a
- * reference verification port, NOT a deployed independent source authority. */
+ * verification port; authorities must consult server-owned receipt state. */
 export async function requireAttestedObservation(record:OperationalRecord,result:ReadResult,
  attestation:SourceAttestation|undefined,authority?:TrustedSourceAuthority):Promise<SourceAttestation> {
  try {
@@ -35,6 +39,7 @@ export async function requireAttestedObservation(record:OperationalRecord,result
      receipt.externalReference!==observation.reference.externalReference||receipt.fetchedAt!==page.fetchedAt)fail();
   const fingerprint=await fingerprintOperationalRecord(observation);
   if(receipt.fingerprint!==fingerprint)fail();
+  if(receipt.pageFingerprint!==undefined && receipt.pageFingerprint!==await fingerprintReadPage(page))fail();
   let matches=0;
   for(const candidate of page.records){
    if(!validateOperationalRecord(candidate,{workspaceId:observation.workspaceId} as Parameters<typeof validateOperationalRecord>[1]).ok||

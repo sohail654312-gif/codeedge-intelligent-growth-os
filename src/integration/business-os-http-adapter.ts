@@ -12,7 +12,6 @@ const SOURCE_SYSTEM = "BUSINESS_OS";
 const MAX_RESPONSE_BYTES = 8 * 1024 * 1024;
 const DEFAULT_TIMEOUT_MS = 4_000;
 const DEFAULT_RETRIES = 1;
-const responseEncoder = new TextEncoder();
 const allowedResourceKinds = new Set([
   "business_profile",
   "service",
@@ -225,6 +224,8 @@ function parseEnvelope(
   for (const record of envelope.records as OperationalRecord[]) {
     if (
       !validateOperationalRecord(record, context).ok
+      || Object.keys(record).some(key => !["workspaceId", "reference", "resourceKind", "value", "observedAt"].includes(key))
+      || Object.keys(record.reference).some(key => !["sourceSystem", "externalReference", "version"].includes(key))
       || record.reference.sourceSystem !== SOURCE_SYSTEM
       || record.resourceKind !== resourceKind
       || typeof record.reference.version !== "string"
@@ -243,6 +244,32 @@ function retryableStatus(status: number) {
 
 async function defaultSleep(milliseconds: number) {
   await new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
+}
+
+async function boundedResponseText(response: Response, signal: AbortSignal): Promise<string> {
+  const declared = response.headers.get("content-length");
+  if (declared && (!/^\d+$/.test(declared) || Number(declared) > MAX_RESPONSE_BYTES)) {
+    void response.body?.cancel();
+    return genericError();
+  }
+  if (!response.body) return genericError();
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let bytes = 0;
+  const abort = () => { void reader.cancel().catch(() => {}); };
+  signal.addEventListener("abort", abort, { once: true });
+  try {
+    while (true) {
+      const chunk = await reader.read();
+      if (signal.aborted) return genericError();
+      if (chunk.done) break;
+      bytes += chunk.value.byteLength;
+      if (bytes > MAX_RESPONSE_BYTES) { abort(); return genericError(); }
+      chunks.push(chunk.value);
+    }
+    if (!bytes) return genericError();
+    return new TextDecoder("utf-8", { fatal: true }).decode(Buffer.concat(chunks));
+  } finally { signal.removeEventListener("abort", abort); reader.releaseLock(); }
 }
 
 /**
@@ -298,11 +325,15 @@ export class BusinessOsHttpReadModelPort implements BusinessOsReadModelPort {
     if (input.cursor !== undefined) endpoint.searchParams.set("cursor", input.cursor);
 
     let response: Response | undefined;
+    let text: string | undefined;
     for (let attempt = 0; attempt <= this.config.retries; attempt++) {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), this.config.timeoutMs);
+      let timeout: ReturnType<typeof setTimeout> | undefined;
+      const deadline = new Promise<never>((_, reject) => {
+        timeout = setTimeout(() => { controller.abort(); reject(Error("BUSINESS_OS_READ_UNAVAILABLE")); }, this.config.timeoutMs);
+      });
       try {
-        response = await this.transport(endpoint, {
+        response = await Promise.race([this.transport(endpoint, {
           method: "GET",
           redirect: "error",
           signal: controller.signal,
@@ -311,7 +342,9 @@ export class BusinessOsHttpReadModelPort implements BusinessOsReadModelPort {
             authorization: `Bearer ${this.config.secret}`,
             "x-codeedge-cigo-key-id": this.config.keyId,
           },
-        });
+        }), deadline]);
+        if (response.ok) text = await Promise.race([boundedResponseText(response, controller.signal), deadline]);
+        else void response.body?.cancel();
       } catch {
         response = undefined;
       } finally {
@@ -326,16 +359,7 @@ export class BusinessOsHttpReadModelPort implements BusinessOsReadModelPort {
       await this.sleep(Math.min(100 * 2 ** attempt, 500));
     }
 
-    if (!response?.ok) genericError();
-    const declared = response.headers.get("content-length");
-    if (declared && Number(declared) > MAX_RESPONSE_BYTES) genericError();
-    let text: string;
-    try {
-      text = await response.text();
-    } catch {
-      return genericError();
-    }
-    if (!text || responseEncoder.encode(text).byteLength > MAX_RESPONSE_BYTES) genericError();
+    if (!response?.ok || !text) genericError();
 
     let payload: unknown;
     try {
@@ -351,6 +375,7 @@ export class BusinessOsHttpReadModelPort implements BusinessOsReadModelPort {
     );
 
     return {
+      fetchedAt: envelope.observedAt,
       records: envelope.records.map((record) => structuredClone(record)),
       ...(envelope.pagination.nextCursor === undefined
         ? {}

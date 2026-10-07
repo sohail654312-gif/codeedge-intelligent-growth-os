@@ -22,3 +22,4 @@ export {
   createBusinessOsHttpReaderFromEnvironment,
 } from "./business-os-http-adapter.js";
 export type { BusinessOsHttpAdapterDependencies } from "./business-os-http-adapter.js";
+export { createAttestedBusinessOsHttpReader, createPostgresSourceAuthority } from "./attested-business-os-reader.js";
