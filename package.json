@@ -14,10 +14,15 @@
     "test:pilot": "npm run build && node --test test/r9-synthetic-pilot.test.mjs",
     "preview:build": "npm run build && node apps/preview/build.mjs",
     "preview:serve": "node apps/preview/serve.mjs",
-    "test:preview": "npm run preview:build && node --test test/preview-ui.test.mjs"
+    "test:preview": "npm run preview:build && node --test test/preview-ui.test.mjs",
+    "staging:build": "npm run preview:build && node apps/staging/build.mjs",
+    "staging:serve": "node apps/staging/serve.mjs",
+    "test:staging": "npm run staging:build && node --test test/staging-console.test.mjs"
   },
   "devDependencies": {
-    "typescript": "5.9.3",
+    "typescript": "5.9.3"
+  },
+  "dependencies": {
     "pg": "8.16.3"
   }
 }

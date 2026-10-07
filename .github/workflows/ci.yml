@@ -46,6 +46,12 @@ jobs:
           set -o pipefail
           npm run test:preview | tee "$RUNNER_TEMP/cigo-preview-tests.log"
           node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-preview-tests.log" 8
+      - name: Verify authenticated staging console boundaries (mandatory non-skipped)
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run test:staging | tee "$RUNNER_TEMP/cigo-staging-tests.log"
+          node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-staging-tests.log" 29
       - name: Validate locked component provenance
         run: npm run security:provenance
       - name: Generate and verify CycloneDX SBOM

@@ -1,6 +1,7 @@
 node_modules/
 dist/
 apps/preview/site/
+apps/staging/site/
 .vercel/
 .env
 .env.*
