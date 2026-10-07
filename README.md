@@ -9,3 +9,5 @@ Existing Codeedge repositories are read-only references unless separately and ex
 ## Synthetic intelligence preview
 
 The child preview branch adds a Codeedge-branded, read-only interface in `apps/preview`, separate from the reusable engine. Run `npm run preview:build` and `npm run preview:serve`, then open `http://127.0.0.1:4173`. It publishes synthetic fixtures only and has no live backend or action authority. See [preview architecture and acceptance](docs/preview/CODEEDGE-PREVIEW-UI.md).
+
+Authenticated read-only staging console: `npm run staging:build`, then `npm run staging:serve` with server-only staging configuration. Demo stays at `/`; authenticated staging is `/staging`. See [staging runbook](docs/preview/AUTHENTICATED-STAGING-CONSOLE.md).

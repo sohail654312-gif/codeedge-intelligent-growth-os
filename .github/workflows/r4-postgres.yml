@@ -92,3 +92,9 @@ jobs:
           set -o pipefail
           npm run test:postgres | tee "$RUNNER_TEMP/cigo-postgres-tests.log"
           node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-postgres-tests.log" 14
+      - name: Mandatory authenticated console PostgreSQL composition
+        shell: bash
+        run: |
+          set -o pipefail
+          node --test test/staging-postgres.test.mjs | tee "$RUNNER_TEMP/cigo-staging-postgres.log"
+          node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-staging-postgres.log" 7
