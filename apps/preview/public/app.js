@@ -36,6 +36,3 @@ function initialize(){const close=document.createElement('button');close.classNa
  $('content').addEventListener('input',event=>{if(event.target.id!=='metric-search')return;const caret=event.target.selectionStart;search=event.target.value.slice(0,200);render();$('metric-search').focus();$('metric-search').setSelectionRange(caret,caret);});$('content').addEventListener('change',event=>{if(event.target.id==='domain-filter'){domain=event.target.value;render();$('domain-filter').focus();}});render();
 }
 if(typeof document!=='undefined')import('./demo-data.js').then(({default:snapshots})=>{data=snapshots;snapshot=data[0];initialize();}).catch(()=>{$('content').setAttribute('aria-busy','false');$('content').innerHTML='<section class="state-panel" role="alert"><h2>Demo source unavailable</h2><p>The synthetic observations could not load. Reload this page to retry. No live data or previous values are displayed.</p><button class="button" id="retry-load">Reload preview</button></section>';$('retry-load').addEventListener('click',()=>location.reload());});
-
-
-
