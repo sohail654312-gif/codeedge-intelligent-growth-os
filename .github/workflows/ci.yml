@@ -40,6 +40,12 @@ jobs:
           node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-unit-tests.log" 270
       - name: High-severity dependency audit
         run: npm run security:dependencies
+      - name: Build synthetic read-only preview and verify presentation boundaries
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run test:preview | tee "$RUNNER_TEMP/cigo-preview-tests.log"
+          node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-preview-tests.log" 8
       - name: Validate locked component provenance
         run: npm run security:provenance
       - name: Generate and verify CycloneDX SBOM

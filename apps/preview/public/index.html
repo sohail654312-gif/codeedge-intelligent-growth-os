@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#06101f"><meta name="description" content="Codeedge CIGO intelligence preview. Synthetic business observations, transparent evidence and read-only decision support."><title>CIGO Intelligence | Codeedge Preview</title><link rel="icon" href="/assets/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="/styles.css"><script type="module" src="/app.js"></script></head>
+<body>
+ <a class="skip-link" href="#main">Skip to intelligence</a>
+ <aside class="sidebar" id="sidebar" aria-label="Application sidebar">
+  <div class="brand"><img src="/assets/logo.svg" alt="Codeedge" width="160" height="40"><span>Business OS <span aria-hidden="true">/</span> CIGO</span></div>
+  <div class="sidebar-caption">Intelligence workspace</div>
+  <nav aria-label="Primary navigation" id="navigation">
+   <button data-view="overview" aria-current="page"><span class="nav-icon" aria-hidden="true">◫</span>Intelligence overview</button>
+   <button data-view="opportunities"><span class="nav-icon" aria-hidden="true">↗</span>Growth opportunities</button>
+   <button data-view="explorer"><span class="nav-icon" aria-hidden="true">▤</span>Intelligence explorer</button>
+   <button data-view="decisions"><span class="nav-icon" aria-hidden="true">◇</span>Decision support</button>
+   <button data-view="memory"><span class="nav-icon" aria-hidden="true">▧</span>Business memory</button>
+   <button data-view="evidence"><span class="nav-icon" aria-hidden="true">⌕</span>Evidence & provenance</button>
+   <button data-view="status"><span class="nav-icon" aria-hidden="true">◎</span>System status</button>
+  </nav>
+  <div class="sidebar-bottom"><div class="read-only-note"><span class="status-dot"></span><b>Designed for clarity.</b><p>Observations, explanations and considerations. Every source stays visible.</p><span class="pill">Read-only preview</span></div><div class="workspace"><span class="avatar" aria-hidden="true">NC</span><div><b>Northstar Care</b><span>Synthetic demo workspace</span></div></div></div>
+ </aside>
+ <div class="application">
+  <header class="topbar"><div class="topbar-title"><button class="menu-button" id="menu" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">☰</button><img class="topbar-wordmark" src="/assets/logo.svg" alt="Codeedge" width="128" height="32"><span>Codeedge intelligence</span></div><div class="topbar-actions"><span class="demo-badge">Synthetic demo</span><span class="header-readonly">Read-only</span><span class="avatar" aria-hidden="true">NC</span></div></header>
+  <main id="main" tabindex="-1"><div class="page-heading"><div><div class="breadcrumb">Business OS <span aria-hidden="true">/</span> CIGO</div><h1 id="page-title">Intelligence overview</h1><p id="page-subtitle">A clearer view of demand, capacity and the decisions ahead.</p></div><label class="scenario-label">Demo scenario<select id="scenario" aria-label="Demo scenario"><option value="balanced">Steady operations</option><option value="capacity">Capacity constrained</option><option value="limited">Limited observations</option></select></label></div>
+   <div class="demo-strip"><span class="status-dot"></span><span>Fictional business. Synthetic September 2026 observations. No live customer data.</span><button id="demo-help" class="text-button">About this preview</button></div>
+   <div id="content" aria-busy="true"><div class="state-panel" role="status"><span class="loading-ring" aria-hidden="true"></span><h2>Preparing demo intelligence</h2><p>Loading a bounded set of synthetic observations.</p></div></div>
+   <footer><span>Codeedge CIGO <span aria-hidden="true">/</span> Intelligence with traceable context</span><label>Preview state<select id="preview-state" aria-label="Preview state"><option value="ready">Ready</option><option value="loading">Loading</option><option value="empty">Empty</option><option value="error">Unavailable</option></select></label></footer>
+  </main>
+ </div>
+ <dialog id="detail" aria-labelledby="dialog-title"><div class="dialog-head"><div><span class="pill">Read-only explanation</span><h2 id="dialog-title">Observation details</h2></div><button id="close-detail" aria-label="Close explanation">×</button></div><div id="dialog-body"></div></dialog>
+ <div class="nav-scrim" id="scrim" hidden></div>
+ <noscript><p class="noscript">Enable JavaScript to explore the synthetic preview. No live data is loaded.</p></noscript>
+</body></html>
