@@ -1,0 +1,25 @@
+{
+  "engineeringSha": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+  "cases": [
+    {
+      "width": 1440,
+      "journeys": 12,
+      "result": "PASS",
+      "effects": 0
+    },
+    {
+      "width": 768,
+      "journeys": 12,
+      "result": "PASS",
+      "effects": 0
+    },
+    {
+      "width": 390,
+      "journeys": 12,
+      "result": "PASS",
+      "effects": 0
+    }
+  ],
+  "errors": [],
+  "result": "PASS"
+}

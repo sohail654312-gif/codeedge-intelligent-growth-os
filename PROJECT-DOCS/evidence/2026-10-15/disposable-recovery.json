@@ -1,0 +1,27 @@
+{
+  "engineeringSha": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+  "kind": "DISPOSABLE_RECOVERY_DRILL",
+  "result": "PASS",
+  "encrypted": true,
+  "tamperDenied": true,
+  "tables": {
+    "evidence": 14,
+    "intake_requests": 14,
+    "audit_events": 14,
+    "source_receipts": 8,
+    "source_receipt_revocations": 3,
+    "approval_decisions": 2,
+    "approval_revocations": 1,
+    "denied_actions": 1,
+    "control_audit": 4
+  },
+  "elapsedMs": 2775,
+  "rpoObservedMissingRows": 0,
+  "tenantRls": "PASS",
+  "mutableHistory": "DENIED",
+  "versions": {
+    "dump": "pg_dump (PostgreSQL) 17.11",
+    "restore": "pg_restore (PostgreSQL) 17.11"
+  },
+  "productionRecoveryAcceptance": false
+}

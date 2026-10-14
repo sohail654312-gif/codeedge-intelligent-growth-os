@@ -1,0 +1,617 @@
+{
+  "observedAt": "2026-10-07T17:22:32.690Z",
+  "sha": "fb5e5807cd1b8ed2acd96f05ddb9ddc4efd2c285",
+  "branch": "preview/codeedge-intelligence-ui",
+  "baseSha": "e964f484a6561c6e0f25b9d25f4fca89d076cc01",
+  "pr": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/8",
+  "statuses": {
+    "preview": "READY",
+    "codeedgeBrandParity": "PASS",
+    "officialLogo": "PASS",
+    "desktop": "PASS",
+    "tablet": "PASS",
+    "mobile": "PASS",
+    "demoData": "PASS",
+    "businessOsReadStatus": "PASS — explicit Demo connected; no live source claimed",
+    "evidenceProvenanceUi": "PASS",
+    "cigoCi": "PASS — 270 engine + 8 preview tests, zero failed/skipped",
+    "postgresAcceptance": "PASS — 14/14, zero failed/skipped",
+    "noProductionEffects": "PASS"
+  },
+  "engineeringComplete": true,
+  "preview": {
+    "url": "https://codeedge-business-os-test-b3lryczsf-codeedge.vercel.app",
+    "deploymentId": "dpl_9Z3xF7xZgoNEi2QTAYbc5cEw7Usx",
+    "region": "bom1",
+    "target": "preview",
+    "aliases": [],
+    "hosting": "Isolated prebuilt static Preview on existing codeedge-business-os-test",
+    "newProjectCreation": {
+      "status": 403,
+      "code": "forbidden",
+      "project": "codeedge-cigo-preview"
+    },
+    "projectDefaultsUnchanged": true,
+    "protectionUnchanged": true
+  },
+  "ci": {
+    "observedAt": "2026-10-07T17:18:42.544Z",
+    "runs": {
+      "cigoCi": {
+        "id": 37657620887,
+        "sha": "fb5e5807cd1b8ed2acd96f05ddb9ddc4efd2c285",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/37657620887",
+        "jobs": [
+          {
+            "id": 112916645688,
+            "name": "verify",
+            "conclusion": "success",
+            "steps": [
+              {
+                "name": "Set up job",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Checkout",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Setup Node",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Require committed lockfile and record toolchain",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Install from reviewed lockfile only",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Check authoritative STATE / HANDOFF mirror (M-07)",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Verify typecheck, build and mandatory non-skipped unit tests",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "High-severity dependency audit",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Build synthetic read-only preview and verify presentation boundaries",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Validate locked component provenance",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Generate and verify CycloneDX SBOM",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Attach exact-build SBOM",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Post Setup Node",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Post Checkout",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Complete job",
+                "conclusion": "success",
+                "status": "completed"
+              }
+            ]
+          }
+        ],
+        "countLines": [
+          "ℹ tests 270",
+          "ℹ pass 270",
+          "ℹ fail 0",
+          "ℹ cancelled 0",
+          "ℹ skipped 0",
+          "Mandatory test summary verified: 270/270 pass, zero failed/skipped.",
+          "ℹ tests 8",
+          "ℹ pass 8",
+          "ℹ fail 0",
+          "ℹ cancelled 0",
+          "ℹ skipped 0",
+          "Mandatory test summary verified: 8/8 pass, zero failed/skipped."
+        ]
+      },
+      "cigoPostgres": {
+        "id": 37657620894,
+        "sha": "fb5e5807cd1b8ed2acd96f05ddb9ddc4efd2c285",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/37657620894",
+        "jobs": [
+          {
+            "id": 112916646278,
+            "name": "disposable-postgres",
+            "conclusion": "success",
+            "steps": [
+              {
+                "name": "Set up job",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Initialize containers",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Install dependencies",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Require committed manifest/lock and log exact toolchain",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Validate manifest and locked component provenance",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "High-severity dependency advisory check",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Verify pinned PostgreSQL image identity",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Verify disposable database identity",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Apply reference migration as owner",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Grant least privilege to disposable app role",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Provision synthetic tenant-scoped roles and RLS policies",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Provision additive trusted source receipt storage and synthetic restricted roles",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Check authoritative STATE / HANDOFF mirror (M-07)",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Typecheck and mandatory non-skipped unit tests",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Mandatory non-skipped real PostgreSQL fail-closed integration tests",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Stop containers",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Complete job",
+                "conclusion": "success",
+                "status": "completed"
+              }
+            ]
+          }
+        ],
+        "countLines": [
+          "ℹ tests 270",
+          "ℹ pass 270",
+          "ℹ fail 0",
+          "ℹ cancelled 0",
+          "ℹ skipped 0",
+          "Mandatory test summary verified: 270/270 pass, zero failed/skipped.",
+          "ℹ tests 14",
+          "ℹ pass 14",
+          "ℹ fail 0",
+          "ℹ cancelled 0",
+          "ℹ skipped 0",
+          "Mandatory test summary verified: 14/14 pass, zero failed/skipped."
+        ]
+      }
+    }
+  },
+  "browser": {
+    "base": "https://codeedge-business-os-test-b3lryczsf-codeedge.vercel.app",
+    "observedAt": "2026-10-07T17:17:16.969Z",
+    "viewports": [
+      {
+        "width": 1440,
+        "result": "PASS",
+        "pages": [
+          {
+            "view": "overview",
+            "scroll": 1440,
+            "client": 1440
+          },
+          {
+            "view": "opportunities",
+            "scroll": 1440,
+            "client": 1440
+          },
+          {
+            "view": "explorer",
+            "scroll": 1440,
+            "client": 1440
+          },
+          {
+            "view": "decisions",
+            "scroll": 1440,
+            "client": 1440
+          },
+          {
+            "view": "memory",
+            "scroll": 1440,
+            "client": 1440
+          },
+          {
+            "view": "evidence",
+            "scroll": 1440,
+            "client": 1440
+          },
+          {
+            "view": "status",
+            "scroll": 1440,
+            "client": 1440
+          }
+        ],
+        "containedTable": {
+          "scroll": 1116,
+          "client": 1116,
+          "overflow": "auto"
+        },
+        "keyboardFocus": {
+          "outline": "solid",
+          "width": "3px"
+        },
+        "states": "PASS",
+        "navigation": "PASS",
+        "dialogs": "PASS",
+        "executionDisabled": true
+      },
+      {
+        "width": 768,
+        "result": "PASS",
+        "pages": [
+          {
+            "view": "overview",
+            "scroll": 768,
+            "client": 768
+          },
+          {
+            "view": "opportunities",
+            "scroll": 768,
+            "client": 768
+          },
+          {
+            "view": "explorer",
+            "scroll": 768,
+            "client": 768
+          },
+          {
+            "view": "decisions",
+            "scroll": 768,
+            "client": 768
+          },
+          {
+            "view": "memory",
+            "scroll": 768,
+            "client": 768
+          },
+          {
+            "view": "evidence",
+            "scroll": 768,
+            "client": 768
+          },
+          {
+            "view": "status",
+            "scroll": 768,
+            "client": 768
+          }
+        ],
+        "containedTable": {
+          "scroll": 680,
+          "client": 680,
+          "overflow": "auto"
+        },
+        "keyboardFocus": {
+          "outline": "solid",
+          "width": "3px"
+        },
+        "states": "PASS",
+        "navigation": "PASS",
+        "dialogs": "PASS",
+        "executionDisabled": true
+      },
+      {
+        "width": 390,
+        "result": "PASS",
+        "pages": [
+          {
+            "view": "overview",
+            "scroll": 390,
+            "client": 390
+          },
+          {
+            "view": "opportunities",
+            "scroll": 390,
+            "client": 390
+          },
+          {
+            "view": "explorer",
+            "scroll": 390,
+            "client": 390
+          },
+          {
+            "view": "decisions",
+            "scroll": 390,
+            "client": 390
+          },
+          {
+            "view": "memory",
+            "scroll": 390,
+            "client": 390
+          },
+          {
+            "view": "evidence",
+            "scroll": 390,
+            "client": 390
+          },
+          {
+            "view": "status",
+            "scroll": 390,
+            "client": 390
+          }
+        ],
+        "containedTable": {
+          "scroll": 650,
+          "client": 318,
+          "overflow": "auto"
+        },
+        "keyboardFocus": {
+          "outline": "solid",
+          "width": "3px"
+        },
+        "states": "PASS",
+        "navigation": "PASS",
+        "dialogs": "PASS",
+        "executionDisabled": true
+      }
+    ],
+    "cases": [
+      {
+        "name": "Actual data-module network failure shows safe error without stale metrics",
+        "result": "PASS"
+      }
+    ],
+    "browserErrors": [],
+    "nonReadRequests": [],
+    "result": "PASS"
+  },
+  "hosted": {
+    "sourceSha": "fb5e5807cd1b8ed2acd96f05ddb9ddc4efd2c285",
+    "deploymentId": "dpl_9Z3xF7xZgoNEi2QTAYbc5cEw7Usx",
+    "base": "https://codeedge-business-os-test-b3lryczsf-codeedge.vercel.app",
+    "artifactManifestSha256": "9c1090e5cbe3623b3e8643a83a2a88ca0197664ae3dc7dd196d7efd1b8295851",
+    "files": [
+      {
+        "file": "index.html",
+        "status": 200,
+        "bytes": 4572,
+        "sha256": "2dae0ac9fcb2c516dce448c0b8890eb44d84aca611a2320ea18c52f7f12a72b9",
+        "match": true
+      },
+      {
+        "file": "app.js",
+        "status": 200,
+        "bytes": 23397,
+        "sha256": "a3df3410b0c352ac2e12f1fd1d0669cfb628cb62dedbacdcfc05d8da0b567c3a",
+        "match": true
+      },
+      {
+        "file": "styles.css",
+        "status": 200,
+        "bytes": 16313,
+        "sha256": "04a1046daff748eaf07a8dfdb0360319af5de81513a22b0ff481a75d6d216748",
+        "match": true
+      },
+      {
+        "file": "assets/logo.svg",
+        "status": 200,
+        "bytes": 740,
+        "sha256": "220e8df319a7910a16531678b061b95665bf8acfabea186dbee1f0cc6db100db",
+        "match": true
+      },
+      {
+        "file": "demo-data.js",
+        "status": 200,
+        "bytes": 31592,
+        "sha256": "e097682fa1178b8b1fa91bbd8f99297c6436227cc7e34fc9794225b022ecd8c1",
+        "match": true
+      }
+    ],
+    "syntheticOnly": true,
+    "headers": {
+      "csp": "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+      "nosniff": "nosniff",
+      "referrerPolicy": "no-referrer"
+    },
+    "result": "PASS"
+  },
+  "platform": {
+    "id": "prj_B55tV0GJmSzpiiTWYRaiSJugep3A",
+    "framework": "nextjs",
+    "updatedAt": 1791390545891,
+    "ssoProtection": {
+      "enabled": true,
+      "deploymentType": "all_except_custom_domains"
+    },
+    "passwordProtection": {
+      "enabled": false,
+      "deploymentType": null
+    },
+    "trustedIps": {
+      "enabled": false,
+      "deploymentType": null,
+      "addresses": [],
+      "protectionMode": null
+    }
+  },
+  "performance": {
+    "publishedFiles": 5,
+    "rawBytes": 76614,
+    "combinedGzipBytes": 17406,
+    "newDependencies": 0,
+    "runtimeBackendRequests": 0,
+    "externalFonts": 0
+  },
+  "assets": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "bytes": 4572,
+      "sha256": "2dae0ac9fcb2c516dce448c0b8890eb44d84aca611a2320ea18c52f7f12a72b9",
+      "match": true,
+      "gzipBytes": 1617
+    },
+    {
+      "file": "app.js",
+      "status": 200,
+      "bytes": 23397,
+      "sha256": "a3df3410b0c352ac2e12f1fd1d0669cfb628cb62dedbacdcfc05d8da0b567c3a",
+      "match": true,
+      "gzipBytes": 7729
+    },
+    {
+      "file": "styles.css",
+      "status": 200,
+      "bytes": 16313,
+      "sha256": "04a1046daff748eaf07a8dfdb0360319af5de81513a22b0ff481a75d6d216748",
+      "match": true,
+      "gzipBytes": 4510
+    },
+    {
+      "file": "assets/logo.svg",
+      "status": 200,
+      "bytes": 740,
+      "sha256": "220e8df319a7910a16531678b061b95665bf8acfabea186dbee1f0cc6db100db",
+      "match": true,
+      "gzipBytes": 428
+    },
+    {
+      "file": "demo-data.js",
+      "status": 200,
+      "bytes": 31592,
+      "sha256": "e097682fa1178b8b1fa91bbd8f99297c6436227cc7e34fc9794225b022ecd8c1",
+      "match": true,
+      "gzipBytes": 3122
+    }
+  ],
+  "frozen": [
+    {
+      "path": "codeedge-intelligent-growth-os/pulls/6",
+      "head": "68938c0fb855e4e5a276a6e05c325f86e7ceb854",
+      "state": "open",
+      "draft": true,
+      "merged": false
+    },
+    {
+      "path": "codeedge-intelligent-growth-os/pulls/7",
+      "head": "e964f484a6561c6e0f25b9d25f4fca89d076cc01",
+      "state": "open",
+      "draft": true,
+      "merged": false
+    },
+    {
+      "path": "codeedge-business-os/pulls/78",
+      "head": "6341238c1f5c85153073e0d1bdcc3b6a6c2c6213",
+      "state": "open",
+      "draft": true,
+      "merged": false
+    }
+  ],
+  "officialLogo": {
+    "referenceRepo": "sohail654312-gif/codeedge-business-os",
+    "referenceSha": "c705d2e2b2eb552015f79c412dce4d40e9bf1016",
+    "path": "public/assets/logo.svg",
+    "sha256": "220e8df319a7910a16531678b061b95665bf8acfabea186dbee1f0cc6db100db"
+  },
+  "externalProductionGovernance": [
+    "Independent human security review and merge/release approval",
+    "Production live UI server authentication/authorization, session-derived workspace identity, safe durable provenance projection and tenant-role deployment",
+    "Dedicated CIGO hosting/project permission; creation denied with 403, existing protected test Preview is ready"
+  ],
+  "noProductionEffects": true,
+  "noSelfApproval": true,
+  "noMerge": true,
+  "noAutomationChanges": true,
+  "truthSemantics": "Synthetic/unverified observations; assumptions and proposals remain non-actionable; no HTTP-to-FACT promotion"
+}

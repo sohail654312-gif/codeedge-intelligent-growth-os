@@ -1,0 +1,130 @@
+{
+  "observedAt": "2026-10-14T19:17:29.334Z",
+  "engineeringSha": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+  "environment": {
+    "os": "Windows",
+    "node": "24.20.0",
+    "npm": "11.19.0",
+    "postgres": "17.11",
+    "ciDifferences": "CI pins Node 24.21.0 and a PostgreSQL 16 service image; no CI runner started."
+  },
+  "tests": [
+    {
+      "name": "engine",
+      "command": "npm run verify",
+      "tests": 270,
+      "passed": 270,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "result": "PASS_LOCAL",
+      "log": "PROJECT-DOCS/evidence/2026-10-15/closure-engine.log",
+      "sha256": "34172e946689646bd9a44bbce13a6db75bf47713778d1f6ab3d8f4e325b092ad",
+      "hashEncoding": "Committed UTF-8 LF"
+    },
+    {
+      "name": "preview",
+      "command": "npm run test:preview",
+      "tests": 8,
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "result": "PASS_LOCAL",
+      "log": "PROJECT-DOCS/evidence/2026-10-15/closure-preview.log",
+      "sha256": "c5df8a4d12e02570f4bb4aef3d58f0b62e50e3587330d9319eda81cb57b47a44",
+      "hashEncoding": "Committed UTF-8 LF"
+    },
+    {
+      "name": "authenticated-console",
+      "command": "npm run test:staging",
+      "tests": 31,
+      "passed": 31,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "result": "PASS_LOCAL",
+      "log": "PROJECT-DOCS/evidence/2026-10-15/closure-staging.log",
+      "sha256": "2dab940671d6781466b5e696db0e00e306477e56eafa0f3eb4451170559d4f7f",
+      "hashEncoding": "Committed UTF-8 LF"
+    },
+    {
+      "name": "closure",
+      "command": "npm run test:closure",
+      "tests": 15,
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "result": "PASS_LOCAL",
+      "log": "PROJECT-DOCS/evidence/2026-10-15/closure-new-tests.log",
+      "sha256": "331c0f8860376ad979160ebed39572ba54b26b9dff5a116a9d1a6bb5c5b74ffd",
+      "hashEncoding": "Committed UTF-8 LF"
+    },
+    {
+      "name": "evidence-postgres",
+      "command": "npm run test:postgres",
+      "tests": 14,
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "result": "PASS_LOCAL",
+      "log": "PROJECT-DOCS/evidence/2026-10-15/closure-postgres-base.log",
+      "sha256": "3bd974cc4aa4c9e55f8c1d4fa6cda301818d73b59757428b9639ae26e155adbe",
+      "hashEncoding": "Committed UTF-8 LF"
+    },
+    {
+      "name": "console-postgres",
+      "command": "node --test test/staging-postgres.test.mjs",
+      "tests": 7,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "result": "PASS_LOCAL",
+      "log": "PROJECT-DOCS/evidence/2026-10-15/closure-postgres-staging.log",
+      "sha256": "97071039f55ed2544ee75d32f529bb997760f25eb936ea89a31411638a0d7e2e",
+      "hashEncoding": "Committed UTF-8 LF"
+    },
+    {
+      "name": "control-recovery-postgres",
+      "command": "npm run test:closure:postgres",
+      "tests": 8,
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "result": "PASS_LOCAL",
+      "log": "PROJECT-DOCS/evidence/2026-10-15/closure-postgres-new.log",
+      "sha256": "254695307c10b0f3772ca591c9e3f6fc373a2eeee07a73abe6c3cc18f4a780ea",
+      "hashEncoding": "Committed UTF-8 LF"
+    }
+  ],
+  "totalTests": 353,
+  "supplyChain": {
+    "dependencyAudit": {
+      "result": "PASS_LOCAL",
+      "knownVulnerabilities": 0,
+      "command": "npm run security:dependencies"
+    },
+    "provenance": {
+      "result": "PASS_LOCAL",
+      "lockedPackages": 15,
+      "command": "npm run security:provenance"
+    },
+    "sbom": {
+      "result": "FAIL_LOCAL",
+      "command": "npm sbom --sbom-format cyclonedx; node scripts/check-sbom.mjs <output>",
+      "error": "INVALID_SBOM_HEADER",
+      "reason": "npm emitted local checkout root name cigo; the existing validator accepts the scoped manifest or exact canonical GitHub checkout name. Dependency inventory is 15, but header acceptance is not verified.",
+      "source": "scripts/check-sbom.mjs"
+    }
+  },
+  "governanceMirror": {
+    "result": "PASS",
+    "task": "CIGO-P9-BLOCK2",
+    "historicalGovernancePreserved": true
+  },
+  "independentReview": false
+}

@@ -1,0 +1,30 @@
+
+> @codeedge/cigo@0.1.0 test:postgres
+> npm run build && node --test test/r4-postgres-integration.test.mjs test/r4-postgres-concurrency.test.mjs test/business-os-source-receipts-postgres.test.mjs
+
+
+> @codeedge/cigo@0.1.0 build
+> tsc
+
+✔ actual PostgreSQL receipts: durable restart, exact page binding, RLS, verifier least privilege and conflict rollback (972.7236ms)
+✔ actual PostgreSQL receipt revocation and expiry are server-owned and fail closed (1390.9526ms)
+✔ R4M real DB concurrent identical requests have one receipt, one evidence row and one audit event (501.5571ms)
+✔ R4M real DB conflicting concurrent idempotency and duplicate fingerprint are fail-closed (151.849ms)
+✔ R4M real DB failed audit insertion rolls back receipt and evidence atomically (122.247ms)
+✔ R4M real DB restart, reconciliation, tenant pool reuse and immutable provenance (200.782ms)
+✔ R4M real DB evidence FK failure rolls back receipt and audit; supersession is tenant-scoped (300.5372ms)
+✔ R4M real DB lost COMMIT acknowledgement reconciles through fresh physical connection (189.7708ms)
+✔ R4M real DB bounded 40001 retry rolls back and obtains fresh physical connections (57.0188ms)
+✔ G6 pre-review: genuine PostgreSQL backend termination rolls back an in-flight authorized transaction (136.4592ms)
+✔ R4C real PostgreSQL: forced RLS denies unprovisioned application role (457.2955ms)
+✔ R4F disposable PostgreSQL schema security introspection (136.8957ms)
+✔ R4G disposable PostgreSQL immutable table privileges and cross-tenant fail-closed reads (98.6774ms)
+✔ R4L real PostgreSQL: tenant-role pinned RLS, authorized atomic intake and cross-tenant denial (502.1985ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2804.6501

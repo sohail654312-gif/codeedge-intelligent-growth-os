@@ -1,0 +1,21 @@
+
+> @codeedge/cigo@0.1.0 test:closure:postgres
+> node --test test/closure-postgres.test.mjs
+
+✔ durable approval concurrent identical replay has one immutable decision/audit; conflicting content fails (454.3294ms)
+✔ durable control roles deny foreign reads/writes, owner bypass, mutable history and operational access (127.1887ms)
+✔ durable revocation survives reconnection, is idempotent, preserves original expiry, and outage is untrusted (66.7302ms)
+✔ R7 persists only immutable denied receipts even with all named gates true; replay never dispatches (19.7464ms)
+✔ a real audit-insert failure atomically rolls back control admission and never reports success (18.7578ms)
+✔ real TCP loss after PostgreSQL COMMIT reaches the server reconciles through a fresh connection (258.6227ms)
+{"kind":"DISPOSABLE_RECOVERY_DRILL","result":"PASS","encrypted":true,"tamperDenied":true,"tables":{"evidence":14,"intake_requests":14,"audit_events":14,"source_receipts":8,"source_receipt_revocations":3,"approval_decisions":2,"approval_revocations":1,"denied_actions":1,"control_audit":4},"elapsedMs":2775,"rpoObservedMissingRows":0,"tenantRls":"PASS","mutableHistory":"DENIED","versions":{"dump":"pg_dump (PostgreSQL) 17.11","restore":"pg_restore (PostgreSQL) 17.11"},"productionRecoveryAcceptance":false}
+✔ actual encrypted pg_dump/pg_restore restores evidence, receipts, revocations, control audit, grants and tenant RLS (3106.1073ms)
+✔ retention rehearsal inventories immutable history without purge or loss of revocation lineage (9.0074ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4356.4077

@@ -1,0 +1,60 @@
+{
+  "observedAt": "2026-10-14T19:13:24.719Z",
+  "searchRoots": [
+    {
+      "path": "USERPROFILE\\Documents",
+      "exists": true
+    },
+    {
+      "path": "USERPROFILE\\Desktop",
+      "exists": true
+    },
+    {
+      "path": "USERPROFILE\\Downloads",
+      "exists": true
+    },
+    {
+      "path": "USERPROFILE\\source",
+      "exists": false
+    },
+    {
+      "path": "USERPROFILE\\repos",
+      "exists": false
+    },
+    {
+      "path": "USERPROFILE\\Projects",
+      "exists": false
+    },
+    {
+      "path": "USERPROFILE\\dev",
+      "exists": false
+    },
+    {
+      "path": "USERPROFILE\\workspaces",
+      "exists": false
+    },
+    {
+      "path": "USERPROFILE\\.codex\\worktrees",
+      "exists": false
+    }
+  ],
+  "directoriesInspected": 7902,
+  "cigoCheckouts": [
+    {
+      "path": "work/cigo",
+      "head": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+      "localBranches": "* closure/final-engineering-2026-10-14       8be7d7d [origin/closure/final-engineering-2026-10-14] Close scoped engineering gaps with durable controls and synthetic journeys\n  integration/business-os-read-v1            e964f48 [origin/integration/business-os-read-v1] docs: close synthetic Business OS read acceptance gates\n  preview/codeedge-intelligence-ui           fb5e580 [origin/preview/codeedge-intelligence-ui] Normalize preview asset endings\n  staging/authenticated-intelligence-console 8626a2a [origin/staging/authenticated-intelligence-console] Use explicit staging API routes without dynamic router query authority",
+      "status": "# branch.oid 8be7d7df254c9aa07a7cc2b81484d265538270fd\n# branch.head closure/final-engineering-2026-10-14\n# branch.upstream origin/closure/final-engineering-2026-10-14\n# branch.ab +0 -0",
+      "stashes": "",
+      "unpublishedCommits": ""
+    }
+  ],
+  "unclassifiedGitMetadataFailures": 2,
+  "limitations": [
+    "Other machines, disconnected drives and inaccessible sessions are not verified.",
+    "Search covers the listed user development roots and registered CIGO worktrees; this is not a full-disk forensic inventory.",
+    "Ignored generated dependencies/build output and encrypted credentials are excluded from publication.",
+    "Two Git roots could not be classified by origin metadata; their work is not asserted to be CIGO or synchronized.",
+    "No remote session or second machine inventory API is available."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "observedAt": "2026-10-14T19:21:21.490Z",
+  "result": "PASS_KNOWN_CREDENTIAL_AND_SCOPE_SCAN",
+  "trackedTextFiles": 313,
+  "newFiles": 3,
+  "knownCredentialValuesChecked": 26,
+  "privateCredentialArtifactsPublished": false,
+  "customerData": "Historical artifacts were reviewed as synthetic metadata/UI only; no raw customer records are published.",
+  "limits": "This scan verifies known local credential values and prohibited artifact paths; it is not independent security or license approval.",
+  "engineeringParent": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+  "unpublishedHistoryAtDiscovery": 0
+}

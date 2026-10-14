@@ -1,0 +1,57 @@
+
+> @codeedge/cigo@0.1.0 test:staging
+> npm run staging:build && node --test test/staging-console.test.mjs
+
+
+> @codeedge/cigo@0.1.0 staging:build
+> npm run preview:build && node apps/staging/build.mjs
+
+
+> @codeedge/cigo@0.1.0 preview:build
+> npm run build && node apps/preview/build.mjs
+
+
+> @codeedge/cigo@0.1.0 build
+> tsc
+
+Synthetic read-only preview built: 5 files, 109596 bytes; no runtime backend.
+Staging browser allowlist: 8 files, 119511 bytes. No server modules published.
+✔ server identity fails closed: own workspace (3.3413ms)
+✔ server identity fails closed: cross workspace (0.4969ms)
+✔ server identity fails closed: revoked membership (0.2308ms)
+✔ server identity fails closed: inactive membership (0.1663ms)
+✔ server identity fails closed: expired membership (0.2499ms)
+✔ server identity fails closed: expired session (0.2464ms)
+✔ server identity fails closed: invalid session (0.2437ms)
+✔ server identity fails closed: unknown workspace (0.2836ms)
+✔ server identity fails closed: disallowed role (0.323ms)
+✔ server identity fails closed: tampered identity (0.3117ms)
+✔ server identity fails closed: PostgreSQL unavailable (0.4151ms)
+✔ in-flight actor change cannot retain prior authority (0.3399ms)
+✔ in-flight session change cannot retain prior authority (0.1757ms)
+✔ in-flight version change cannot retain prior authority (0.1733ms)
+✔ in-flight role change cannot retain prior authority (0.1893ms)
+✔ trusted intake resolvers recheck provider and membership on every use (0.5201ms)
+✔ provider verification precedes any JWT identity parsing or membership lookup (30.6265ms)
+✔ verified provider user must match subject, session UUID and bounded lifetime (4.5313ms)
+✔ session cookies are HTTP-only secure strict and duplicates/tampering fail closed (0.5801ms)
+✔ request-local provider verification never caches current session/membership and refreshes before disclosure (1.5547ms)
+✔ unauthenticated browser access denied before constructing trusted dependencies (1.9327ms)
+✔ browser identity, role and workspace JSON claims are not authority (0.663ms)
+✔ unknown workspace, effect routes and non-read snapshot methods cannot run (0.8666ms)
+✔ cross-origin session changes denied; tokens never returned in JSON (0.9385ms)
+✔ no cache reuse or tenant crossover on sequential workspace responses (1.1234ms)
+✔ source, receipt authority, PostgreSQL and session TOCTOU errors erase all data (1.2556ms)
+✔ explicit browser DTO excludes source records, membership, credentials and receipts (2.6501ms)
+✔ presentation refuses FACT/action authority and suppresses unavailable numbers (0.69ms)
+✔ staging entry is separate and never imports demo data or silently falls back (1.6998ms)
+✔ private server artifact is fixed-path, outside Git/browser output, and malformed configuration fails closed (95.4925ms)
+✔ Vercel empty or forged GET body never substitutes for a session or breaks fail-closed status (0.8066ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 501.3587

@@ -1,0 +1,844 @@
+{
+  "observedAt": "2026-10-07T16:52:08.331Z",
+  "scope": "Repository and synthetic staging integration acceptance; production release unapproved",
+  "sha": {
+    "businessOsMain": "c705d2e2b2eb552015f79c412dce4d40e9bf1016",
+    "businessOsIntegration": "6341238c1f5c85153073e0d1bdcc3b6a6c2c6213",
+    "cigoPr6": "68938c0fb855e4e5a276a6e05c325f86e7ceb854",
+    "cigoIntegration": "e964f484a6561c6e0f25b9d25f4fca89d076cc01"
+  },
+  "checks": {
+    "businessOsCi": "PASS",
+    "businessOsStaging": "PASS",
+    "protectedCrossSystemHttp": "PASS",
+    "tenantIsolation": "PASS",
+    "rateLimitRevocationRotation": "PASS",
+    "trustedSourceAttestation": "PASS",
+    "cigoCi": "PASS",
+    "disposablePostgres": "PASS",
+    "noEffectGuarantee": "PASS",
+    "g3RepositoryStagingReadIntegration": "PASS"
+  },
+  "engineeringStagingCompletionPercent": 100,
+  "externalGates": [
+    "Independent human review and merge/release approval",
+    "Production server identities, restricted credentials and tenant-pinned receipt issuer/verifier policies",
+    "External alert destination/configuration/delivery if required; no drain is configured"
+  ],
+  "prs": [
+    {
+      "url": "https://github.com/sohail654312-gif/codeedge-business-os/pull/78",
+      "head": "6341238c1f5c85153073e0d1bdcc3b6a6c2c6213",
+      "draft": true,
+      "state": "open"
+    },
+    {
+      "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/7",
+      "head": "e964f484a6561c6e0f25b9d25f4fca89d076cc01",
+      "draft": true,
+      "state": "open"
+    }
+  ],
+  "ci": {
+    "observedAt": "2026-10-07T16:48:31.485Z",
+    "runs": {
+      "businessOsCi": {
+        "id": 37654386235,
+        "sha": "6341238c1f5c85153073e0d1bdcc3b6a6c2c6213",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/sohail654312-gif/codeedge-business-os/actions/runs/37654386235",
+        "jobs": [
+          {
+            "id": 112905669247,
+            "name": "build",
+            "conclusion": "success",
+            "steps": [
+              {
+                "name": "Set up job",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Run npm ci",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Verify migration-to-TypeScript schema contract",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Prove schema drift gate rejects a mismatch",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Run npm run lint",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Run npm run typecheck",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Run npm test",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Run npm run test:security",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Run npm run build",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Run npx playwright install --with-deps chromium",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Run npm run test:e2e",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Complete job",
+                "conclusion": "success",
+                "status": "completed"
+              }
+            ]
+          }
+        ],
+        "countLines": [
+          "Test Files  87 passed | 1 skipped (88)",
+          "Tests  751 passed | 1 skipped (752)",
+          "Test Files  27 passed (27)",
+          "Tests  342 passed (342)"
+        ]
+      },
+      "businessOsProvider": {
+        "id": 37654446243,
+        "sha": "6341238c1f5c85153073e0d1bdcc3b6a6c2c6213",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/sohail654312-gif/codeedge-business-os/actions/runs/37654446243",
+        "jobs": [
+          {
+            "id": 112905884177,
+            "name": "erpnext",
+            "conclusion": "success",
+            "steps": [
+              {
+                "name": "Set up job",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Checkout Codeedge",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Install Codeedge dependencies deterministically",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Fetch reviewed Frappe Docker revision",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Start disposable ERPNext",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Wait for ERPNext site installation",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Wait for ERPNext HTTP",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Create deterministic disposable ERPNext fixture",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Generate committed disposable ERPNext API credential",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Activate disposable ERPNext credential",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Verify disposable ERPNext token authentication",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Exercise current Codeedge Finance -> ERPNext boundary",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Record coverage boundary",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Diagnostics",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Shut down disposable ERPNext",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Post Checkout Codeedge",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Complete job",
+                "conclusion": "success",
+                "status": "completed"
+              }
+            ]
+          }
+        ],
+        "countLines": [
+          "Test Files  1 passed (1)",
+          "Tests  1 passed (1)"
+        ]
+      },
+      "cigoCi": {
+        "id": 37654412101,
+        "sha": "e964f484a6561c6e0f25b9d25f4fca89d076cc01",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/37654412101",
+        "jobs": [
+          {
+            "id": 112905758893,
+            "name": "verify",
+            "conclusion": "success",
+            "steps": [
+              {
+                "name": "Set up job",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Checkout",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Setup Node",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Require committed lockfile and record toolchain",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Install from reviewed lockfile only",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Check authoritative STATE / HANDOFF mirror (M-07)",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Verify typecheck, build and mandatory non-skipped unit tests",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "High-severity dependency audit",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Validate locked component provenance",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Generate and verify CycloneDX SBOM",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Attach exact-build SBOM",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Post Setup Node",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Post Checkout",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Complete job",
+                "conclusion": "success",
+                "status": "completed"
+              }
+            ]
+          }
+        ],
+        "countLines": [
+          "ℹ tests 270",
+          "ℹ pass 270",
+          "ℹ fail 0",
+          "ℹ cancelled 0",
+          "ℹ skipped 0",
+          "Mandatory test summary verified: 270/270 pass, zero failed/skipped."
+        ]
+      },
+      "cigoPostgres": {
+        "id": 37654412106,
+        "sha": "e964f484a6561c6e0f25b9d25f4fca89d076cc01",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/37654412106",
+        "jobs": [
+          {
+            "id": 112905758911,
+            "name": "disposable-postgres",
+            "conclusion": "success",
+            "steps": [
+              {
+                "name": "Set up job",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Initialize containers",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Install dependencies",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Require committed manifest/lock and log exact toolchain",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Validate manifest and locked component provenance",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "High-severity dependency advisory check",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Verify pinned PostgreSQL image identity",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Verify disposable database identity",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Apply reference migration as owner",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Grant least privilege to disposable app role",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Provision synthetic tenant-scoped roles and RLS policies",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Provision additive trusted source receipt storage and synthetic restricted roles",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Check authoritative STATE / HANDOFF mirror (M-07)",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Typecheck and mandatory non-skipped unit tests",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Mandatory non-skipped real PostgreSQL fail-closed integration tests",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Stop containers",
+                "conclusion": "success",
+                "status": "completed"
+              },
+              {
+                "name": "Complete job",
+                "conclusion": "success",
+                "status": "completed"
+              }
+            ]
+          }
+        ],
+        "countLines": [
+          "ℹ tests 270",
+          "ℹ pass 270",
+          "ℹ fail 0",
+          "ℹ cancelled 0",
+          "ℹ skipped 0",
+          "Mandatory test summary verified: 270/270 pass, zero failed/skipped.",
+          "ℹ tests 14",
+          "ℹ pass 14",
+          "ℹ fail 0",
+          "ℹ cancelled 0",
+          "ℹ skipped 0",
+          "Mandatory test summary verified: 14/14 pass, zero failed/skipped."
+        ]
+      }
+    }
+  },
+  "http": {
+    "deploymentId": "dpl_GHfrUwitNPm8xxB2E268R8uS1nw4",
+    "deploymentSha": "6341238c1f5c85153073e0d1bdcc3b6a6c2c6213",
+    "cigoSha": "e964f484a6561c6e0f25b9d25f4fca89d076cc01",
+    "environment": "codeedge-business-os-test / protected Preview",
+    "contractVersion": "codeedge-business-os-read-model:v1",
+    "workspaceA": "e0eccae6-ecae-4c7a-b5de-d1ffc9fdcad0",
+    "workspaceB": "a75b5c38-1364-45e6-83ef-aafe739c8d89",
+    "cases": [
+      {
+        "name": "adapter -> protected preview -> restricted projection -> durable receipt",
+        "result": "PASS",
+        "http": [
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "d8d41afc-0112-471c-8989-1fbfe7a8555d"
+          }
+        ]
+      },
+      {
+        "name": "CIGO outer + Business OS inner pagination continuation",
+        "result": "PASS",
+        "http": [
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "bfde4655-6b34-4a93-bd79-fc845c16a07a"
+          }
+        ]
+      },
+      {
+        "name": "cross-workspace credential rejected at HTTP boundary",
+        "result": "PASS",
+        "http": [
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 401,
+            "applicationRequestId": "87bc5645-3d2b-47b0-a37c-7a2d04222e1f"
+          }
+        ]
+      },
+      {
+        "name": "unsupported resource rejected at HTTP boundary",
+        "result": "PASS",
+        "http": [
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 400,
+            "applicationRequestId": "53afc773-8dc7-48e5-bb29-32e8b2b16935"
+          }
+        ]
+      },
+      {
+        "name": "bad bearer rejected at HTTP boundary",
+        "result": "PASS",
+        "http": [
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 401,
+            "applicationRequestId": "5d8e65fb-b8b3-45a0-aeea-2252b5f5b264"
+          }
+        ]
+      },
+      {
+        "name": "DB-revoked grant fails closed through HTTP",
+        "result": "PASS",
+        "http": [
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 503,
+            "applicationRequestId": "d3505973-5e6b-40a9-9480-0711e105a4a9"
+          }
+        ]
+      },
+      {
+        "name": "credential old succeeds, revocation fails, rotated succeeds through CIGO",
+        "result": "PASS",
+        "http": [
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "bf9f3a7e-de69-4886-9d98-fafeceb7c4f5"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 503,
+            "applicationRequestId": "75304bca-dd94-414e-9e86-f369058fb140"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "bdfd7fa3-ed4f-4132-871f-de0e30896559"
+          }
+        ]
+      },
+      {
+        "name": "all eight resources preserve data minimisation",
+        "result": "PASS",
+        "http": [
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "3903b792-0045-44c6-87ff-26007418d4d4"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "7c7e26b2-e5b2-4de9-9abc-0e5f9551883a"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "92dbf6cc-6882-4988-9c41-6a1581d1bb0c"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "87a76498-7e72-463d-9065-9ef0b8cf78ca"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "ac2a4aae-7b57-41fc-a40e-cb4f2dbc0a2f"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "b661ec1a-e572-4b15-a370-4d099667d088"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "c5b0131d-c915-4452-a123-1311bc62f62c"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "3e289814-7d75-41c0-845b-f15059691ad2"
+          }
+        ]
+      },
+      {
+        "name": "rate limit fails closed through protected HTTP",
+        "result": "PASS",
+        "http": [
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "7f183408-723e-49b0-a809-8be57ab93925"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "abc7ed2c-739f-4fe6-b62a-fde7deeb4646"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 429,
+            "applicationRequestId": "b4ee9fb2-0237-4a24-91ad-6e4d2c276a71"
+          }
+        ]
+      },
+      {
+        "name": "inner cursor tamper, workspace/resource/limit binding",
+        "result": "PASS",
+        "http": [
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "0cfe1a25-59a5-464c-8296-10df1be6d08d"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 400,
+            "applicationRequestId": "9cecb025-28c2-44d8-9fcf-189686990427"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 400,
+            "applicationRequestId": "ba5f4636-e5b9-4992-aa8f-cdd1f2187e5c"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 400,
+            "applicationRequestId": "47c5d884-2915-4dcb-8c2c-9d6b8ca6370c"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 400,
+            "applicationRequestId": "c2723d55-db29-4a0a-93ec-3995893b7601"
+          }
+        ]
+      },
+      {
+        "name": "authentic expired inner cursor and retained old key rotation",
+        "result": "PASS",
+        "http": [
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "021866b3-33ea-4c4e-9d9a-ad17af651de9"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 400,
+            "applicationRequestId": "f9a6f48e-192b-4536-bad7-784af98d871e"
+          },
+          {
+            "path": "/api/internal/cigo/v1/read",
+            "status": 200,
+            "applicationRequestId": "dbe59a72-f652-4d3b-abe6-dcdc201bb9dd"
+          }
+        ]
+      },
+      {
+        "name": "restricted DB capability cannot SELECT operational or credential tables",
+        "result": "PASS",
+        "http": []
+      }
+    ],
+    "secretsLogged": false,
+    "providerEffects": 0,
+    "result": "PASS",
+    "observedAt": "2026-10-07T16:46:44.938Z"
+  },
+  "hostedDatabase": {
+    "project": "kffcywicqrtxdwgyvhvk",
+    "syntheticOnly": true,
+    "checks": [
+      {
+        "role": "anon",
+        "usage": false,
+        "execute": false
+      },
+      {
+        "role": "authenticated",
+        "usage": false,
+        "execute": false
+      },
+      {
+        "role": "service_role",
+        "usage": false,
+        "execute": false
+      },
+      {
+        "role": "codeedge_cigo_read_api",
+        "usage": true,
+        "execute": true
+      },
+      {
+        "name": "same-workspace direct restricted projection",
+        "result": "PASS"
+      },
+      {
+        "name": "cross-workspace",
+        "result": "PASS",
+        "sqlstate": "42501"
+      },
+      {
+        "name": "unsupported resource",
+        "result": "PASS",
+        "sqlstate": "42501"
+      },
+      {
+        "name": "wrong fingerprint",
+        "result": "PASS",
+        "sqlstate": "42501"
+      },
+      {
+        "name": "revoked grant",
+        "result": "PASS",
+        "sqlstate": "42501"
+      }
+    ],
+    "migrationParity": {
+      "expectedCount": 33,
+      "appliedCount": 33,
+      "missing": [],
+      "unexpected": [],
+      "duplicates": []
+    },
+    "dedicatedPrincipal": {
+      "name": "codeedge_stage_cigo_acceptance_login",
+      "rolcanlogin": true,
+      "rolsuper": false,
+      "rolcreatedb": false,
+      "rolcreaterole": false,
+      "rolreplication": false,
+      "rolbypassrls": false,
+      "rolinherit": false,
+      "rolconnlimit": 6
+    },
+    "privateFunction": {
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ]
+    },
+    "publicRls": {
+      "tables": 40,
+      "forced": 40
+    },
+    "result": "PASS",
+    "observedAt": "2026-10-07T16:38:52.616Z"
+  },
+  "platform": {
+    "protection": {
+      "projectId": "prj_B55tV0GJmSzpiiTWYRaiSJugep3A",
+      "ssoProtection": {
+        "enabled": true,
+        "deploymentType": "all_except_custom_domains"
+      },
+      "passwordProtectionEnabled": false,
+      "trustedIps": {
+        "enabled": false,
+        "deploymentType": null,
+        "addresses": [],
+        "protectionMode": null
+      },
+      "protectionUnchanged": true
+    },
+    "telemetry": {
+      "deploymentId": "dpl_GHfrUwitNPm8xxB2E268R8uS1nw4",
+      "inspectedSince": "15m",
+      "secretsFound": 0,
+      "sensitiveFixtureTextFound": false,
+      "authorizationEvents": 2,
+      "rateLimitedEvents": 1,
+      "sourceUnavailableEvents": 2,
+      "externalDrainsConfigured": false,
+      "externalAlertDeliveryTested": false
+    }
+  },
+  "restrictions": {
+    "frozenMainUnchanged": true,
+    "frozenPr6Unchanged": true,
+    "noMerge": true,
+    "noSelfApproval": true,
+    "noForcePush": true,
+    "noProductionEffects": true,
+    "noRealCustomerProviderDataMutation": true,
+    "noAutomationActivation": true,
+    "noProtectionWeakening": true
+  },
+  "limitations": [
+    "CIGO adapter executed server-side from the repository, not a deployed production CIGO service",
+    "Receipts for protected HTTP acceptance stored in disposable PostgreSQL; production tenant-role provisioning remains external",
+    "Local complete Business OS test execution did not finish; full hosted exact-head CI is the validation authority",
+    "Committed integration docs/evidence refer to tested implementation SHAs; final documentation-only heads were independently revalidated here"
+  ]
+}

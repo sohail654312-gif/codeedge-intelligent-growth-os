@@ -1,0 +1,15 @@
+✔ actual PostgreSQL current sessions/membership authorize own workspace and deny foreign or unknown (2265.2967ms)
+✔ actual membership revocation, expiration and stale-session TOCTOU deny subsequent use (17.8166ms)
+✔ actual Business OS role/status and session expiry are authoritative (17.1887ms)
+✔ server gateway and tenant issuer have no operational mutation or role bypass (999.6558ms)
+✔ real adapter -> durable PostgreSQL receipt/intake -> truth/memory/analysis -> safe DTO (335.2059ms)
+✔ HTTP 200 without durable authority, partial page and current receipt revocation fail closed (85.0932ms)
+✔ actual durable stale/future observations and bounded continuation never expose a guessed complete metric (143.2303ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4511.0531

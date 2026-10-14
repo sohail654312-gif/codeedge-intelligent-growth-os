@@ -1,0 +1,29 @@
+
+> @codeedge/cigo@0.1.0 test:preview
+> npm run preview:build && node --test test/preview-ui.test.mjs
+
+
+> @codeedge/cigo@0.1.0 preview:build
+> npm run build && node apps/preview/build.mjs
+
+
+> @codeedge/cigo@0.1.0 build
+> tsc
+
+Synthetic read-only preview built: 5 files, 109596 bytes; no runtime backend.
+✔ preview composes eight domains through existing engines without FACT or authority (68.6784ms)
+✔ preview only selects fixed synthetic scenarios and preserves no-effect invariants (24.6422ms)
+✔ stale and partial observations suppress values and grounded proposals (6.4126ms)
+✔ capacity scenario explanations describe their actual seeded cohort (8.2386ms)
+✔ presentation projection drops raw authority, secrets and receipts and rejects truth promotion (0.6805ms)
+✔ published files exclude server code and contain only bounded synthetic public DTOs (14.7987ms)
+✔ official Codeedge wordmark matches released Business OS bytes (2.1877ms)
+✔ escaped content and restrictive deployment policy prevent script/credential/effect exposure (5.2234ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 300.1451

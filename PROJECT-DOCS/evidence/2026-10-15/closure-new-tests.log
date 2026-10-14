@@ -1,0 +1,41 @@
+
+> @codeedge/cigo@0.1.0 test:closure
+> npm run staging:build && node --test test/closure-engineering.test.mjs
+
+
+> @codeedge/cigo@0.1.0 staging:build
+> npm run preview:build && node apps/staging/build.mjs
+
+
+> @codeedge/cigo@0.1.0 preview:build
+> npm run build && node apps/preview/build.mjs
+
+
+> @codeedge/cigo@0.1.0 build
+> tsc
+
+Synthetic read-only preview built: 5 files, 109596 bytes; no runtime backend.
+Staging browser allowlist: 8 files, 119511 bytes. No server modules published.
+✔ CLINIC DEMO complete enquiry, booking, invoice, call and owner-handoff journeys (70.0131ms)
+✔ CLINIC SANDBOX complete enquiry, booking, invoice, call and owner-handoff journeys (35.4379ms)
+✔ TRADES DEMO complete enquiry, booking, invoice, call and owner-handoff journeys (15.4335ms)
+✔ TRADES SANDBOX complete enquiry, booking, invoice, call and owner-handoff journeys (13.8281ms)
+✔ synthetic journeys reject production, custom providers, cross-tenant seed injection and arbitrary scenarios (1.6845ms)
+✔ journey admission snapshots mode and vertical before asynchronous read (6.4218ms)
+✔ health is safe liveness only; disable and rollback never return live DTOs (1.502ms)
+✔ provider authentication bounds advertised and streaming response sizes before parsing identity (10.2457ms)
+✔ R6 membership revocation during awaited policy cannot return even non-executable validity (3.6203ms)
+✔ R6 actor replacement during durable admission is denied without erasing immutable audit (1.7311ms)
+✔ encrypted backup rejects corruption, wrong key and truncation; harness rejects hosted databases (4.3223ms)
+✔ retention protects current history, revocation links and legal holds and never enables deletion (0.7562ms)
+✔ actual loopback alert delivery validates redaction, authorization, acknowledgement and duplicate delivery (126.6713ms)
+✔ unconfirmed/oversized alert receipts and injected secrets fail closed without error disclosure (3.4568ms)
+✔ browser history revalidation clears prior tenant snapshots and live mode cannot expose synthetic journeys (6.2861ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 888.1808

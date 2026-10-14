@@ -1,0 +1,29 @@
+{
+  "engineeringSha": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+  "observedAt": "2026-10-14T19:15:36.576Z",
+  "base": "https://codeedge-business-os-test-p94bnuajm-codeedge.vercel.app",
+  "commit": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+  "cases": [
+    {
+      "name": "Safe liveness only",
+      "result": "PASS"
+    },
+    {
+      "name": "Unauthenticated read denial and no-store",
+      "result": "PASS"
+    },
+    {
+      "name": "Private artifact/source paths unavailable",
+      "result": "PASS"
+    },
+    {
+      "name": "Eight exact asset hashes and CSP",
+      "result": "PASS"
+    },
+    {
+      "name": "Deployment Protection remains required",
+      "result": "PASS"
+    }
+  ],
+  "result": "PASS"
+}

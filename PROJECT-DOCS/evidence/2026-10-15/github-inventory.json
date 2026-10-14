@@ -1,0 +1,330 @@
+{
+  "observedAt": "2026-10-14T19:13:35.846Z",
+  "main": {
+    "sha": "4aa62846bff8a6fe550879f12f19f7fc8e6edfb0",
+    "protected": false
+  },
+  "prs": [
+    {
+      "number": 2,
+      "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/2",
+      "head": "20d00055f523d77d410fcbbb764920c9ab8d8749",
+      "branch": "remediation/r0-audit-register",
+      "base": "4aa62846bff8a6fe550879f12f19f7fc8e6edfb0",
+      "baseBranch": "main",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "author": "sohail654312-gif",
+      "reviews": [],
+      "runs": [
+        {
+          "id": 36867522967,
+          "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/36867522967",
+          "name": "CIGO CI",
+          "sha": "20d00055f523d77d410fcbbb764920c9ab8d8749",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "ancestorOfEngineering": true
+    },
+    {
+      "number": 3,
+      "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/3",
+      "head": "beddb604d5773326430e38505b0a74890fefd7b9",
+      "branch": "remediation/r1-truth-authority",
+      "base": "4aa62846bff8a6fe550879f12f19f7fc8e6edfb0",
+      "baseBranch": "main",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "author": "sohail654312-gif",
+      "reviews": [],
+      "runs": [
+        {
+          "id": 36868009012,
+          "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/36868009012",
+          "name": "CIGO CI",
+          "sha": "beddb604d5773326430e38505b0a74890fefd7b9",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "ancestorOfEngineering": true
+    },
+    {
+      "number": 4,
+      "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/4",
+      "head": "4df125c3e741c1f6592d9035a9e10350b9c3c517",
+      "branch": "remediation/r2-identity-contract",
+      "base": "4aa62846bff8a6fe550879f12f19f7fc8e6edfb0",
+      "baseBranch": "main",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "author": "sohail654312-gif",
+      "reviews": [],
+      "runs": [
+        {
+          "id": 36868108564,
+          "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/36868108564",
+          "name": "CIGO CI",
+          "sha": "4df125c3e741c1f6592d9035a9e10350b9c3c517",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "ancestorOfEngineering": true
+    },
+    {
+      "number": 5,
+      "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/5",
+      "head": "e7dc89af44bed60e46cec811cdd008fd686432f7",
+      "branch": "remediation/r3-provenance-boundary",
+      "base": "4aa62846bff8a6fe550879f12f19f7fc8e6edfb0",
+      "baseBranch": "main",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "author": "sohail654312-gif",
+      "reviews": [],
+      "runs": [
+        {
+          "id": 36868223786,
+          "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/36868223786",
+          "name": "CIGO CI",
+          "sha": "e7dc89af44bed60e46cec811cdd008fd686432f7",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "ancestorOfEngineering": true
+    },
+    {
+      "number": 6,
+      "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/6",
+      "head": "68938c0fb855e4e5a276a6e05c325f86e7ceb854",
+      "branch": "remediation/r4-durable-evidence",
+      "base": "4aa62846bff8a6fe550879f12f19f7fc8e6edfb0",
+      "baseBranch": "main",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "author": "sohail654312-gif",
+      "reviews": [
+        {
+          "user": "sohail654312-gif",
+          "state": "COMMENTED",
+          "commitId": "68938c0fb855e4e5a276a6e05c325f86e7ceb854",
+          "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/6#pullrequestreview-5395468811"
+        }
+      ],
+      "runs": [
+        {
+          "id": 37046079392,
+          "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/37046079392",
+          "name": "R4 disposable PostgreSQL acceptance",
+          "sha": "68938c0fb855e4e5a276a6e05c325f86e7ceb854",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 37046079583,
+          "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/37046079583",
+          "name": "CIGO CI",
+          "sha": "68938c0fb855e4e5a276a6e05c325f86e7ceb854",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "ancestorOfEngineering": true
+    },
+    {
+      "number": 7,
+      "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/7",
+      "head": "e964f484a6561c6e0f25b9d25f4fca89d076cc01",
+      "branch": "integration/business-os-read-v1",
+      "base": "68938c0fb855e4e5a276a6e05c325f86e7ceb854",
+      "baseBranch": "remediation/r4-durable-evidence",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "author": "sohail654312-gif",
+      "reviews": [],
+      "runs": [
+        {
+          "id": 37654412101,
+          "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/37654412101",
+          "name": "CIGO CI",
+          "sha": "e964f484a6561c6e0f25b9d25f4fca89d076cc01",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 37654412106,
+          "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/37654412106",
+          "name": "R4 disposable PostgreSQL acceptance",
+          "sha": "e964f484a6561c6e0f25b9d25f4fca89d076cc01",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "ancestorOfEngineering": true
+    },
+    {
+      "number": 8,
+      "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/8",
+      "head": "fb5e5807cd1b8ed2acd96f05ddb9ddc4efd2c285",
+      "branch": "preview/codeedge-intelligence-ui",
+      "base": "e964f484a6561c6e0f25b9d25f4fca89d076cc01",
+      "baseBranch": "integration/business-os-read-v1",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "author": "sohail654312-gif",
+      "reviews": [],
+      "runs": [
+        {
+          "id": 37657620887,
+          "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/37657620887",
+          "name": "CIGO CI",
+          "sha": "fb5e5807cd1b8ed2acd96f05ddb9ddc4efd2c285",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 37657620894,
+          "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/37657620894",
+          "name": "R4 disposable PostgreSQL acceptance",
+          "sha": "fb5e5807cd1b8ed2acd96f05ddb9ddc4efd2c285",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "ancestorOfEngineering": true
+    },
+    {
+      "number": 9,
+      "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/9",
+      "head": "8626a2acc118e20838d2a4737fcc4209c2e1197c",
+      "branch": "staging/authenticated-intelligence-console",
+      "base": "fb5e5807cd1b8ed2acd96f05ddb9ddc4efd2c285",
+      "baseBranch": "preview/codeedge-intelligence-ui",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "author": "sohail654312-gif",
+      "reviews": [],
+      "runs": [
+        {
+          "id": 37670695702,
+          "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/37670695702",
+          "name": "R4 disposable PostgreSQL acceptance",
+          "sha": "8626a2acc118e20838d2a4737fcc4209c2e1197c",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 37670695754,
+          "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/37670695754",
+          "name": "CIGO CI",
+          "sha": "8626a2acc118e20838d2a4737fcc4209c2e1197c",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "ancestorOfEngineering": true
+    },
+    {
+      "number": 10,
+      "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/10",
+      "head": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+      "branch": "closure/final-engineering-2026-10-14",
+      "base": "8626a2acc118e20838d2a4737fcc4209c2e1197c",
+      "baseBranch": "staging/authenticated-intelligence-console",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "author": "sohail654312-gif",
+      "reviews": [],
+      "runs": [
+        {
+          "id": 38620148922,
+          "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38620148922",
+          "name": "CIGO CI",
+          "sha": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 38620148889,
+          "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38620148889",
+          "name": "R4 disposable PostgreSQL acceptance",
+          "sha": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ],
+      "ancestorOfEngineering": true
+    }
+  ],
+  "latestPublishedEngineering": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+  "lastGreenBaseline": "8626a2acc118e20838d2a4737fcc4209c2e1197c",
+  "currentAnnotations": [
+    {
+      "run": 38620148922,
+      "job": 116045252646,
+      "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38620148922/job/116045252646",
+      "runnerId": 0,
+      "steps": [],
+      "annotations": [
+        {
+          "level": "failure",
+          "message": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings"
+        }
+      ]
+    },
+    {
+      "run": 38620148889,
+      "job": 116045252961,
+      "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38620148889/job/116045252961",
+      "runnerId": 0,
+      "steps": [],
+      "annotations": [
+        {
+          "level": "failure",
+          "message": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings"
+        }
+      ]
+    }
+  ],
+  "remoteCommitVerified": true,
+  "branches/main/protection": "GITHUB_API_STATUS_403",
+  "rulesets": "GITHUB_API_STATUS_403",
+  "collaborators": [
+    {
+      "login": "sohail654312-gif",
+      "role": "admin"
+    }
+  ],
+  "remoteBranches": [
+    "origin 4aa62846bff8a6fe550879f12f19f7fc8e6edfb0",
+    "origin/cigo/p2-block1-recovery-20261001 2e6e5bbd0a1b8b360ced264962709b32aaf44b89",
+    "origin/closure/final-engineering-2026-10-14 8be7d7df254c9aa07a7cc2b81484d265538270fd",
+    "origin/integration/business-os-read-v1 e964f484a6561c6e0f25b9d25f4fca89d076cc01",
+    "origin/main 4aa62846bff8a6fe550879f12f19f7fc8e6edfb0",
+    "origin/preview/codeedge-intelligence-ui fb5e5807cd1b8ed2acd96f05ddb9ddc4efd2c285",
+    "origin/remediation/r0-audit-register 20d00055f523d77d410fcbbb764920c9ab8d8749",
+    "origin/remediation/r1-truth-authority beddb604d5773326430e38505b0a74890fefd7b9",
+    "origin/remediation/r2-identity-contract 4df125c3e741c1f6592d9035a9e10350b9c3c517",
+    "origin/remediation/r3-provenance-boundary e7dc89af44bed60e46cec811cdd008fd686432f7",
+    "origin/remediation/r4-durable-evidence 68938c0fb855e4e5a276a6e05c325f86e7ceb854",
+    "origin/staging/authenticated-intelligence-console 8626a2acc118e20838d2a4737fcc4209c2e1197c"
+  ],
+  "recoveryBranch": {
+    "branch": "cigo/p2-block1-recovery-20261001",
+    "uniqueCommits": "0",
+    "patchEquivalence": ""
+  }
+}
