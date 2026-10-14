@@ -2,6 +2,7 @@ import type { WorkspaceId } from "../domain/truth/types.js";
 import type { OperationalRecord, ReadResult } from "./contracts.js";
 import type { SourceReader } from "./source-reader.js";
 import type { PgPool } from "../evidence/postgres-evidence-store.js";
+import {guardPgClient} from '../evidence/postgres-evidence-store.js';
 import type { SourceAttestation, TrustedSourceAuthority } from "../evidence/source-attestation.js";
 import { requireAttestedObservation } from "../evidence/source-attestation.js";
 import { fingerprintOperationalRecord } from "../evidence/fingerprint.js";
@@ -52,7 +53,7 @@ export function createAttestedBusinessOsHttpReader(input:
           if (identities.has(identity)) fail();
           identities.add(identity);
         }
-        const client = await receiptPool.connect();
+        const client = guardPgClient(await receiptPool.connect());
         try {
           await client.query("BEGIN");
           await client.query("SET LOCAL statement_timeout='4000ms'");
@@ -112,7 +113,7 @@ export function createPostgresSourceAuthority(pool: PgPool, workspaceId: Workspa
         if (receipt.workspaceId !== workspaceId || receipt.sourceSystem !== "BUSINESS_OS" ||
           receipt.adapterId !== ADAPTER_ID || !receipt.pageFingerprint || !receipt.expiresAt ||
           !Number.isFinite(Date.parse(receipt.expiresAt)) || Date.parse(receipt.expiresAt) <= now()) return false;
-        client = await pool.connect();
+        client = guardPgClient(await pool.connect());
         const result = await client.query<{ attestation: unknown }>(`SELECT r.attestation FROM cigo.source_receipts r
           WHERE r.workspace_id=$1 AND r.receipt_id=$2 AND r.expires_at > clock_timestamp()
           AND NOT EXISTS (SELECT 1 FROM cigo.source_receipt_revocations v

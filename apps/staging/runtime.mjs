@@ -16,20 +16,23 @@ export function loadServerConfiguration(environment=process.env){
 }
 function poolFor(url,ca){
  if(!pools.has(url)){const u=new URL(url);if(u.protocol!=='postgresql:'||!u.hostname.endsWith('.pooler.supabase.com')||!u.username.startsWith('cigo_stage_'))throw Error('INVALID_SERVER_CONFIGURATION');
-  pools.set(url,new pg.Pool({host:u.hostname,port:Number(u.port),user:decodeURIComponent(u.username),password:decodeURIComponent(u.password),database:u.pathname.slice(1),
-   ssl:{rejectUnauthorized:true,ca},max:2,idleTimeoutMillis:10000,connectionTimeoutMillis:6000,statement_timeout:4000,query_timeout:5000}));}
+  const pool=new pg.Pool({host:u.hostname,port:Number(u.port),user:decodeURIComponent(u.username),password:decodeURIComponent(u.password),database:u.pathname.slice(1),
+   ssl:{rejectUnauthorized:true,ca},max:2,idleTimeoutMillis:10000,connectionTimeoutMillis:6000,statement_timeout:4000,query_timeout:5000});
+  pool.on('error',()=>console.error('STAGING_DATABASE_POOL_UNAVAILABLE'));pools.set(url,pool);}
  return pools.get(url);
 }
 export async function handleStaging(request,config,dependencies={}){
  const headers={...SAFE_HEADERS};const reply=(status,body)=>({status,headers,body});
  const url=new URL(request.url,config.origin),path=url.pathname;
- if(!['/api/staging/session','/api/staging/snapshot'].includes(path))return reply(404,{error:'Unavailable route'});
+ if(!['/api/staging/session','/api/staging/snapshot','/api/staging/health'].includes(path))return reply(404,{error:'Unavailable route'});
  if(!['GET','POST','DELETE'].includes(request.method))return reply(405,{error:'Read-only console'});
  if(path.endsWith('snapshot')&&request.method!=='GET')return reply(405,{error:'Read-only console'});
+ if(path.endsWith('health')&&request.method!=='GET')return reply(405,{error:'Read-only console'});
  if(request.method!=='GET'&&request.headers.origin!==config.origin)return reply(403,{error:'Session request denied'});
  const queryAllowed=path.endsWith('snapshot')?['workspace']:[];
  if([...url.searchParams.keys()].some(k=>!queryAllowed.includes(k))||queryAllowed.some(k=>url.searchParams.getAll(k).length>1))return reply(400,{error:'Invalid request'});
  try{
+  if(path.endsWith('health'))return reply(config.enabled===true?200:503,{status:config.enabled===true?'RUNNING_READ_ONLY':'DISABLED',effectsEnabled:false});
   if(config.enabled!==true)throw Error('STAGING_DISABLED');
   const token=readCookie(request.headers.cookie);
   if(request.method==='GET'&&!token)return reply(401,{error:'Sign in to staging'});

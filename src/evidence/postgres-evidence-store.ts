@@ -5,9 +5,17 @@ import type { WorkspaceId } from "../domain/truth/types.js";
  * This adapter is unusable until reviewed RLS policies and least-privilege roles are provisioned. */
 export interface PgClient {
  query<T extends Record<string, unknown> = Record<string, unknown>>(sql: string, params?: readonly unknown[]): Promise<{rows: T[]; rowCount?: number | null}>;
- release(): void;
+ release(discard?: boolean): void;
+ on?(event:'error',listener:(error:unknown)=>void):unknown;
 }
 export interface PgPool { connect(): Promise<PgClient>; }
+const guardedClients=new WeakSet<object>();
+/** pg emits a checked-out connection error before its query promise rejection.
+ * Contain that event so transaction rollback/reconciliation can run. Query errors
+ * still reject normally; this never turns a failed query into a success. */
+export function guardPgClient<T extends PgClient>(client:T):T {
+ if(!guardedClients.has(client)){client.on?.('error',()=>{});guardedClients.add(client);}return client;
+}
 interface Input {readonly workspaceId: WorkspaceId; readonly idempotencyKey: string; readonly requestDigest: string; readonly observations: readonly DurableEvidenceRow[];}
 function parseReceipt(value: unknown): DurableIntakeReceipt {
  if (!value || typeof value!=="object") throw new Error("INVALID_DURABLE_RECEIPT");
@@ -24,7 +32,7 @@ export class PostgresEvidenceStore implements TransactionalEvidenceStore {
  }
  async lookupIntake(workspaceId: WorkspaceId,idempotencyKey: string): Promise<DurableIntakeReceipt|undefined> {
   this.assertWorkspace(workspaceId);
-  const client=await this.pool.connect();
+  const client=guardPgClient(await this.pool.connect());
   try {
    const result=await client.query<{result:unknown}>(
     "SELECT result FROM cigo.intake_requests WHERE workspace_id=$1 AND idempotency_key=$2", [workspaceId,idempotencyKey]);
@@ -51,7 +59,7 @@ export class PostgresEvidenceStore implements TransactionalEvidenceStore {
   if (new Set(input.observations.map(o=>o.fingerprint)).size!==input.observations.length || input.observations.some(o=>!o.fingerprint || o.observation.workspaceId!==input.workspaceId)) throw new Error("INVALID_DURABLE_INTAKE");
   const receipt:DurableIntakeReceipt={workspaceId:input.workspaceId,idempotencyKey:input.idempotencyKey,requestDigest:input.requestDigest,fingerprints:input.observations.map(o=>o.fingerprint),status:"COMMITTED"};
   for(let attempt=0;attempt<3;attempt++) {
-  const client=await this.pool.connect();let commitAttempted=false;let ambiguous=false;
+  const client=guardPgClient(await this.pool.connect());let commitAttempted=false;let ambiguous=false;
   try {
    await client.query("BEGIN ISOLATION LEVEL SERIALIZABLE");
    const inserted=await client.query(`INSERT INTO cigo.intake_requests (workspace_id,idempotency_key,request_digest,result)
@@ -83,7 +91,7 @@ export class PostgresEvidenceStore implements TransactionalEvidenceStore {
    if (isSerializationFailure(error)) throw new Error("DURABLE_SERIALIZATION_RETRY_EXHAUSTED");
    throw error;
    }
-  } finally {client.release();}
+  } finally {client.release(ambiguous);}
   if (ambiguous) return this.reconcileIntake(input);
   }
   throw new Error("DURABLE_SERIALIZATION_RETRY_EXHAUSTED");

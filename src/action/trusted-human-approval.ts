@@ -43,6 +43,10 @@ export class HumanApprovalBoundary {
   await this.membership(session,operation,role);
   return session;
  }
+ private async recheck(session:TrustedHumanSession,operation:string,role:'OWNER'|'APPROVER'){
+  const current=await this.identity(session.workspaceId,operation,role);
+  if(current.actorId!==session.actorId||current.sessionId!==session.sessionId)fail('APPROVAL_AUTHORITY_CHANGED');
+ }
  async decide(input:Readonly<{approvalId:string;subject:ApprovalSubject;decision:"APPROVE"|"REJECT";requiredRole:"OWNER"|"APPROVER"}>):Promise<ApprovalRecord>{
   const {approvalId,decision,requiredRole}=input??{};
   // Copy the subject before the first await. Policy, membership, digest and ledger must see one identity.
@@ -57,7 +61,7 @@ export class HumanApprovalBoundary {
   const subjectDigest=this.digest.digest(canonical(subject));if(!valid(subjectDigest))fail("INVALID_TRUSTED_DIGEST");
   const record:ApprovalRecord={kind:"HUMAN_APPROVAL_DECISION",workspaceId:subject.workspaceId,approvalId,intentId:subject.intentId,subjectDigest,actorId:session.actorId,sessionId:session.sessionId,decision,requiredRole,policyVersion:evaluation.policyVersion,decidedAt:now,expiresAt:new Date(Date.parse(now)+evaluation.maxTtlMs).toISOString(),status:"RECORDED_NON_EXECUTABLE"};
   const existing=await this.ledger.lookup(subject.workspaceId,approvalId);
-  if(existing){if(!sameDecision(existing,record))fail("APPROVAL_REPLAY_CONFLICT");if(!iso(existing.decidedAt)||!iso(existing.expiresAt)||Date.parse(now)>=Date.parse(existing.expiresAt)||Date.parse(now)<Date.parse(existing.decidedAt)||await this.ledger.isRevoked(subject.workspaceId,approvalId))fail("APPROVAL_REPLAY_EXPIRED_OR_REVOKED");return structuredClone(existing);}
+  if(existing){if(!sameDecision(existing,record))fail("APPROVAL_REPLAY_CONFLICT");if(!iso(existing.decidedAt)||!iso(existing.expiresAt)||Date.parse(now)>=Date.parse(existing.expiresAt)||Date.parse(now)<Date.parse(existing.decidedAt)||await this.ledger.isRevoked(subject.workspaceId,approvalId))fail("APPROVAL_REPLAY_EXPIRED_OR_REVOKED");await this.recheck(session,subject.operation,requiredRole);return structuredClone(existing);}
   let saved:ApprovalRecord;
   try{// The ledger receives a detached copy: it cannot mutate the authoritative comparator in place.
    saved=await this.ledger.record(structuredClone(record));}catch(error){
@@ -67,9 +71,10 @@ export class HumanApprovalBoundary {
    if(!winner)throw Error("APPROVAL_REPLAY_CONFLICT");
    if(!sameDecision(winner,record))throw Error("APPROVAL_REPLAY_CONFLICT");
    if(!iso(winner.decidedAt)||!iso(winner.expiresAt)||Date.parse(now)>=Date.parse(winner.expiresAt)||Date.parse(now)<Date.parse(winner.decidedAt)||await this.ledger.isRevoked(subject.workspaceId,approvalId))fail("APPROVAL_REPLAY_EXPIRED_OR_REVOKED");
-   return structuredClone(winner);
+   await this.recheck(session,subject.operation,requiredRole);return structuredClone(winner);
   }
   if(!same(saved,record))fail("APPROVAL_LEDGER_INTEGRITY_FAILURE");
+  await this.recheck(session,subject.operation,requiredRole);
   return structuredClone(saved);
  }
  async check(input:Readonly<{workspaceId:string;approvalId:string;subject:ApprovalSubject;requiredRole:"OWNER"|"APPROVER"}>):Promise<Readonly<{status:"VALID_NON_EXECUTABLE"|"DENIED";reason:string}>>{
@@ -93,6 +98,13 @@ export class HumanApprovalBoundary {
    const evaluation=await this.policy.evaluate({subject:structuredClone(frozen.subject),actorId:session.actorId,decision:"APPROVE",now});
    if(!evaluation?.allow||evaluation.requiredRole!==saved.requiredRole||evaluation.policyVersion!==saved.policyVersion)return denied("POLICY_CHANGED_OR_DENIED");
   }catch{return denied("APPROVAL_DEPENDENCY_UNAVAILABLE");}
+  // A policy or ledger await may outlive session/membership or revocation state.
+  // Recheck immediately before exposing even a non-executable valid decision.
+  try{const current=await this.identity(frozen.workspaceId,frozen.subject.operation,saved.requiredRole);
+   if(current.actorId!==session.actorId||current.sessionId!==session.sessionId)return denied('IDENTITY_OR_MEMBERSHIP_DENIED');
+   const finalNow=this.clock.now();if(!iso(finalNow)||Date.parse(finalNow)>=Date.parse(saved.expiresAt)||Date.parse(finalNow)<Date.parse(saved.decidedAt))return denied('APPROVAL_EXPIRED_OR_INVALID');
+   if(await this.ledger.isRevoked(frozen.workspaceId,frozen.approvalId))return denied('APPROVAL_REVOKED');
+  }catch{return denied('APPROVAL_DEPENDENCY_UNAVAILABLE');}
   return {status:"VALID_NON_EXECUTABLE",reason:"REQUIRES_SEPARATE_R7_EFFECT_AUTHORIZATION"};
  }
  async revoke(input:Readonly<{workspaceId:string;approvalId:string;operation:string}>):Promise<void>{

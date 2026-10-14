@@ -17,7 +17,9 @@
     "test:preview": "npm run preview:build && node --test test/preview-ui.test.mjs",
     "staging:build": "npm run preview:build && node apps/staging/build.mjs",
     "staging:serve": "node apps/staging/serve.mjs",
-    "test:staging": "npm run staging:build && node --test test/staging-console.test.mjs"
+    "test:staging": "npm run staging:build && node --test test/staging-console.test.mjs",
+    "test:closure": "npm run staging:build && node --test test/closure-engineering.test.mjs",
+    "test:closure:postgres": "node --test test/closure-postgres.test.mjs"
   },
   "devDependencies": {
     "typescript": "5.9.3"

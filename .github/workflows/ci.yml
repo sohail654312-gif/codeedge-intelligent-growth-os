@@ -52,6 +52,12 @@ jobs:
           set -o pipefail
           npm run test:staging | tee "$RUNNER_TEMP/cigo-staging-tests.log"
           node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-staging-tests.log" 31
+      - name: Verify engineering closure security, journeys and operational drills
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run test:closure | tee "$RUNNER_TEMP/cigo-closure-tests.log"
+          node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-closure-tests.log" 15
       - name: Validate locked component provenance
         run: npm run security:provenance
       - name: Generate and verify CycloneDX SBOM
