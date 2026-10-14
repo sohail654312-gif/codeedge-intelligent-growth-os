@@ -1,0 +1,146 @@
+{
+  "observedAt": "2026-10-14T19:21:01.656Z",
+  "repository": "codeedge-intelligent-growth-os",
+  "sync": {
+    "observedAt": "2026-10-14T19:20:04.862Z",
+    "number": 11,
+    "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/11",
+    "head": "79e49220f31394d5b00fc9b1d9e0b69e22f5c338",
+    "base": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+    "headBranch": "codex/cigo-progress-sync-20261015",
+    "baseBranch": "closure/final-engineering-2026-10-14",
+    "state": "open",
+    "draft": true,
+    "merged": false,
+    "remoteCommitVerified": true
+  },
+  "changedFiles": [
+    "AGENTS.md",
+    "PROJECT-DOCS/CIGO-PROGRESS.json",
+    "PROJECT-DOCS/CIGO-PROGRESS.md",
+    "PROJECT-DOCS/evidence/2026-10-15/closure-engine.log",
+    "PROJECT-DOCS/evidence/2026-10-15/closure-new-tests.log",
+    "PROJECT-DOCS/evidence/2026-10-15/closure-postgres-base.log",
+    "PROJECT-DOCS/evidence/2026-10-15/closure-postgres-new.log",
+    "PROJECT-DOCS/evidence/2026-10-15/closure-postgres-staging.log",
+    "PROJECT-DOCS/evidence/2026-10-15/closure-preview.log",
+    "PROJECT-DOCS/evidence/2026-10-15/closure-staging.log",
+    "PROJECT-DOCS/evidence/2026-10-15/disposable-recovery.json",
+    "PROJECT-DOCS/evidence/2026-10-15/github-inventory.json",
+    "PROJECT-DOCS/evidence/2026-10-15/hosted-artifact.json",
+    "PROJECT-DOCS/evidence/2026-10-15/hosted-console-acceptance.json",
+    "PROJECT-DOCS/evidence/2026-10-15/hosted-demo-journeys.json",
+    "PROJECT-DOCS/evidence/2026-10-15/local-checks.json",
+    "PROJECT-DOCS/evidence/2026-10-15/local-inventory.json",
+    "PROJECT-DOCS/evidence/2026-10-15/publication-scan.json",
+    "PROJECT-DOCS/evidence/2026-10-15/static-manifest.json",
+    "PROJECT-DOCS/evidence/historical-2026-10-07/README.md",
+    "PROJECT-DOCS/evidence/historical-2026-10-07/acceptance-evidence.json",
+    "PROJECT-DOCS/evidence/historical-2026-10-07/acceptance-report.md",
+    "PROJECT-DOCS/evidence/historical-2026-10-07/cigo-ui-handoff-evidence.json",
+    "PROJECT-DOCS/evidence/historical-2026-10-07/cigo-ui-handoff.md",
+    "PROJECT-DOCS/evidence/historical-2026-10-07/cigo-ui-screenshots/desktop.png",
+    "PROJECT-DOCS/evidence/historical-2026-10-07/cigo-ui-screenshots/mobile.png",
+    "PROJECT-DOCS/evidence/historical-2026-10-07/cigo-ui-screenshots/tablet.png",
+    "PROJECT-DOCS/evidence/historical-2026-10-07/hosted-database-evidence.json",
+    "PROJECT-DOCS/evidence/historical-2026-10-07/protected-http-evidence.json"
+  ],
+  "verifiedRemoteBlobs": 29,
+  "engineeringParent": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+  "main": {
+    "sha": "4aa62846bff8a6fe550879f12f19f7fc8e6edfb0",
+    "unchanged": true,
+    "protected": false
+  },
+  "frozenParents": [
+    {
+      "number": 2,
+      "sha": "20d00055f523d77d410fcbbb764920c9ab8d8749",
+      "openDraft": true,
+      "merged": false
+    },
+    {
+      "number": 3,
+      "sha": "beddb604d5773326430e38505b0a74890fefd7b9",
+      "openDraft": true,
+      "merged": false
+    },
+    {
+      "number": 4,
+      "sha": "4df125c3e741c1f6592d9035a9e10350b9c3c517",
+      "openDraft": true,
+      "merged": false
+    },
+    {
+      "number": 5,
+      "sha": "e7dc89af44bed60e46cec811cdd008fd686432f7",
+      "openDraft": true,
+      "merged": false
+    },
+    {
+      "number": 6,
+      "sha": "68938c0fb855e4e5a276a6e05c325f86e7ceb854",
+      "openDraft": true,
+      "merged": false
+    },
+    {
+      "number": 7,
+      "sha": "e964f484a6561c6e0f25b9d25f4fca89d076cc01",
+      "openDraft": true,
+      "merged": false
+    },
+    {
+      "number": 8,
+      "sha": "fb5e5807cd1b8ed2acd96f05ddb9ddc4efd2c285",
+      "openDraft": true,
+      "merged": false
+    },
+    {
+      "number": 9,
+      "sha": "8626a2acc118e20838d2a4737fcc4209c2e1197c",
+      "openDraft": true,
+      "merged": false
+    },
+    {
+      "number": 10,
+      "sha": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+      "openDraft": true,
+      "merged": false
+    }
+  ],
+  "workingTreeClean": true,
+  "unpublishedCommits": "",
+  "ci": [
+    {
+      "id": 38622777627,
+      "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38622777627",
+      "name": "R4 disposable PostgreSQL acceptance",
+      "sha": "79e49220f31394d5b00fc9b1d9e0b69e22f5c338",
+      "status": "completed",
+      "conclusion": "failure",
+      "annotations": [
+        {
+          "job": 116054234420,
+          "message": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings"
+        }
+      ]
+    },
+    {
+      "id": 38622777595,
+      "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38622777595",
+      "name": "CIGO CI",
+      "sha": "79e49220f31394d5b00fc9b1d9e0b69e22f5c338",
+      "status": "completed",
+      "conclusion": "failure",
+      "annotations": [
+        {
+          "job": 116054233546,
+          "message": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings"
+        }
+      ]
+    }
+  ],
+  "productionReady": false,
+  "mergePerformed": false,
+  "otherRepositoriesModified": false
+}

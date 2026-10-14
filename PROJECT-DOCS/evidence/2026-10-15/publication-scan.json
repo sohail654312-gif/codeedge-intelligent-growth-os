@@ -1,8 +1,8 @@
 {
-  "observedAt": "2026-10-14T19:19:19.838Z",
+  "observedAt": "2026-10-14T19:21:21.490Z",
   "result": "PASS_KNOWN_CREDENTIAL_AND_SCOPE_SCAN",
-  "trackedTextFiles": 312,
-  "newFiles": 29,
+  "trackedTextFiles": 313,
+  "newFiles": 3,
   "knownCredentialValuesChecked": 26,
   "privateCredentialArtifactsPublished": false,
   "customerData": "Historical artifacts were reviewed as synthetic metadata/UI only; no raw customer records are published.",
