@@ -1,0 +1,55 @@
+{
+  "engineeringSha": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+  "files": [
+    {
+      "file": "index.html",
+      "bytes": 4679,
+      "gzip": 1639,
+      "sha256": "5a564c2b4db21e4aaf98dae819b3774be7c0738f9eff2b70924d90e9ae145922"
+    },
+    {
+      "file": "app.js",
+      "bytes": 33953,
+      "gzip": 10201,
+      "sha256": "b81807bec6df751064a0f289719ef8f6257ee7b765ad16aeed585f1a06ac891b"
+    },
+    {
+      "file": "styles.css",
+      "bytes": 16313,
+      "gzip": 4510,
+      "sha256": "04a1046daff748eaf07a8dfdb0360319af5de81513a22b0ff481a75d6d216748"
+    },
+    {
+      "file": "assets/logo.svg",
+      "bytes": 740,
+      "gzip": 428,
+      "sha256": "220e8df319a7910a16531678b061b95665bf8acfabea186dbee1f0cc6db100db"
+    },
+    {
+      "file": "demo-data.js",
+      "bytes": 53911,
+      "gzip": 4031,
+      "sha256": "95d1ce9735546ac5c99a8eaac51395e2a287a0b01b4250523c9ea35cbbb44734"
+    },
+    {
+      "file": "staging.html",
+      "bytes": 4423,
+      "gzip": 1537,
+      "sha256": "32c8a2300bd71361bc8656c266979123f6a3026caa3db048287364b835ed09a9"
+    },
+    {
+      "file": "staging.js",
+      "bytes": 4625,
+      "gzip": 1926,
+      "sha256": "5dfc5898c0987ef4ea156bc2b679f3b21b86e186c1cdcbfa1c65037bf2b336b6"
+    },
+    {
+      "file": "staging.css",
+      "bytes": 867,
+      "gzip": 385,
+      "sha256": "aff047f8d1cf56c1755a4642ecc3887167a63b4d186d52d1ff5fb822f62a9f02"
+    }
+  ],
+  "totalBytes": 119511,
+  "combinedGzip": 24657
+}

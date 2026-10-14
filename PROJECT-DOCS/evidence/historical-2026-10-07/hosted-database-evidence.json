@@ -1,0 +1,80 @@
+{
+  "project": "kffcywicqrtxdwgyvhvk",
+  "syntheticOnly": true,
+  "checks": [
+    {
+      "role": "anon",
+      "usage": false,
+      "execute": false
+    },
+    {
+      "role": "authenticated",
+      "usage": false,
+      "execute": false
+    },
+    {
+      "role": "service_role",
+      "usage": false,
+      "execute": false
+    },
+    {
+      "role": "codeedge_cigo_read_api",
+      "usage": true,
+      "execute": true
+    },
+    {
+      "name": "same-workspace direct restricted projection",
+      "result": "PASS"
+    },
+    {
+      "name": "cross-workspace",
+      "result": "PASS",
+      "sqlstate": "42501"
+    },
+    {
+      "name": "unsupported resource",
+      "result": "PASS",
+      "sqlstate": "42501"
+    },
+    {
+      "name": "wrong fingerprint",
+      "result": "PASS",
+      "sqlstate": "42501"
+    },
+    {
+      "name": "revoked grant",
+      "result": "PASS",
+      "sqlstate": "42501"
+    }
+  ],
+  "migrationParity": {
+    "expectedCount": 33,
+    "appliedCount": 33,
+    "missing": [],
+    "unexpected": [],
+    "duplicates": []
+  },
+  "dedicatedPrincipal": {
+    "name": "codeedge_stage_cigo_acceptance_login",
+    "rolcanlogin": true,
+    "rolsuper": false,
+    "rolcreatedb": false,
+    "rolcreaterole": false,
+    "rolreplication": false,
+    "rolbypassrls": false,
+    "rolinherit": false,
+    "rolconnlimit": 6
+  },
+  "privateFunction": {
+    "prosecdef": true,
+    "proconfig": [
+      "search_path=\"\""
+    ]
+  },
+  "publicRls": {
+    "tables": 40,
+    "forced": 40
+  },
+  "result": "PASS",
+  "observedAt": "2026-10-07T16:38:52.616Z"
+}

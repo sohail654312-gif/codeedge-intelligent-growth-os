@@ -1,0 +1,19 @@
+{
+  "engineeringSha": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+  "base": "https://codeedge-business-os-test-p94bnuajm-codeedge.vercel.app",
+  "cases": [
+    {
+      "name": "protected Preview unauthenticated API fails closed and is never cached",
+      "result": "PASS"
+    },
+    {
+      "name": "hosted User A current authoritative workspace isolation",
+      "result": "PASS"
+    }
+  ],
+  "effects": 0,
+  "syntheticOnly": true,
+  "result": "FAIL",
+  "failure": "Expected values to be strictly equal:\n\n503 !== 200\n",
+  "observedAt": "2026-10-14T19:08:15.687Z"
+}
