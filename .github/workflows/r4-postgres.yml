@@ -98,3 +98,12 @@ jobs:
           set -o pipefail
           node --test test/staging-postgres.test.mjs | tee "$RUNNER_TEMP/cigo-staging-postgres.log"
           node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-staging-postgres.log" 7
+      - name: Mandatory durable control and encrypted recovery acceptance
+        shell: bash
+        env:
+          CIGO_OPS_PG_CONTAINER_ID: ${{ job.services.postgres.id }}
+          CIGO_OPS_RECOVERY_EVIDENCE: ${{ runner.temp }}/cigo-recovery-evidence.json
+        run: |
+          set -o pipefail
+          npm run test:closure:postgres | tee "$RUNNER_TEMP/cigo-closure-postgres.log"
+          node scripts/check-test-summary.mjs "$RUNNER_TEMP/cigo-closure-postgres.log" 8

@@ -4,7 +4,7 @@ await fs.mkdir(new URL('assets/',root),{recursive:true});
 for(const file of ['index.html','app.js','styles.css','assets/logo.svg','demo-data.js'])await fs.copyFile(new URL(file,demo),new URL(file,root));
 for(const file of ['staging.js','staging.css'])await fs.copyFile(new URL('public/'+file,import.meta.url),new URL(file,root));
 let html=await fs.readFile(new URL('index.html',demo),'utf8');
-html=html.replace('<body>','<body data-mode="staging">').replace('<script type="module" src="/app.js"></script>','<link rel="stylesheet" href="/staging.css"><script type="module" src="/staging.js"></script>')
+html=html.replace(/\s*<button data-view="journeys">[\s\S]*?<\/button>/,'').replace('<body>','<body data-mode="staging">').replace('<script type="module" src="/app.js"></script>','<link rel="stylesheet" href="/staging.css"><script type="module" src="/staging.js"></script>')
  .replace('Synthetic business observations, transparent evidence and read-only decision support.','Authenticated read-only synthetic staging workspace.').replaceAll('Codeedge Preview','Codeedge Staging')
  .replace('Northstar Care','Staging workspace').replaceAll('Synthetic demo workspace','Authenticated staging').replaceAll('>NC<','>ST<')
  .replace('<span class="demo-badge">Synthetic demo</span>','<span class="staging-badge">Authenticated staging</span>')

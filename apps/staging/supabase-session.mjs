@@ -1,5 +1,6 @@
 // Server only: reuse released Business OS getUser + active membership semantics.
 // Provider tokens are HttpOnly cookies; never returned in JSON or stored by browser JS.
+import {guardPgClient} from '../../dist/src/evidence/postgres-evidence-store.js';
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const COOKIE='__Secure-cigo_staging';
 export function sessionCookie(token,clear=false){return `${COOKIE}=${clear?'':token}; Path=/api/staging; HttpOnly; Secure; SameSite=Strict; Max-Age=${clear?0:1800}`;}
@@ -14,9 +15,17 @@ export function createSupabaseSession({authUrl,publishableKey,pool,token,fetchIm
   const response=await fetchImpl(new URL(path,base),{...options,redirect:'error',signal:AbortSignal.timeout(6000),
    headers:{apikey:publishableKey,'Content-Type':'application/json',...(options.headers??{})}});
   if(!response.ok)throw Error([400,401,403].includes(response.status)?'UNAUTHORIZED_STAGING':'AUTHENTICATION_UNAVAILABLE');
-  const text=await response.text();if(text.length>65536)throw Error('AUTHENTICATION_UNAVAILABLE');return text?JSON.parse(text):{};
+  const length=response.headers.get('content-length');
+  if(length&&(!/^\d+$/.test(length)||Number(length)>65536)){await response.body?.cancel();throw Error('AUTHENTICATION_UNAVAILABLE');}
+  const reader=response.body?.getReader();if(!reader)return {};
+  const chunks=[];let size=0;
+  try{for(;;){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;
+    if(size>65536)throw Error('AUTHENTICATION_UNAVAILABLE');chunks.push(value);}
+   const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength;}
+   const text=new TextDecoder('utf-8',{fatal:true}).decode(bytes);return text?JSON.parse(text):{};
+  }catch{await reader.cancel().catch(()=>{});throw Error('AUTHENTICATION_UNAVAILABLE');}finally{reader.releaseLock();}
  }
- async function query(sql,params){const client=await pool.connect();try{return await client.query(sql,params);}finally{client.release();}}
+ async function query(sql,params){const client=guardPgClient(await pool.connect());try{return await client.query(sql,params);}finally{client.release();}}
  async function verifyProviderSession(){
   if(!token)return undefined;
   // JWT claims have no authority until the provider has verified this exact token.

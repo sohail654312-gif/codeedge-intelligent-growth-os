@@ -30,5 +30,9 @@ $('workspace-select').addEventListener('change',load);
 $('refresh-staging').addEventListener('click',load);
 $('signout').addEventListener('click',async()=>{clear();try{await request('session',{method:'DELETE'});loginScreen('Signed out. Server session revoked.');}catch{loginScreen('Sign-out could not be confirmed. This view is cleared; retry sign-out or wait for session expiry.');}});
 initializeStagingShell();
+// A restored document must not redisplay a prior tenant's observation after logout.
+// This is navigation-driven revalidation, not polling or a data cache.
+window.addEventListener('pagehide',clear);
+window.addEventListener('pageshow',event=>{if(event.persisted){clear();establish().catch(()=>loginScreen());}});
 state('Checking staging session','Verifying server identity and current workspace access.');
 establish().catch(()=>loginScreen());
