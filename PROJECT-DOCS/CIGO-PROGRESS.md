@@ -149,3 +149,21 @@ Use this progress inventory for development status; preserve historical STATE/HA
 Historical local output handoffs and responsive screenshots are preserved in [the historical archive](evidence/historical-2026-10-07/README.md). Their old completion labels are superseded by this evidence-scoped snapshot. Generated ZIP/builds remain local; their source is already published.
 
 Tracking checkpoint CI (SHA `79e49220f31394d5b00fc9b1d9e0b69e22f5c338`, neither job started): [R4 disposable PostgreSQL acceptance 38622777627](https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38622777627) · [CIGO CI 38622777595](https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38622777595). A subsequent documentation commit must not inherit a green label from this checkpoint.
+
+
+## Current engineering addendum — 2026-10-15 (PRs #12–#14)
+
+This newer checkpoint supersedes **only** obsolete current-status claims in the original snapshot above. Historical log/branch evidence remains preserved; it must not be mistaken for latest-head verification.
+
+- **PR #12** encrypted disposable PostgreSQL tool-version fix is GitHub CI-verified; recovery checks pass. The recovery failure is CLOSED for this tested scope.
+- **PR #13** safe staging failure stages/status diagnostics is GitHub CI-verified.
+- **PR #14** CIGO-only protected source-origin alignment check and upstream HTTP 200/non-JSON detection is GitHub CI-verified. Last code/test change: `3e2d4a60a24563779f4118c5021801c74f7695ee`. New progress-document commits need fresh exact-head CI to be considered certified.
+- Latest code exact-head checks at `3e2d4a60a24563779f4118c5021801c74f7695ee`: [CIGO CI 38679118176](https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38679118176) **PASS**; [R4 disposable PostgreSQL 38679118177](https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38679118177) **PASS**. Node engine, protected UI, source safety, provenance, SBOM and disposable-PG recovery validations passed; **these are not hosted snapshot acceptance**.
+- GitHub Actions now run on the public CIGO repo; the previous owner billing/runner-start blocker is **NOT ACTIVE for these test runs**.
+- Business OS `integration/cigo-read-v1` branch does implement the `/api/internal/cigo/v1/read` endpoint with eight supported resources; Vercel branch deployment `dpl_GHfrUwitNPm8xxB2E268R8uS1nw4` is READY. Neither READY nor code inspection proves that an authenticated CIGO staging request uses the correct URL or credentials.
+- Historical CIGO protected staging Preview `dpl_7XTWTVZTF4gmHKpTvgULVhPX842k` returned **HTTP 503** on the full authorized synthetic snapshot. Its detailed runtime logs are outside the Hobby-plan retention window. **Hosted 503 root cause and resolution remain NOT VERIFIED; hosted 200 is NOT CLAIMED.**
+- Attempted new isolated Vercel Git-linked project `cigo-staging-test` failed **403 forbidden to create project**; no project was created. The hosting team owner must grant project-creation permission or approve a CIGO-only protected Preview under unchanged settings, with private server configuration supplied outside public Git.
+- No other repo modified, no production aliases/protection/secrets changed, no merge/release or effects. All 18 independent review findings and G1–G8 gates still need independent acceptance.
+- Detailed staging handoff and exact owner actions: [CIGO STAGING 503 INVESTIGATION](../docs/operations/CIGO-STAGING-503-INVESTIGATION-2026-10-15.md).
+
+**Next priority:** Run a fresh protected isolated CIGO staging Preview with authorized synthetic identities and private config, inspect allowlisted CIGO server markers within retention, fix the verified cause, and demonstrate an authorized HTTP 200 plus foreign-tenant denial. The hosting permission is currently owner-blocked; no amount of passing CI substitutes for the hosted result.
