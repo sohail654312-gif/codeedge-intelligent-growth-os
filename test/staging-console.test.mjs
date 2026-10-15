@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 import {createStagingIdentity} from '../dist/src/staging/session.js';
 import {createSupabaseSession,readCookie,sessionCookie,COOKIE} from '../apps/staging/supabase-session.mjs';
-import {handleStaging,SAFE_HEADERS,loadServerConfiguration,nodeHandler,safeSnapshotFailureMarker,validateStagingUpstream} from '../apps/staging/runtime.mjs';
+import {handleStaging,SAFE_HEADERS,loadServerConfiguration,nodeHandler,safeSnapshotFailureMarker,safeConfigurationLoadMarker,validateStagingUpstream} from '../apps/staging/runtime.mjs';
 import {projectStagingSnapshot} from '../apps/staging/presentation.mjs';
 const NOW='2026-10-07T12:00:00.000Z',FUTURE='2026-10-07T12:30:00.000Z';
 const actor='11111111-1111-4111-8111-111111111111',A='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',B='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',sid='22222222-2222-4222-8222-222222222222';
@@ -156,6 +156,29 @@ test('private server artifact is fixed-path, outside Git/browser output, and mal
  }finally{fs.unlinkSync(path);}
 });
 test('Vercel empty or forged GET body never substitutes for a session or breaks fail-closed status',async()=>{
+ // A missing or malformed server-only config must fail BEFORE HTTP identity
+ // processing, producing a fixed, non-sensitive Vercel runtime marker.
+ const sensitive='PRIVATE_RUNTIME_CONFIG_PASSWORD_DO_NOT_LOG';
+ assert.equal(safeConfigurationLoadMarker(Object.assign(Error(sensitive),{code:'ENOENT',path:'/private/'+sensitive})),'CIGO_STAGING_CONFIG_LOAD_FAILURE category=missing');
+ assert.equal(safeConfigurationLoadMarker(new SyntaxError(sensitive)),'CIGO_STAGING_CONFIG_LOAD_FAILURE category=malformed');
+ assert.equal(safeConfigurationLoadMarker(Error(sensitive)),'CIGO_STAGING_CONFIG_LOAD_FAILURE category=invalid');
+ let status,body,headers;const marker=[];
+ const originalConfig=process.env.CIGO_STAGING_SERVER_JSON,originalLogger=console.error;
+ try{
+  process.env.CIGO_STAGING_SERVER_JSON='{'+sensitive;
+  console.error=value=>marker.push(String(value));
+  const response={writeHead(code,values){status=code;headers=values;},end(value){body=value;}};
+  await nodeHandler({method:'GET',url:'/api/staging/health',headers:{}},response);
+ }finally{
+  if(originalConfig===undefined)delete process.env.CIGO_STAGING_SERVER_JSON;
+  else process.env.CIGO_STAGING_SERVER_JSON=originalConfig;
+  console.error=originalLogger;
+ }
+ assert.equal(status,503);
+ assert.deepEqual(marker,['CIGO_STAGING_CONFIG_LOAD_FAILURE category=malformed']);
+ assert.equal(JSON.parse(body).error,'Staging unavailable');
+ assert.match(headers['Cache-Control'],/no-store/);
+ assert.ok(!JSON.stringify({marker,body}).includes(sensitive));
  for(const body of ['',{actorId:actor,role:'OWNER',workspaceId:A}]){
   let status,text;const response={writeHead(code){status=code;},end(value){text=value;}};
   await nodeHandler({method:'GET',url:'/api/staging/session',headers:{},body},response,cfg);
