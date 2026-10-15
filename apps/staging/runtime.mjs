@@ -62,7 +62,14 @@ export async function handleStaging(request,config,dependencies={}){
   const transport=async(target,init)=>{
    const address=new URL(target);if(address.origin!==config.businessOsOrigin||Date.now()>deadline)throw Error('STAGING_SOURCE_UNAVAILABLE');
    const outgoing=new Headers(init.headers);outgoing.set('cookie',config.businessOsProtectionCookie);
-   outgoing.set('x-vercel-skip-toolbar','1');return fetch(target,{...init,headers:outgoing});
+   outgoing.set('x-vercel-skip-toolbar','1');
+   const response=await (dependencies.fetchImpl??fetch)(target,{...init,headers:outgoing});
+   if(!response.ok){
+    // Fixed status allowlist only. Never log upstream body, URL, headers, credentials or tenant.
+    const status=[401,403,404,429,500,502,503,504].includes(response.status)?String(response.status):'other';
+    try{(dependencies.logFailure??console.error)('CIGO_STAGING_UPSTREAM_HTTP_FAILURE status='+status);}catch{/* best-effort telemetry */}
+   }
+   return response;
   };
   const tenantPools=dependencies.tenantPools??{resolveServerHeldTenantPool:async id=>{
    if(!Object.hasOwn(config.workspaces,id))return undefined;return poolFor(config.workspaces[id].databaseUrl,config.databaseCa);}};
