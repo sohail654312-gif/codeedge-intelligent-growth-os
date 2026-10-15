@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 import {createStagingIdentity} from '../dist/src/staging/session.js';
 import {createSupabaseSession,readCookie,sessionCookie,COOKIE} from '../apps/staging/supabase-session.mjs';
-import {handleStaging,SAFE_HEADERS,loadServerConfiguration,nodeHandler,safeSnapshotFailureMarker} from '../apps/staging/runtime.mjs';
+import {handleStaging,SAFE_HEADERS,loadServerConfiguration,nodeHandler,safeSnapshotFailureMarker,validateStagingUpstream} from '../apps/staging/runtime.mjs';
 import {projectStagingSnapshot} from '../apps/staging/presentation.mjs';
 const NOW='2026-10-07T12:00:00.000Z',FUTURE='2026-10-07T12:30:00.000Z';
 const actor='11111111-1111-4111-8111-111111111111',A='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',B='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',sid='22222222-2222-4222-8222-222222222222';
@@ -72,7 +72,40 @@ test('no cache reuse or tenant crossover on sequential workspace responses',asyn
  let calls=0;const d={...deps,loader:async({workspaceId})=>{calls++;return {mode:'AUTHENTICATED_STAGING',label:cfg.workspaces[workspaceId].label};}};
  for(const workspace of [A,B,A]){const r=await handleStaging(req('/api/staging/snapshot?workspace='+workspace),cfg,d);assert.equal(r.body.label,cfg.workspaces[workspace].label);assert.match(r.headers['Cache-Control'],/private, no-store/);assert.equal(r.headers.Vary,'Cookie');}assert.equal(calls,3);
 });
+function verifyStagingReaderOriginGuard(){
+ const origin='https://business-os.example';
+ const readerEnv={CIGO_BUSINESS_OS_READERS_JSON:JSON.stringify({[A]:{baseUrl:origin,keyId:'tenant-bound',secret:'S'.repeat(48)}})};
+ const source={businessOsOrigin:origin,readerEnv};
+ assert.equal(validateStagingUpstream(source,A),origin);
+ for(const broken of [
+  {...source,businessOsOrigin:'https://other.example'},
+  {...source,businessOsOrigin:'http://business-os.example'},
+  {...source,readerEnv:{CIGO_BUSINESS_OS_READERS_JSON:JSON.stringify({[B]:{baseUrl:origin}})}},
+  {...source,readerEnv:{CIGO_BUSINESS_OS_READERS_JSON:'not-json'}},
+  {...source,businessOsOrigin:'https://business-os.example/path'}
+ ]){
+  assert.throws(()=>validateStagingUpstream(broken,A),error=>
+   error.message==='STAGING_SOURCE_CONFIGURATION_UNAVAILABLE'&&error.stagingStage==='SERVER_CONFIGURATION'&&
+   !JSON.stringify(error).includes('tenant-bound'));
+ }
+}
+async function verifyProtectedUpstreamHtmlDiagnostic(){
+ const markers=[],privateHtml='<html>PRIVATE_UPSTREAM_LOGIN_TOKEN</html>';
+ const result=await handleStaging(req('/api/staging/snapshot?workspace='+A),
+  {...cfg,businessOsOrigin:'https://business-os.example',businessOsProtectionCookie:'secret-cookie'},{
+   ...deps,logFailure:marker=>markers.push(marker),
+   fetchImpl:async()=>new Response(privateHtml,{status:200,headers:{'content-type':'text/html'}}),
+   loader:async({transport})=>{await transport('https://business-os.example/api/internal/cigo/v1/read',{headers:{}});throw Error('STAGING_SOURCE_UNAVAILABLE');}
+  });
+ assert.equal(result.status,503);assert.deepEqual(markers,[
+  'CIGO_STAGING_UPSTREAM_MEDIA_FAILURE category=non_json',
+  'CIGO_STAGING_SNAPSHOT_FAILURE stage=SNAPSHOT resource=none'
+ ]);
+ assert.ok(!JSON.stringify({result,markers}).includes('PRIVATE_UPSTREAM_LOGIN_TOKEN'));
+}
 test('source, receipt authority, PostgreSQL and session TOCTOU errors erase all data',async()=>{
+ verifyStagingReaderOriginGuard();
+ await verifyProtectedUpstreamHtmlDiagnostic();
  for(const message of ['STAGING_SOURCE_UNAVAILABLE','UNTRUSTED_SOURCE_PROVENANCE','database unavailable','STAGING_AUTHORITY_CHANGED']){
   const markers=[];
   const r=await handleStaging(req('/api/staging/snapshot?workspace='+A),cfg,{...deps,logFailure:message=>markers.push(message),loader:async()=>{throw Error(message+' private infrastructure');}});assert.ok(r.status>=400);assert.ok(!JSON.stringify(r.body).includes('private infrastructure'));assert.equal(r.body.metrics,undefined);assert.match(r.headers['Cache-Control'],/no-store/);

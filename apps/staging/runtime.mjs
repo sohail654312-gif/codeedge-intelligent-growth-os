@@ -15,6 +15,26 @@ export function safeSnapshotFailureMarker(error){
  const resource=FAILURE_RESOURCES.has(error?.stagingResource)?error.stagingResource:'none';
  return 'CIGO_STAGING_SNAPSHOT_FAILURE stage='+stage+' resource='+resource;
 }
+// The credential-bearing reader map stays server-side. This guard checks only
+// whether its selected upstream origin agrees with the independently configured
+// protected-source transport; no URL, key or tenant value is ever logged.
+export function validateStagingUpstream(config,workspaceId){
+ try{
+  const readers=JSON.parse(config.readerEnv?.CIGO_BUSINESS_OS_READERS_JSON);
+  const configured=new URL(config.businessOsOrigin);
+  const target=new URL(readers?.[workspaceId]?.baseUrl);
+  if(configured.protocol!=='https:'||target.protocol!=='https:'||
+   configured.username||configured.password||configured.search||configured.hash||
+   target.username||target.password||target.search||target.hash||
+   !['','/'].includes(configured.pathname)||!['','/'].includes(target.pathname)||
+   configured.origin!==target.origin)throw Error('MISMATCH');
+  return configured.origin;
+ }catch{
+  const error=Error('STAGING_SOURCE_CONFIGURATION_UNAVAILABLE');
+  Object.defineProperty(error,'stagingStage',{value:'SERVER_CONFIGURATION'});
+  throw error;
+ }
+}
 /** Trusted server configuration only. The optional private artifact is injected by the
  * deployment owner outside Git, under dist (function includeFiles), never static output.
  * No URL/body/header can choose this path or supply a configuration override. */
@@ -58,6 +78,9 @@ export async function handleStaging(request,config,dependencies={}){
   }
   const workspaceId=url.searchParams.get('workspace');
   if(!workspaceId||!Object.hasOwn(config.workspaces,workspaceId))return reply(403,{error:'Workspace unavailable'});
+  // Production composition must never silently target a different protected
+  // Business OS deployment than its tenant-bound reader credentials specify.
+  if(!dependencies.loader)validateStagingUpstream(config,workspaceId);
   const deadline=Date.now()+55000;
   const transport=async(target,init)=>{
    const address=new URL(target);if(address.origin!==config.businessOsOrigin||Date.now()>deadline)throw Error('STAGING_SOURCE_UNAVAILABLE');
@@ -68,6 +91,10 @@ export async function handleStaging(request,config,dependencies={}){
     // Fixed status allowlist only. Never log upstream body, URL, headers, credentials or tenant.
     const status=[401,403,404,429,500,502,503,504].includes(response.status)?String(response.status):'other';
     try{(dependencies.logFailure??console.error)('CIGO_STAGING_UPSTREAM_HTTP_FAILURE status='+status);}catch{/* best-effort telemetry */}
+   }else if(!/^application\/json\s*(?:;|$)/i.test(response.headers.get('content-type')??'')){
+    // A protected upstream login page may return HTTP 200 with HTML. This is
+    // NOT a valid read-model response; record only the fixed media category.
+    try{(dependencies.logFailure??console.error)('CIGO_STAGING_UPSTREAM_MEDIA_FAILURE category=non_json');}catch{/* best-effort telemetry */}
    }
    return response;
   };
