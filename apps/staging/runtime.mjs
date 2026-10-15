@@ -212,6 +212,14 @@ export async function nodeHandler(req,res,configuration){
   catch{/* logging is optional; denial is mandatory */}
   res.writeHead(503,SAFE_HEADERS);res.end(JSON.stringify({error:'Staging unavailable'}));return;
  }
+ // An explicit owner-controlled kill switch must work even with all live
+ // credentials and the old staging origin removed from the environment.
+ // Never parse a URL or connect to Supabase after an explicit disable.
+ if(configuration===undefined&&config.enabled===false){
+  res.writeHead(503,SAFE_HEADERS);
+  res.end(JSON.stringify({status:'DISABLED',effectsEnabled:false}));
+  return;
+ }
  // VERCEL_URL is a platform-owned deployment hostname, never an incoming Host header.
  if(process.env.VERCEL_URL)config={...config,origin:'https://'+process.env.VERCEL_URL};
  const result=await handleStaging({url:req.url,method:req.method,headers:req.headers,body},config);
