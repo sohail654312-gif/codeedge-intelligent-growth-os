@@ -971,5 +971,45 @@
     "investigation": "docs/operations/CIGO-STAGING-503-INVESTIGATION-2026-10-15.md",
     "independentAudit": "18_FINDINGS_PENDING",
     "productionGates": "0/8_ACCEPTED"
+  },
+  "syntheticHttpAcceptanceCheckpoint": {
+    "date": "2026-10-15",
+    "pr": 15,
+    "codeSha": "beae7e67e3dd10228dd859294d7d0d9faf9373d7",
+    "codeBranch": "engineering/cigo-live-http-staging-acceptance-20261015",
+    "tests": {
+      "engineCI": {
+        "id": 38680686972,
+        "status": "PASS"
+      },
+      "disposablePg": {
+        "id": 38680686855,
+        "status": "PASS"
+      },
+      "testKind": "REAL_LOOPBACK_HTTP_DISPOSABLE_PG_NOT_HOSTED",
+      "authorizedSyntheticSnapshot200": true,
+      "foreignTenant403": true,
+      "networkResources": 8
+    },
+    "liveSqlMetadata": {
+      "functionInstalled": true,
+      "stagingSessionFunctionsInstalled": 3,
+      "activeGrants": 5,
+      "minimumRateLimit": 120,
+      "unexpiredSyntheticAccessGrants": 2,
+      "restrictedRoleEvidenceGrantsVerified": true,
+      "dataAndSecretsRead": false,
+      "hostedAuthorizationNotVerified": true
+    },
+    "targetHostedResult": "NOT_VERIFIED_503_STILL_OPEN",
+    "blocker": {
+      "code": "VERCEL_CREATE_GIT_PROJECT_FORBIDDEN_403",
+      "operator": "TEAM_OWNER",
+      "access": "OWNER_APPROVED_PROTECTED_CIGO_PREVIEW_WITH_PRIVATE_CONFIG_REQUIRED"
+    },
+    "mainChanged": false,
+    "otherReposChanged": false,
+    "realEffects": false,
+    "secretExposure": false
   }
 }
