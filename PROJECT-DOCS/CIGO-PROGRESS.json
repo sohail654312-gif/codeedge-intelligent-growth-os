@@ -904,9 +904,9 @@
   ],
   "nextRecommendedTask": {
     "priority": 1,
-    "owner": "Codex",
-    "task": "Diagnose the final protected staging-console snapshot HTTP 503 while preserving fail-closed authorization, source protection and read-only scope; publish any correction and rerun two-tenant acceptance.",
-    "parallelOwnerAction": "Restore GitHub Actions billing/spending availability so current-head CI can actually run."
+    "owner": "Hosting team owner for access; CIGO engineering for diagnosis and fix",
+    "task": "Deploy exact CIGO code to an isolated protected Preview with owner-held private synthetic staging config; collect safe staging markers during authenticated snapshot 503, fix verified source, obtain hosted HTTP 200 and tenant-denial acceptance.",
+    "parallelOwnerAction": "Authorize CIGO-only protected Vercel Preview hosting/project permission; preserve all existing Business OS and production settings."
   },
   "operatingRule": "After each meaningful CIGO engineering checkpoint: inspect and scan eligible changes and unpublished history; commit to an isolated draft branch; push without force; verify exact commits and PR/check state on GitHub; update these records with honest scope/evidence. Never equate local or parent green checks with final-head CI. No merge or release without explicit owner authorization.",
   "safety": {
@@ -925,5 +925,51 @@
     "path": "PROJECT-DOCS/evidence/historical-2026-10-07",
     "status": "ARCHIVED_VERBATIM_NOT_CURRENT_ACCEPTANCE",
     "generatedPreviewZip": "Preserved locally; reproducible source already published in PR #8 ancestry; excluded duplicate build artifact."
+  },
+  "currentEngineeringAddendum": {
+    "date": "2026-10-15",
+    "state": "HOSTED_SNAPSHOT_503_UNRESOLVED_OWNER_HOSTING_PERMISSION",
+    "previousEngineeringHead": "3e2d4a60a24563779f4118c5021801c74f7695ee",
+    "safeCodeBranch": "repair/cigo-staging-503-upstream-validation-20261015",
+    "drafts": [
+      12,
+      13,
+      14
+    ],
+    "passedExactHeadCodeChecks": [
+      {
+        "name": "CIGO CI",
+        "runId": 38679118176,
+        "conclusion": "success"
+      },
+      {
+        "name": "R4 disposable PostgreSQL acceptance",
+        "runId": 38679118177,
+        "conclusion": "success"
+      }
+    ],
+    "deferredHostedAcceptance": {
+      "deployedLegacyCigoSha": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+      "deployedLegacyCigoId": "dpl_7XTWTVZTF4gmHKpTvgULVhPX842k",
+      "lastObservedStatus": 503,
+      "rootCause": "NOT_VERIFIED",
+      "http200Acceptance": "NOT_VERIFIED",
+      "businessOsUpstreamBranch": "integration/cigo-read-v1",
+      "upstreamRoute": "/api/internal/cigo/v1/read",
+      "deployedBusinessOsIntegrationId": "dpl_GHfrUwitNPm8xxB2E268R8uS1nw4",
+      "upstreamDeploymentBuild": "READY_NOT_HTTP_VERIFIED",
+      "dedicatedCigoProjectAttempt": "403_FORBIDDEN_NO_PROJECT_CREATED",
+      "requiredOwnerAction": "Grant create-project permission in the Vercel team or explicitly authorize isolated protected CIGO-only Preview access and inject required private server configuration outside Git."
+    },
+    "constraints": {
+      "otherRepositoriesChanged": false,
+      "mainChanged": false,
+      "productionPromotion": false,
+      "realEffects": false,
+      "protectionDisabled": false
+    },
+    "investigation": "docs/operations/CIGO-STAGING-503-INVESTIGATION-2026-10-15.md",
+    "independentAudit": "18_FINDINGS_PENDING",
+    "productionGates": "0/8_ACCEPTED"
   }
 }
