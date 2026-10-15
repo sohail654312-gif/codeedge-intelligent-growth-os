@@ -1011,5 +1011,37 @@
     "otherReposChanged": false,
     "realEffects": false,
     "secretExposure": false
+  },
+  "configLoadFailureEngineeringCheckpoint": {
+    "date": "2026-10-15",
+    "draftPr": 17,
+    "branch": "engineering/cigo-config-load-503-diagnostics-20261015",
+    "sourceCommit": "d9b97f812ca5c7f8c92480fab2b171afb0f4e049",
+    "fix": "SERVER_SIDE_EARLY_CONFIGURATION_503_LOGS_FIXED_ENUM_CATEGORIES_NO_SECRETS",
+    "sourceCI": {
+      "name": "CIGO CI",
+      "runId": 38682751470,
+      "conclusion": "success"
+    },
+    "sourcePgCI": {
+      "name": "R4 disposable PostgreSQL acceptance",
+      "runId": 38682751460,
+      "conclusion": "success"
+    },
+    "caseCount": "UNCHANGED_MANDATORY_STAGING_CASE_COUNT",
+    "hostedAuthenticatedSnapshot": {
+      "http200": "NOT_VERIFIED",
+      "observedOldStatus": 503,
+      "rootCause": "NOT_VERIFIED"
+    },
+    "ownerBlocker": "VERCEL_CREATE_PROJECT_FORBIDDEN_403_OR_OWNER_APPROVED_PROTECTED_PREVIEW_REQUIRED",
+    "scope": {
+      "mainModified": false,
+      "otherRepositoriesModified": false,
+      "secretDisclosure": false,
+      "deployed": false,
+      "productionEffects": false,
+      "mergePerformed": false
+    }
   }
 }

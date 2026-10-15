@@ -179,3 +179,15 @@ This newer checkpoint supersedes **only** obsolete current-status claims in the 
 - **AUTHENTICATED PROTECTED HOSTED HTTP 503 REMAINS OPEN, root cause unverified.** Exact remaining dependency: team owner deploy a dedicated protected CIGO Preview from PR #15 (or explicitly permit one CIGO-only Preview under unchanged shared-project settings), arrange server-only private config and authorized synthetic session, then run hosted tenant-A/tenant-B acceptance inside log retention. The response is not yet 200, and G1–G8 remain 0/8 accepted.
 
 No other repository, real customer records, production secrets or endpoints were modified; no effects, production promotion, release or merge.
+
+
+## Engineering checkpoint — early private-config HTTP 503 observability (2026-10-15)
+
+- **Draft PR #17**, CIGO-only branch `engineering/cigo-config-load-503-diagnostics-20261015`, parent PR #15. This intentionally does not merge into the distinct deployment-only PR #16 branch.
+- Exact source/test SHA `d9b97f812ca5c7f8c92480fab2b171afb0f4e049`: [CIGO CI 38682751470](https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38682751470) **SUCCESS**; [R4 disposable PostgreSQL 38682751460](https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38682751460) **SUCCESS**.
+- **Specific defect fixed:** `nodeHandler` previously swallowed a missing/invalid private configuration and returned generic HTTP 503 *before* PR #13 staging failure markers could run. It now logs only `CIGO_STAGING_CONFIG_LOAD_FAILURE category=missing|malformed|invalid` on the server. Raw exception messages, absolute file paths, JSON contents and credentials never enter the response or log marker. Denial remains 503/no-store regardless of logging availability. Regression tests verify a malformed environment value and no secret leak without raising the mandatory staging test count.
+- **Hosted status unchanged:** The existing Vercel Preview remains on old SHA `8be7d7df254c9aa07a7cc2b81484d265538270fd`, and the last real authorized snapshot returned HTTP 503. The PR #17 diagnostic fix has not been deployed or authenticated in Vercel. Root cause is still NOT VERIFIED.
+- Vercel isolated project creation permission previously denied **403**, and production/staging protection, aliases, secrets, all other repositories, and `main` remain unchanged. The authorized deployment owner must provision protected Preview with server-only synthetic config for final hosted HTTP 200 + tenant denial proof.
+- Both progress records are being synchronized within PR #17; record the final documentation-commit SHA and its workflows separately, never inherit CI from the preceding source SHA.
+
+No independent review or G1–G8 production gate accepted by these engineering checks.
