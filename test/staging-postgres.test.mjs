@@ -1,5 +1,5 @@
-import test,{before,after} from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import pg from 'pg';import {randomBytes,randomUUID} from 'node:crypto';
-import {createStagingIdentity} from '../dist/src/staging/session.js';import {loadStagingSnapshot,RESOURCES} from '../apps/staging/pipeline.mjs';
+import test,{before,after} from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import pg from 'pg';import {randomBytes,randomUUID} from 'node:crypto';import {createServer} from 'node:http';
+import {createStagingIdentity} from '../dist/src/staging/session.js';import {loadStagingSnapshot,RESOURCES} from '../apps/staging/pipeline.mjs';import {handleStaging} from '../apps/staging/runtime.mjs';
 const url=process.env.CIGO_R4_DISPOSABLE_DATABASE_URL;
 if(process.env.CIGO_R4_DISPOSABLE_TEST_CONFIRM!=='I_CONFIRM_DISPOSABLE_ONLY'||!url)throw Error('EXPLICIT_DISPOSABLE_POSTGRES_REQUIRED');
 const u=new URL(url);if(u.pathname!=='/cigo_r4_disposable_ci'||!['localhost','127.0.0.1'].includes(u.hostname))throw Error('DISPOSABLE_IDENTITY_MISMATCH');
@@ -65,6 +65,60 @@ test('real adapter -> durable PostgreSQL receipt/intake -> truth/memory/analysis
  const dto=await loadStagingSnapshot(input());assert.equal(dto.connection.attestedCount,1);assert.equal(dto.metrics[0].value,1);assert.equal(dto.memory.length,1);assert.equal(dto.memory[0].kind,'ANALYSIS');assert.equal(dto.memory[0].actionable,false);
  assert.equal(dto.connection.provenanceStatus,'VERIFIED_SOURCE');assert.equal(dto.connection.evidenceStatus,'UNVERIFIED');assert.ok(!JSON.stringify(dto).includes('SYNTHETIC_PRIVATE'));assert.ok(!JSON.stringify(dto).includes('fingerprint'));assert.ok(!JSON.stringify(dto).includes('receiptId'));
  assert.ok(Number((await issuer.query('SELECT count(*) FROM cigo.source_receipts')).rows[0].count)>0);assert.ok(Number((await issuer.query('SELECT count(*) FROM cigo.evidence')).rows[0].count)>0);
+ // A separate transport-level acceptance proves the real staging HTTP handler can
+ // traverse a genuine loopback HTTP source (not a mocked fetch response), the
+ // PostgreSQL receipt/intake store and the read-only DTO projection end-to-end.
+ // This is disposable integration proof, NOT a protected Vercel hosted HTTP 200.
+ const requested=[],privateMarker='SYNTHETIC_HTTP_PRIVATE_NOT_FOR_BROWSER';
+ const ref='lead:network:'+randomUUID();
+ const server=createServer((request,response)=>{
+  try{
+   const link=new URL(request.url,'http://127.0.0.1');
+   const resource=link.searchParams.get('resourceKind');
+   assert.equal(request.method,'GET');assert.equal(link.pathname,'/api/internal/cigo/v1/read');
+   assert.equal(link.searchParams.get('workspaceId'),A);assert.equal(link.searchParams.get('limit'),'100');
+   assert.equal(request.headers.authorization,'Bearer '+'s'.repeat(48));
+   assert.equal(request.headers['x-codeedge-cigo-key-id'],'synthetic');
+   assert.equal(request.headers.cookie,'__vercel_protection_bypass=synthetic_only');
+   assert.ok(RESOURCES.includes(resource));requested.push(resource);
+   const instant=new Date().toISOString();
+   const records=resource==='lead'?[{workspaceId:A,reference:{sourceSystem:'BUSINESS_OS',externalReference:ref,version:'1'},
+    resourceKind:'lead',observedAt:instant,value:{createdAt:instant,status:'new',privateNotes:privateMarker}}]:[];
+   response.writeHead(200,{'content-type':'application/json','cache-control':'no-store'});
+   response.end(JSON.stringify({contractVersion:'codeedge-business-os-read-model:v1',sourceSystem:'BUSINESS_OS',
+    workspaceId:A,resourceKind:resource,observedAt:instant,records,pagination:{},completeness:'COMPLETE',errors:[]}));
+  }catch{response.writeHead(503,{'content-type':'application/json'});response.end('{"error":"synthetic_source_unavailable"}');}
+ });
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+ try{
+  const origin='http://127.0.0.1:'+server.address().port;
+  const syntheticConfig=input();
+  syntheticConfig.env.CIGO_BUSINESS_OS_READERS_JSON=JSON.stringify({[A]:{
+   baseUrl:origin,keyId:'synthetic',secret:'s'.repeat(48),resourceKinds:RESOURCES,timeoutMs:2000,retries:0}});
+  const cfg={enabled:true,origin:'https://cigo.test.invalid',authUrl:'https://auth.test.invalid',
+   publishableKey:'synthetic_public',workspaces:{[A]:{label:'Synthetic A'},[B]:{label:'Synthetic B'}},
+   readerEnv:syntheticConfig.env,businessOsOrigin:origin,
+   businessOsProtectionCookie:'__vercel_protection_bypass=synthetic_only'};
+  const dependency={sessionFactory:()=>authority,authPool:{},tenantPools:syntheticConfig.tenantPools,
+   // Deliberately inject the exact production loader only to permit a disposable
+   // loopback HTTP upstream. Production still rejects non-HTTPS origin via its guard.
+   loader:loadStagingSnapshot,fetchImpl:fetch,logFailure:()=>{}};
+  const request=workspace=>({url:'/api/staging/snapshot?workspace='+workspace,method:'GET',
+   headers:{cookie:'__Secure-cigo_staging=synthetic_session'}});
+  const hostedLike=await handleStaging(request(A),cfg,dependency);
+  assert.equal(hostedLike.status,200);
+  assert.deepEqual(requested,RESOURCES);
+  assert.equal(hostedLike.body.connection.attestedCount,1);
+  assert.equal(hostedLike.body.connection.evidenceStatus,'UNVERIFIED');
+  assert.equal(hostedLike.body.metrics[0].value,1);
+  assert.equal(hostedLike.body.actionable,false);
+  assert.match(hostedLike.headers['Cache-Control'],/private, no-store/);
+  assert.ok(!JSON.stringify(hostedLike).includes(privateMarker));
+  assert.ok(!JSON.stringify(hostedLike).includes('receiptId'));
+  const foreign=await handleStaging(request(B),cfg,dependency);
+  assert.equal(foreign.status,403);assert.equal(foreign.body.metrics,undefined);
+  assert.deepEqual(requested,RESOURCES);
+ }finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
 });
 test('HTTP 200 without durable authority, partial page and current receipt revocation fail closed',async()=>{
  await assert.rejects(loadStagingSnapshot(input({pool:{connect:async()=>{throw Error('PostgreSQL unavailable');}}})),e=>e.stagingStage==='SOURCE_READ'&&e.stagingResource==='lead'&&/UNAVAILABLE/.test(e.message));
