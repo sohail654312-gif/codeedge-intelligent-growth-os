@@ -3,6 +3,7 @@ import {createStagingIdentity} from '../dist/src/staging/session.js';
 import {createSupabaseSession,readCookie,sessionCookie,COOKIE} from '../apps/staging/supabase-session.mjs';
 import {handleStaging,SAFE_HEADERS,loadServerConfiguration,nodeHandler,safeSnapshotFailureMarker,safeConfigurationLoadMarker,safeConfigurationPreflightMarker,validateStagingPrivateConfiguration,validateStagingUpstream} from '../apps/staging/runtime.mjs';
 import {projectStagingSnapshot} from '../apps/staging/presentation.mjs';
+import {createRenderRequestHandler} from '../apps/staging/render-server.mjs';
 const NOW='2026-10-07T12:00:00.000Z',FUTURE='2026-10-07T12:30:00.000Z';
 const actor='11111111-1111-4111-8111-111111111111',A='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',B='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',sid='22222222-2222-4222-8222-222222222222';
 const session=()=>({actorId:actor,sessionId:sid,expiresAt:FUTURE});
@@ -157,7 +158,45 @@ test('presentation refuses FACT/action authority and suppresses unavailable numb
  const dto=projectStagingSnapshot(input);assert.equal(dto.metrics[0].value,null);assert.equal(dto.metrics[0].numerator,null);assert.equal(dto.connection.provenanceStatus,'NO_RECORD_ATTESTATION');
  for(const field of ['actionable','verifiedFact'])assert.throws(()=>projectStagingSnapshot({...input,metrics:[{...input.metrics[0],[field]:true}]}));
 });
-test('staging entry is separate and never imports demo data or silently falls back',()=>{
+test('staging entry is separate and never imports demo data or silently falls back',async()=>{
+ // Alternate hosted adapter never exposes Demo source, repository/dist files,
+ // or a sign-in shell while protected server configuration is absent/disabled.
+ const disabled=createRenderRequestHandler({env:{CIGO_STAGING_SERVER_JSON:'{"enabled":false}'}});
+ async function probe(handler,url,method='GET'){
+  let code,headers,body;
+  await handler({url,method,headers:{}},{writeHead(status,h){code=status;headers=h;},end(payload){body=payload;}});
+  return {code,headers,body:body?.toString()??''};
+ }
+ for(const path of ['/staging','/staging.js','/app.js','/assets/logo.svg']){
+  const r=await probe(disabled,path);assert.equal(r.code,503);assert.match(r.headers['Cache-Control'],/no-store/);
+ }
+ for(const path of ['/demo-data.js','/dist/staging-runtime-private.json','/package.json','/.env','/api/approve']){
+  assert.equal((await probe(disabled,path)).code,404);
+ }
+ const live=await probe(disabled,'/__cigo_host_liveness');
+ assert.equal(live.code,200);
+ assert.deepEqual(JSON.parse(live.body),{service:'CIGO_STAGING_HOST',listener:true,authenticatedSnapshotVerified:false});
+ assert.equal((await probe(disabled,'/__cigo_host_liveness','POST')).code,405);
+ assert.equal((await probe(disabled,'/staging','POST')).code,405);
+ // Static staging shell can be served with structurally valid synthetic-only
+ // server configuration, without making any auth or source/database calls.
+ const origin='https://synthetic-staging.example',sourceOrigin='https://synthetic-business-os.example';
+ const url=user=>'postgresql://'+user+':synthetic@aws-0-ap-south-1.pooler.supabase.com/postgres';
+ const enabled=createRenderRequestHandler({env:{CIGO_STAGING_SERVER_JSON:JSON.stringify({
+  enabled:true,origin,authUrl:'https://auth.example',publishableKey:'synthetic_public',
+  authDatabaseUrl:url('cigo_stage_gateway'),
+  workspaces:{[A]:{label:'Synthetic A',databaseUrl:url('cigo_stage_tenant_a')}},
+  businessOsOrigin:sourceOrigin,businessOsProtectionCookie:'__vercel_protection_bypass=synthetic',
+  readerEnv:{CIGO_BUSINESS_OS_READERS_JSON:JSON.stringify({[A]:{baseUrl:sourceOrigin}}),
+   CIGO_BUSINESS_OS_CURSOR_KEYS_JSON:'{"synthetic":"placeholder"}',
+   CIGO_BUSINESS_OS_CURSOR_ACTIVE_KEY_ID:'synthetic'}
+ })}});
+ const stage=await probe(enabled,'/staging');
+ assert.equal(stage.code,200);assert.ok(stage.body.includes('Authenticated staging'));
+ assert.match(stage.headers['Cache-Control'],/no-store/);
+ assert.ok(!stage.body.includes('synthetic_public'));
+ assert.equal((await probe(enabled,'/demo-data.js')).code,404);
+ assert.equal((await probe(enabled,'/app.js')).code,200);
  const html=fs.readFileSync('apps/staging/site/staging.html','utf8'),entry=fs.readFileSync('apps/staging/public/staging.js','utf8');
  assert.ok(html.includes('data-mode="staging"'));assert.ok(html.includes('Authenticated staging'));assert.ok(!html.includes('id="scenario"'));assert.ok(!entry.includes('demo-data'));assert.ok(!/localStorage|sessionStorage|setInterval|WebSocket/.test(entry));assert.ok(entry.includes('clearStagingSnapshot'));assert.ok(entry.includes('current!==generation'));assert.ok(SAFE_HEADERS['Content-Security-Policy'].includes("connect-src 'self'"));
 });
