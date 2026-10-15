@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 import {createStagingIdentity} from '../dist/src/staging/session.js';
 import {createSupabaseSession,readCookie,sessionCookie,COOKIE} from '../apps/staging/supabase-session.mjs';
-import {handleStaging,SAFE_HEADERS,loadServerConfiguration,nodeHandler,safeSnapshotFailureMarker,safeConfigurationLoadMarker,validateStagingUpstream} from '../apps/staging/runtime.mjs';
+import {handleStaging,SAFE_HEADERS,loadServerConfiguration,nodeHandler,safeSnapshotFailureMarker,safeConfigurationLoadMarker,safeConfigurationPreflightMarker,validateStagingPrivateConfiguration,validateStagingUpstream} from '../apps/staging/runtime.mjs';
 import {projectStagingSnapshot} from '../apps/staging/presentation.mjs';
 const NOW='2026-10-07T12:00:00.000Z',FUTURE='2026-10-07T12:30:00.000Z';
 const actor='11111111-1111-4111-8111-111111111111',A='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',B='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',sid='22222222-2222-4222-8222-222222222222';
@@ -170,6 +170,73 @@ test('private server artifact is fixed-path, outside Git/browser output, and mal
  }finally{fs.unlinkSync(path);}
 });
 test('Vercel empty or forged GET body never substitutes for a session or breaks fail-closed status',async()=>{
+ // Server-only preflight catches missing deployment configuration BEFORE
+ // a provider/tenant pool is created. Its messages must be closed categories.
+ const origin='https://staging.example';
+ const sourceOrigin='https://business-os.example';
+ const dbUrl=user=>'postgresql://'+user+':synthetic_secret@aws-0-ap-south-1.pooler.supabase.com/postgres';
+ const complete={enabled:true,origin,authUrl:'https://test.supabase.co',publishableKey:'synthetic_public',
+  authDatabaseUrl:dbUrl('cigo_stage_gateway'),
+  workspaces:{[A]:{label:'Synthetic A',databaseUrl:dbUrl('cigo_stage_tenant_a')}},
+  businessOsOrigin:sourceOrigin,businessOsProtectionCookie:'__vercel_protection_bypass=synthetic',
+  readerEnv:{CIGO_BUSINESS_OS_READERS_JSON:JSON.stringify({[A]:{baseUrl:sourceOrigin,secret:'private_synthetic_secret'}}),
+   CIGO_BUSINESS_OS_CURSOR_KEYS_JSON:'{"synthetic":"not-a-real-key"}',
+   CIGO_BUSINESS_OS_CURSOR_ACTIVE_KEY_ID:'synthetic'}};
+ assert.equal(validateStagingPrivateConfiguration(complete),true);
+ assert.equal(validateStagingPrivateConfiguration({enabled:false}),false);
+ // Disable must not need any absent private DB URL, reader key or HTTP origin.
+ let disabledStatus,disabledBody,disabledHeaders;
+ const savedDisabledConfig=process.env.CIGO_STAGING_SERVER_JSON;
+ try{
+  process.env.CIGO_STAGING_SERVER_JSON=JSON.stringify({enabled:false});
+  await nodeHandler({method:'GET',url:'/api/staging/health',headers:{}},{
+   writeHead(code,headers){disabledStatus=code;disabledHeaders=headers;},
+   end(payload){disabledBody=payload;}
+  });
+ }finally{
+  if(savedDisabledConfig===undefined)delete process.env.CIGO_STAGING_SERVER_JSON;
+  else process.env.CIGO_STAGING_SERVER_JSON=savedDisabledConfig;
+ }
+ assert.equal(disabledStatus,503);
+ assert.deepEqual(JSON.parse(disabledBody),{status:'DISABLED',effectsEnabled:false});
+ assert.match(disabledHeaders['Cache-Control'],/no-store/);
+ const scenarios=[
+  ['shape',{...complete,enabled:'true'}],
+  ['origin',{...complete,origin:'http://unsafe.example'}],
+  ['auth',{...complete,authUrl:'http://unsafe.example'}],
+  ['database',{...complete,authDatabaseUrl:'postgresql://postgres:private@localhost/postgres'}],
+  ['workspace',{...complete,workspaces:{[B]:{label:'',databaseUrl:dbUrl('cigo_stage_tenant_b')}}}],
+  ['source',{...complete,businessOsOrigin:'https://wrong.example'}],
+  ['source',{...complete,businessOsProtectionCookie:''}]
+ ];
+ for(const [category,invalid] of scenarios){
+  assert.throws(()=>validateStagingPrivateConfiguration(invalid),error=>
+   safeConfigurationPreflightMarker(error)==='CIGO_STAGING_CONFIG_PREFLIGHT_FAILURE category='+category&&
+   !JSON.stringify(error).includes('synthetic_secret'));
+ }
+ assert.equal(safeConfigurationPreflightMarker({stagingConfigCategory:'PRIVATE_PASSWORD'}),
+  'CIGO_STAGING_CONFIG_PREFLIGHT_FAILURE category=shape');
+ // Verify the actual server entrypoint returns no workspace/credential details,
+ // not merely that the standalone validator rejects malformed configurations.
+ let preflightStatus,preflightBody,preflightHeaders;
+ const preflightLogs=[],savedEnv=process.env.CIGO_STAGING_SERVER_JSON,savedLogger=console.error;
+ try{
+  process.env.CIGO_STAGING_SERVER_JSON=JSON.stringify({...complete,businessOsOrigin:'https://wrong.example'});
+  console.error=value=>preflightLogs.push(String(value));
+  await nodeHandler({method:'GET',url:'/api/staging/health',headers:{}},{
+   writeHead(code,headers){preflightStatus=code;preflightHeaders=headers;},
+   end(payload){preflightBody=payload;}
+  });
+ }finally{
+  if(savedEnv===undefined)delete process.env.CIGO_STAGING_SERVER_JSON;
+  else process.env.CIGO_STAGING_SERVER_JSON=savedEnv;
+  console.error=savedLogger;
+ }
+ assert.equal(preflightStatus,503);
+ assert.deepEqual(preflightLogs,['CIGO_STAGING_CONFIG_PREFLIGHT_FAILURE category=source']);
+ assert.match(preflightHeaders['Cache-Control'],/no-store/);
+ assert.equal(JSON.parse(preflightBody).error,'Staging unavailable');
+ assert.ok(!JSON.stringify({preflightLogs,preflightBody}).includes('synthetic_secret'));
  // A missing or malformed server-only config must fail BEFORE HTTP identity
  // processing, producing a fixed, non-sensitive Vercel runtime marker.
  const sensitive='PRIVATE_RUNTIME_CONFIG_PASSWORD_DO_NOT_LOG';

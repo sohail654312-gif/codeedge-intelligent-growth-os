@@ -1072,5 +1072,36 @@
     "otherReposModified": false,
     "mainModified": false,
     "merged": false
+  },
+  "privateConfigPreflightCheckpoint": {
+    "date": "2026-10-15",
+    "pr": 19,
+    "branch": "engineering/cigo-staging-config-preflight-20261015",
+    "sourceSha": "ccc9e9973ae6328856b316b3711f7d3896acd24a",
+    "verifiedSourceCIGO_CI": {
+      "id": 38689655445,
+      "conclusion": "SUCCESS"
+    },
+    "verifiedSourcePostgres": {
+      "id": 38689655146,
+      "conclusion": "SUCCESS"
+    },
+    "security": [
+      "SERVER_ONLY_CONFIG_NO_BROWSER_OVERRIDE",
+      "ENABLED_CONFIG_RESTRICTED_ORIGIN_AUTH_DB_WORKSPACE_UPSTREAM",
+      "FIXED_CATEGORY_SERVER_LOGS_NO_SECRETS",
+      "FAIL_CLOSED_503_NO_STORE",
+      "DISABLED_MODE_NO_SECRETS_REQUIRED_NO_PROVIDER_CALL",
+      "MANDATORY_TEST_COUNTS_UNCHANGED"
+    ],
+    "hostedAuthenticated200": "NOT_VERIFIED",
+    "historicalHosted503": "OPEN",
+    "vercelOwnerProjectPermission": "403_FORBIDDEN",
+    "independentSecuritySignoff": "PENDING",
+    "productionGates": "0/8_ACCEPTED",
+    "mainUpdated": false,
+    "otherReposChanged": false,
+    "productionEffects": false,
+    "merged": false
   }
 }

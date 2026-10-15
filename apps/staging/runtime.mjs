@@ -22,6 +22,59 @@ export function safeConfigurationLoadMarker(error){
  const category=error?.code==='ENOENT'?'missing':error instanceof SyntaxError?'malformed':'invalid';
  return 'CIGO_STAGING_CONFIG_LOAD_FAILURE category='+category;
 }
+// Classify trusted server-side staging configuration before creating any provider
+// pool or attempting an authenticated source read. Never log values, names of
+// workspaces, credentials, URLs, exception text or protected JSON.
+const CONFIG_CATEGORIES=new Set(['shape','origin','auth','database','workspace','source']);
+export function safeConfigurationPreflightMarker(error){
+ const category=CONFIG_CATEGORIES.has(error?.stagingConfigCategory)?error.stagingConfigCategory:'shape';
+ return 'CIGO_STAGING_CONFIG_PREFLIGHT_FAILURE category='+category;
+}
+export function validateStagingPrivateConfiguration(config){
+ const fail=category=>{
+  const error=Error('STAGING_CONFIGURATION_UNAVAILABLE');
+  Object.defineProperty(error,'stagingConfigCategory',{value:category});
+  throw error;
+ };
+ if(!config||typeof config!=='object'||Array.isArray(config)||typeof config.enabled!=='boolean')fail('shape');
+ if(config.enabled===false)return false; // explicit safe disabled mode
+ const safeOrigin=value=>{
+  try{
+   const url=new URL(value);
+   return url.protocol==='https:'&&!url.username&&!url.password&&!url.search&&!url.hash&&
+    (url.pathname==='/'||url.pathname==='')&&!!url.hostname;
+  }catch{return false;}
+ };
+ const safePool=value=>{
+  try{
+   const url=new URL(value);
+   return url.protocol==='postgresql:'&&url.hostname.endsWith('.pooler.supabase.com')&&
+    url.username.startsWith('cigo_stage_')&&!!url.password&&url.pathname.length>1&&
+    !url.search&&!url.hash;
+  }catch{return false;}
+ };
+ if(!safeOrigin(config.origin))fail('origin');
+ if(!safeOrigin(config.authUrl)||typeof config.publishableKey!=='string'||!config.publishableKey.trim())fail('auth');
+ if(!safePool(config.authDatabaseUrl))fail('database');
+ const workspaces=config.workspaces;
+ if(!workspaces||typeof workspaces!=='object'||Array.isArray(workspaces)||!Object.keys(workspaces).length)fail('workspace');
+ for(const [id,scope] of Object.entries(workspaces)){
+  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)||
+   !scope||typeof scope!=='object'||Array.isArray(scope)||
+   typeof scope.label!=='string'||!scope.label.trim()||scope.label.length>100||
+   !safePool(scope.databaseUrl))fail('workspace');
+ }
+ if(!safeOrigin(config.businessOsOrigin)||
+  typeof config.businessOsProtectionCookie!=='string'||!config.businessOsProtectionCookie.includes('=')||
+  config.businessOsProtectionCookie.length>8192||/[\r\n]/.test(config.businessOsProtectionCookie)||
+  !config.readerEnv||typeof config.readerEnv!=='object'||Array.isArray(config.readerEnv)||
+  !['CIGO_BUSINESS_OS_READERS_JSON','CIGO_BUSINESS_OS_CURSOR_KEYS_JSON','CIGO_BUSINESS_OS_CURSOR_ACTIVE_KEY_ID']
+   .every(key=>typeof config.readerEnv[key]==='string'&&config.readerEnv[key].trim()))fail('source');
+ for(const id of Object.keys(workspaces)){
+  try{validateStagingUpstream(config,id);}catch{fail('source');}
+ }
+ return true;
+}
 // The credential-bearing reader map stays server-side. This guard checks only
 // whether its selected upstream origin agrees with the independently configured
 // protected-source transport; no URL, key or tenant value is ever logged.
@@ -146,11 +199,26 @@ export async function nodeHandler(req,res,configuration){
    else {let text='';for await(const chunk of req){text+=chunk;if(Buffer.byteLength(text)>4096)throw Error('SIZE');}if(text)body=JSON.parse(text);}
   }
  }catch{res.writeHead(400,SAFE_HEADERS);res.end(JSON.stringify({error:'Invalid request'}));return;}
- let config;try{config=configuration??loadServerConfiguration();}catch(error){
-  // This path precedes handleStaging and must be diagnosable independently.
-  // Never emit the exception itself, which may contain server-only file paths.
-  try{console.error(safeConfigurationLoadMarker(error));}catch{/* logging is optional; denial is mandatory */}
+ let config;try{
+  config=configuration??loadServerConfiguration();
+  // Production entrypoints pass no injected configuration. This test-only
+  // dependency-injection seam must not become an HTTP-selected bypass.
+  if(configuration===undefined)validateStagingPrivateConfiguration(config);
+ }catch(error){
+  // This occurs before user authorization. Emit only a fixed, allowlisted
+  // failure class; never emit the raw exception or the protected configuration.
+  try{console.error(error?.stagingConfigCategory?
+   safeConfigurationPreflightMarker(error):safeConfigurationLoadMarker(error));}
+  catch{/* logging is optional; denial is mandatory */}
   res.writeHead(503,SAFE_HEADERS);res.end(JSON.stringify({error:'Staging unavailable'}));return;
+ }
+ // An explicit owner-controlled kill switch must work even with all live
+ // credentials and the old staging origin removed from the environment.
+ // Never parse a URL or connect to Supabase after an explicit disable.
+ if(configuration===undefined&&config.enabled===false){
+  res.writeHead(503,SAFE_HEADERS);
+  res.end(JSON.stringify({status:'DISABLED',effectsEnabled:false}));
+  return;
  }
  // VERCEL_URL is a platform-owned deployment hostname, never an incoming Host header.
  if(process.env.VERCEL_URL)config={...config,origin:'https://'+process.env.VERCEL_URL};
