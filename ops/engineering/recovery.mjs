@@ -25,7 +25,10 @@ function tool(name,args,config,input,env){
  const pgEnv={...env,PGHOST:config.host,PGPORT:config.port,PGUSER:config.user,PGPASSWORD:config.password,PGDATABASE:config.database};
  let command=path.join(env.CIGO_OPS_PG_BIN??'',name+(process.platform==='win32'?'.exe':'')),argv=args;
  if(env.CIGO_OPS_PG_CONTAINER_ID){if(!/^[a-f0-9]{12,64}$/.test(env.CIGO_OPS_PG_CONTAINER_ID))throw Error('INVALID_DISPOSABLE_CONTAINER');
-  command='docker';argv=['exec','-i','-e','PGPASSWORD='+config.password,env.CIGO_OPS_PG_CONTAINER_ID,name,'-U',config.user,...args];}
+  // --version is an offline metadata query; keep it free of database credentials and
+  // session flags. Actual dump/restore calls still run with the pinned disposable identity.
+  const versionOnly=args.length===1&&args[0]==='--version';
+  command='docker';argv=['exec',...(versionOnly?[]:['-i','-e','PGPASSWORD='+config.password]),env.CIGO_OPS_PG_CONTAINER_ID,name,...(versionOnly?[]:['-U',config.user]),...args];}
  try{return execFileSync(command,argv,{env:pgEnv,input,windowsHide:true,maxBuffer:8388608,timeout:45000,stdio:['pipe','pipe','pipe']});}
  catch{throw Error('DISPOSABLE_RECOVERY_TOOL_FAILED');}
 }
