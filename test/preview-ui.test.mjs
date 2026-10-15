@@ -46,7 +46,14 @@ test('official Codeedge wordmark matches released Business OS bytes',()=>{
 });
 test('escaped content and restrictive deployment policy prevent script/credential/effect exposure',()=>{
  assert.equal(escapeHtml('<img src=x onerror="evil()"> & \'x\''),'&lt;img src=x onerror=&quot;evil()&quot;&gt; &amp; &#39;x&#39;');
- const config=JSON.parse(fs.readFileSync(new URL('../../vercel.json',root)));const csp=config.headers[0].headers.find(h=>h.key==='Content-Security-Policy').value;
- assert.ok(csp.includes("default-src 'none'"));assert.ok(csp.includes("form-action 'none'"));assert.ok(!csp.includes('unsafe-inline'));assert.equal(config.outputDirectory,'apps/preview/site');
+ const config=JSON.parse(fs.readFileSync(new URL('../../vercel.json',root)));
+ const canonicalStaging=JSON.parse(fs.readFileSync(new URL('../../vercel.staging.json',root)));
+ const csp=config.headers[0].headers.find(h=>h.key==='Content-Security-Policy').value;
+ assert.deepEqual(config,canonicalStaging,'deployment-only branch must match reviewed staging Vercel config exactly');
+ assert.ok(csp.includes("default-src 'none'"));assert.ok(csp.includes("form-action 'self'"));assert.ok(!csp.includes('unsafe-inline'));
+ assert.equal(config.buildCommand,'npm run staging:build');assert.equal(config.outputDirectory,'apps/staging/site');
+ assert.equal(config.functions['api/staging/*.mjs'].includeFiles,'dist/**');
+ assert.equal(config.functions['api/staging/*.mjs'].maxDuration,60);
+ assert.ok(config.rewrites.some(r=>r.source==='/staging'&&r.destination==='/staging.html'));
  assert.ok(read('public/index.html').includes('Synthetic demo'));assert.ok(read('public/app.js').includes('Execution unavailable'));
 });
