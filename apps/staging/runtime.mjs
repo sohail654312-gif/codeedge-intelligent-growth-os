@@ -58,6 +58,12 @@ function poolFor(url,ca){
  return pools.get(url);
 }
 export async function handleStaging(request,config,dependencies={}){
+ // Start the budget before provider/session verification, not after it.
+ // Reserve five seconds under the 60s Vercel function limit for denial,
+ // cleanup and completing the HTTP response if upstream stalls.
+ const clock=dependencies.clock??Date.now;
+ const startedAt=clock();
+ const deadline=startedAt+55000;
  const headers={...SAFE_HEADERS};const reply=(status,body)=>({status,headers,body});
  const url=new URL(request.url,config.origin),path=url.pathname;
  if(!['/api/staging/session','/api/staging/snapshot','/api/staging/health'].includes(path))return reply(404,{error:'Unavailable route'});
@@ -88,12 +94,22 @@ export async function handleStaging(request,config,dependencies={}){
   // Production composition must never silently target a different protected
   // Business OS deployment than its tenant-bound reader credentials specify.
   if(!dependencies.loader)validateStagingUpstream(config,workspaceId);
-  const deadline=Date.now()+55000;
   const transport=async(target,init)=>{
-   const address=new URL(target);if(address.origin!==config.businessOsOrigin||Date.now()>deadline)throw Error('STAGING_SOURCE_UNAVAILABLE');
+   const address=new URL(target);
+   if(address.origin!==config.businessOsOrigin)throw Error('STAGING_SOURCE_UNAVAILABLE');
+   const remaining=deadline-clock()-5000;
+   if(remaining<=0){
+    // Fixed diagnostic only: no target URL, tenant, headers, secrets or error bodies.
+    try{(dependencies.logFailure??console.error)('CIGO_STAGING_SOURCE_BUDGET_EXHAUSTED');}catch{/* safe denial without logging */}
+    throw Error('STAGING_SOURCE_UNAVAILABLE');
+   }
    const outgoing=new Headers(init.headers);outgoing.set('cookie',config.businessOsProtectionCookie);
    outgoing.set('x-vercel-skip-toolbar','1');
-   const response=await (dependencies.fetchImpl??fetch)(target,{...init,headers:outgoing});
+   // The adapter retains its own per-read timeout; this additionally enforces
+   // the request-wide budget across all sequential resources and retries.
+   const budgetSignal=AbortSignal.timeout(remaining);
+   const signal=init.signal?AbortSignal.any([init.signal,budgetSignal]):budgetSignal;
+   const response=await (dependencies.fetchImpl??fetch)(target,{...init,headers:outgoing,signal});
    if(!response.ok){
     // Fixed status allowlist only. Never log upstream body, URL, headers, credentials or tenant.
     const status=[401,403,404,429,500,502,503,504].includes(response.status)?String(response.status):'other';
@@ -108,7 +124,7 @@ export async function handleStaging(request,config,dependencies={}){
   const tenantPools=dependencies.tenantPools??{resolveServerHeldTenantPool:async id=>{
    if(!Object.hasOwn(config.workspaces,id))return undefined;return poolFor(config.workspaces[id].databaseUrl,config.databaseCa);}};
   const snapshot=await (dependencies.loader??loadStagingSnapshot)({workspaceId,label:config.workspaces[workspaceId].label,authority,tenantPools,
-   env:config.readerEnv,transport,now:()=>{if(Date.now()>deadline)throw Error('STAGING_DEADLINE');return new Date();}});
+   env:config.readerEnv,transport,now:()=>{if(clock()>deadline-5000)throw Error('STAGING_DEADLINE');return new Date();}});
   return reply(200,snapshot);
  }catch(error){
   const denied=/UNAUTHORIZED|AUTHORITY_CHANGED|WORKSPACE_IDENTITY/.test(error?.message??'');
