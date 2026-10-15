@@ -104,6 +104,20 @@ async function verifyProtectedUpstreamHtmlDiagnostic(){
  assert.ok(!JSON.stringify({result,markers}).includes('PRIVATE_UPSTREAM_LOGIN_TOKEN'));
 }
 test('source, receipt authority, PostgreSQL and session TOCTOU errors erase all data',async()=>{
+ // A slow provider/DB setup can exhaust the entire request budget before the
+ // first source read. Never start network work past the reserved safety margin.
+ const budgetMarkers=[];let upstreamCalls=0,clockCalls=0;
+ const budget=await handleStaging(req('/api/staging/snapshot?workspace='+A),
+  {...cfg,businessOsOrigin:'https://business-os.example',businessOsProtectionCookie:'synthetic_cookie'},{
+   ...deps,clock:()=>++clockCalls===1?1000:59000,
+   logFailure:marker=>budgetMarkers.push(marker),
+   fetchImpl:async()=>{upstreamCalls++;throw Error('SHOULD_NOT_CALL_NETWORK');},
+   loader:async({transport})=>{await transport('https://business-os.example/api/internal/cigo/v1/read',{headers:{}});}
+ });
+ assert.equal(budget.status,503);assert.equal(upstreamCalls,0);
+ assert.deepEqual(budgetMarkers,['CIGO_STAGING_SOURCE_BUDGET_EXHAUSTED','CIGO_STAGING_SNAPSHOT_FAILURE stage=SNAPSHOT resource=none']);
+ assert.match(budget.headers['Cache-Control'],/no-store/);
+ assert.equal(budget.body.metrics,undefined);
  verifyStagingReaderOriginGuard();
  await verifyProtectedUpstreamHtmlDiagnostic();
  for(const message of ['STAGING_SOURCE_UNAVAILABLE','UNTRUSTED_SOURCE_PROVENANCE','database unavailable','STAGING_AUTHORITY_CHANGED']){
