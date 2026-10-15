@@ -86,6 +86,16 @@ test('source, receipt authority, PostgreSQL and session TOCTOU errors erase all 
  const markers=[];
  const r=await handleStaging(req('/api/staging/snapshot?workspace='+A),cfg,{...deps,logFailure:message=>markers.push(message),loader:async()=>{throw failure;}});
  assert.equal(r.status,503);assert.deepEqual(markers,['CIGO_STAGING_SNAPSHOT_FAILURE stage=SOURCE_READ resource=lead']);assert.ok(!JSON.stringify(r).includes(secrets));
+ // A downstream HTTP 404 is only a fixed server log label, never a browser status
+ // explanation or a route, credential, provider-body, or workspace disclosure.
+ const upstreamMarkers=[],privateData='UPSTREAM_PRIVATE_TOKEN_PAYLOAD';
+ const upstream=await handleStaging(req('/api/staging/snapshot?workspace='+A),{...cfg,businessOsOrigin:'https://business-os.example',businessOsProtectionCookie:privateData},{
+  ...deps,logFailure:marker=>upstreamMarkers.push(marker),
+  fetchImpl:async()=>new Response(privateData,{status:404}),
+  loader:async({transport})=>{await transport('https://business-os.example/api/internal/cigo/v1/read',{headers:{}});throw Error('STAGING_SOURCE_UNAVAILABLE '+privateData);}
+ });
+ assert.equal(upstream.status,503);assert.deepEqual(upstreamMarkers,['CIGO_STAGING_UPSTREAM_HTTP_FAILURE status=404','CIGO_STAGING_SNAPSHOT_FAILURE stage=SNAPSHOT resource=none']);
+ assert.ok(!JSON.stringify(upstream).includes(privateData));assert.ok(!JSON.stringify(upstreamMarkers).includes(privateData));
 });
 test('explicit browser DTO excludes source records, membership, credentials and receipts',()=>{
  const dto=projectStagingSnapshot({label:'Synthetic A',asOf:NOW,period:'2026-10 UTC',coverage:[{resource:'lead',status:'COMPLETE',count:2}],attestedCount:2,entries:[],
