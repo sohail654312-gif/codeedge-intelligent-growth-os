@@ -72,7 +72,7 @@ test('no cache reuse or tenant crossover on sequential workspace responses',asyn
  let calls=0;const d={...deps,loader:async({workspaceId})=>{calls++;return {mode:'AUTHENTICATED_STAGING',label:cfg.workspaces[workspaceId].label};}};
  for(const workspace of [A,B,A]){const r=await handleStaging(req('/api/staging/snapshot?workspace='+workspace),cfg,d);assert.equal(r.body.label,cfg.workspaces[workspace].label);assert.match(r.headers['Cache-Control'],/private, no-store/);assert.equal(r.headers.Vary,'Cookie');}assert.equal(calls,3);
 });
-test('staging reader and protected upstream must be same exact origin without exposing source details',()=>{
+function verifyStagingReaderOriginGuard(){
  const origin='https://business-os.example';
  const readerEnv={CIGO_BUSINESS_OS_READERS_JSON:JSON.stringify({[A]:{baseUrl:origin,keyId:'tenant-bound',secret:'S'.repeat(48)}})};
  const source={businessOsOrigin:origin,readerEnv};
@@ -88,8 +88,8 @@ test('staging reader and protected upstream must be same exact origin without ex
    error.message==='STAGING_SOURCE_CONFIGURATION_UNAVAILABLE'&&error.stagingStage==='SERVER_CONFIGURATION'&&
    !JSON.stringify(error).includes('tenant-bound'));
  }
-});
-test('protected upstream HTTP 200 with HTML records only a safe media category',async()=>{
+}
+async function verifyProtectedUpstreamHtmlDiagnostic(){
  const markers=[],privateHtml='<html>PRIVATE_UPSTREAM_LOGIN_TOKEN</html>';
  const result=await handleStaging(req('/api/staging/snapshot?workspace='+A),
   {...cfg,businessOsOrigin:'https://business-os.example',businessOsProtectionCookie:'secret-cookie'},{
@@ -102,8 +102,10 @@ test('protected upstream HTTP 200 with HTML records only a safe media category',
   'CIGO_STAGING_SNAPSHOT_FAILURE stage=SNAPSHOT resource=none'
  ]);
  assert.ok(!JSON.stringify({result,markers}).includes('PRIVATE_UPSTREAM_LOGIN_TOKEN'));
-});
+}
 test('source, receipt authority, PostgreSQL and session TOCTOU errors erase all data',async()=>{
+ verifyStagingReaderOriginGuard();
+ await verifyProtectedUpstreamHtmlDiagnostic();
  for(const message of ['STAGING_SOURCE_UNAVAILABLE','UNTRUSTED_SOURCE_PROVENANCE','database unavailable','STAGING_AUTHORITY_CHANGED']){
   const markers=[];
   const r=await handleStaging(req('/api/staging/snapshot?workspace='+A),cfg,{...deps,logFailure:message=>markers.push(message),loader:async()=>{throw Error(message+' private infrastructure');}});assert.ok(r.status>=400);assert.ok(!JSON.stringify(r.body).includes('private infrastructure'));assert.equal(r.body.metrics,undefined);assert.match(r.headers['Cache-Control'],/no-store/);
