@@ -1043,5 +1043,34 @@
       "productionEffects": false,
       "mergePerformed": false
     }
+  },
+  "requestBudgetEngineeringCheckpoint": {
+    "date": "2026-10-15",
+    "pr": 18,
+    "basePr": 17,
+    "sourceCommit": "873cb1de4ee9cb90fa289e88198cb8e4d3f607d8",
+    "codeCI": {
+      "run": 38683180622,
+      "status": "SUCCESS"
+    },
+    "postgresCI": {
+      "run": 38683180640,
+      "status": "SUCCESS"
+    },
+    "testedBehavior": [
+      "55_SECOND_TOTAL_FROM_ENTRY",
+      "FIVE_SECOND_RESPONSE_HEADROOM",
+      "COMBINED_ABORT_SIGNAL",
+      "NO_EXTRA_UPSTREAM_CALL_ON_EXHAUSTION",
+      "GENERIC_NO_STORE_503",
+      "SAFE_DIAGNOSTIC_ONLY"
+    ],
+    "hosted503": "OPEN_UNVERIFIED_ROOT_CAUSE",
+    "vercelCreateProject": "403_FORBIDDEN",
+    "dedicatedPreview": "NOT_DEPLOYED",
+    "productionAcceptance": "0/8_CLOSED",
+    "otherReposModified": false,
+    "mainModified": false,
+    "merged": false
   }
 }

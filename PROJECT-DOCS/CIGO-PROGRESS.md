@@ -191,3 +191,14 @@ No other repository, real customer records, production secrets or endpoints were
 - Both progress records are being synchronized within PR #17; record the final documentation-commit SHA and its workflows separately, never inherit CI from the preceding source SHA.
 
 No independent review or G1–G8 production gate accepted by these engineering checks.
+
+
+## Engineering checkpoint — request-wide staging time budget (2026-10-15)
+
+- **Draft PR #18**, child of PR #17, introduces a bounded staging snapshot time budget and keeps it entirely within CIGO.
+- Previous staging handler's 55-second deadline began *after* session setup and did not constrain the actual upstream network operation across all eight resource reads and retries. The Vercel function limit for the staging deployment is 60 seconds. This was a genuine reliability gap, but **not a verified cause** of the historical 503.
+- New `apps/staging/runtime.mjs` starts a request-wide 55-second deadline before authentication; reserves five seconds for safe HTTP response; connects the remaining deadline to each source HTTP fetch using a combined abort signal. On exhausted time, fixed `CIGO_STAGING_SOURCE_BUDGET_EXHAUSTED` marker and private no-store 503, without dispatching another upstream HTTP request or logging secrets.
+- Existing mandatory `test/staging-console.test.mjs` checks an exhausted budget with a fake server clock and asserts **zero upstream calls**, fixed marker and non-disclosure. No tests removed and no staging security boundary relaxed.
+- Exact code/test SHA `873cb1de4ee9cb90fa289e88198cb8e4d3f607d8`: [CIGO CI 38683180622](https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38683180622) **SUCCESS**; [R4 disposable PostgreSQL acceptance 38683180640](https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38683180640) **SUCCESS**.
+- **Hosted status unchanged:** The historical protected CIGO authenticated `/api/staging/snapshot` returned HTTP 503. The exact cause is still NOT VERIFIED and no new hosted HTTP 200 or deployment is claimed. Dedicated Vercel staging project creation permission was denied (403). Deployment-only PR #16 remains separate and unmerged.
+- Production G1–G8 acceptance remains unclosed; independent reviewer sign-off absent. No merge/release or real effects, no Business OS or other Codeedge repo changes. After documentation commit, check the exact final head workflows separately.
