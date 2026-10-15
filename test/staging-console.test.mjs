@@ -184,6 +184,22 @@ test('Vercel empty or forged GET body never substitutes for a session or breaks 
    CIGO_BUSINESS_OS_CURSOR_ACTIVE_KEY_ID:'synthetic'}};
  assert.equal(validateStagingPrivateConfiguration(complete),true);
  assert.equal(validateStagingPrivateConfiguration({enabled:false}),false);
+ // Disable must not need any absent private DB URL, reader key or HTTP origin.
+ let disabledStatus,disabledBody,disabledHeaders;
+ const savedDisabledConfig=process.env.CIGO_STAGING_SERVER_JSON;
+ try{
+  process.env.CIGO_STAGING_SERVER_JSON=JSON.stringify({enabled:false});
+  await nodeHandler({method:'GET',url:'/api/staging/health',headers:{}},{
+   writeHead(code,headers){disabledStatus=code;disabledHeaders=headers;},
+   end(payload){disabledBody=payload;}
+  });
+ }finally{
+  if(savedDisabledConfig===undefined)delete process.env.CIGO_STAGING_SERVER_JSON;
+  else process.env.CIGO_STAGING_SERVER_JSON=savedDisabledConfig;
+ }
+ assert.equal(disabledStatus,503);
+ assert.deepEqual(JSON.parse(disabledBody),{status:'DISABLED',effectsEnabled:false});
+ assert.match(disabledHeaders['Cache-Control'],/no-store/);
  const scenarios=[
   ['shape',{...complete,enabled:'true'}],
   ['origin',{...complete,origin:'http://unsafe.example'}],
