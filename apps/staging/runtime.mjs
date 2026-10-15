@@ -15,6 +15,13 @@ export function safeSnapshotFailureMarker(error){
  const resource=FAILURE_RESOURCES.has(error?.stagingResource)?error.stagingResource:'none';
  return 'CIGO_STAGING_SNAPSHOT_FAILURE stage='+stage+' resource='+resource;
 }
+// The early Vercel entrypoint runs before request/session logic can emit the
+// snapshot markers. Report only fixed error *classes*: never error messages,
+// absolute artifact paths, protected config contents, environment or credentials.
+export function safeConfigurationLoadMarker(error){
+ const category=error?.code==='ENOENT'?'missing':error instanceof SyntaxError?'malformed':'invalid';
+ return 'CIGO_STAGING_CONFIG_LOAD_FAILURE category='+category;
+}
 // The credential-bearing reader map stays server-side. This guard checks only
 // whether its selected upstream origin agrees with the independently configured
 // protected-source transport; no URL, key or tenant value is ever logged.
@@ -123,7 +130,12 @@ export async function nodeHandler(req,res,configuration){
    else {let text='';for await(const chunk of req){text+=chunk;if(Buffer.byteLength(text)>4096)throw Error('SIZE');}if(text)body=JSON.parse(text);}
   }
  }catch{res.writeHead(400,SAFE_HEADERS);res.end(JSON.stringify({error:'Invalid request'}));return;}
- let config;try{config=configuration??loadServerConfiguration();}catch{res.writeHead(503,SAFE_HEADERS);res.end(JSON.stringify({error:'Staging unavailable'}));return;}
+ let config;try{config=configuration??loadServerConfiguration();}catch(error){
+  // This path precedes handleStaging and must be diagnosable independently.
+  // Never emit the exception itself, which may contain server-only file paths.
+  try{console.error(safeConfigurationLoadMarker(error));}catch{/* logging is optional; denial is mandatory */}
+  res.writeHead(503,SAFE_HEADERS);res.end(JSON.stringify({error:'Staging unavailable'}));return;
+ }
  // VERCEL_URL is a platform-owned deployment hostname, never an incoming Host header.
  if(process.env.VERCEL_URL)config={...config,origin:'https://'+process.env.VERCEL_URL};
  const result=await handleStaging({url:req.url,method:req.method,headers:req.headers,body},config);
