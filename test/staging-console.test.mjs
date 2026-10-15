@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 import {createStagingIdentity} from '../dist/src/staging/session.js';
 import {createSupabaseSession,readCookie,sessionCookie,COOKIE} from '../apps/staging/supabase-session.mjs';
-import {handleStaging,SAFE_HEADERS,loadServerConfiguration,nodeHandler} from '../apps/staging/runtime.mjs';
+import {handleStaging,SAFE_HEADERS,loadServerConfiguration,nodeHandler,safeSnapshotFailureMarker} from '../apps/staging/runtime.mjs';
 import {projectStagingSnapshot} from '../apps/staging/presentation.mjs';
 const NOW='2026-10-07T12:00:00.000Z',FUTURE='2026-10-07T12:30:00.000Z';
 const actor='11111111-1111-4111-8111-111111111111',A='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',B='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',sid='22222222-2222-4222-8222-222222222222';
@@ -74,8 +74,28 @@ test('no cache reuse or tenant crossover on sequential workspace responses',asyn
 });
 test('source, receipt authority, PostgreSQL and session TOCTOU errors erase all data',async()=>{
  for(const message of ['STAGING_SOURCE_UNAVAILABLE','UNTRUSTED_SOURCE_PROVENANCE','database unavailable','STAGING_AUTHORITY_CHANGED']){
-  const r=await handleStaging(req('/api/staging/snapshot?workspace='+A),cfg,{...deps,loader:async()=>{throw Error(message+' private infrastructure');}});assert.ok(r.status>=400);assert.ok(!JSON.stringify(r.body).includes('private infrastructure'));assert.equal(r.body.metrics,undefined);assert.match(r.headers['Cache-Control'],/no-store/);
+  const markers=[];
+  const r=await handleStaging(req('/api/staging/snapshot?workspace='+A),cfg,{...deps,logFailure:message=>markers.push(message),loader:async()=>{throw Error(message+' private infrastructure');}});assert.ok(r.status>=400);assert.ok(!JSON.stringify(r.body).includes('private infrastructure'));assert.equal(r.body.metrics,undefined);assert.match(r.headers['Cache-Control'],/no-store/);
+  assert.ok(markers.every(m=>m==='CIGO_STAGING_SNAPSHOT_FAILURE stage=SNAPSHOT resource=none'));
  }
+ // Even crafted error metadata is constrained to closed enums, not logged or returned verbatim.
+ const secrets='PRIVATE_DATABASE_PASSWORD_TOKEN_ACTOR';
+ const failure=Object.assign(Error(secrets),{stagingStage:'SOURCE_READ',stagingResource:'lead',secret:secrets});
+ assert.equal(safeSnapshotFailureMarker(failure),'CIGO_STAGING_SNAPSHOT_FAILURE stage=SOURCE_READ resource=lead');
+ assert.equal(safeSnapshotFailureMarker({...failure,stagingStage:secrets,stagingResource:secrets}),'CIGO_STAGING_SNAPSHOT_FAILURE stage=SNAPSHOT resource=none');
+ const markers=[];
+ const r=await handleStaging(req('/api/staging/snapshot?workspace='+A),cfg,{...deps,logFailure:message=>markers.push(message),loader:async()=>{throw failure;}});
+ assert.equal(r.status,503);assert.deepEqual(markers,['CIGO_STAGING_SNAPSHOT_FAILURE stage=SOURCE_READ resource=lead']);assert.ok(!JSON.stringify(r).includes(secrets));
+ // A downstream HTTP 404 is only a fixed server log label, never a browser status
+ // explanation or a route, credential, provider-body, or workspace disclosure.
+ const upstreamMarkers=[],privateData='UPSTREAM_PRIVATE_TOKEN_PAYLOAD';
+ const upstream=await handleStaging(req('/api/staging/snapshot?workspace='+A),{...cfg,businessOsOrigin:'https://business-os.example',businessOsProtectionCookie:privateData},{
+  ...deps,logFailure:marker=>upstreamMarkers.push(marker),
+  fetchImpl:async()=>new Response(privateData,{status:404}),
+  loader:async({transport})=>{await transport('https://business-os.example/api/internal/cigo/v1/read',{headers:{}});throw Error('STAGING_SOURCE_UNAVAILABLE '+privateData);}
+ });
+ assert.equal(upstream.status,503);assert.deepEqual(upstreamMarkers,['CIGO_STAGING_UPSTREAM_HTTP_FAILURE status=404','CIGO_STAGING_SNAPSHOT_FAILURE stage=SNAPSHOT resource=none']);
+ assert.ok(!JSON.stringify(upstream).includes(privateData));assert.ok(!JSON.stringify(upstreamMarkers).includes(privateData));
 });
 test('explicit browser DTO excludes source records, membership, credentials and receipts',()=>{
  const dto=projectStagingSnapshot({label:'Synthetic A',asOf:NOW,period:'2026-10 UTC',coverage:[{resource:'lead',status:'COMPLETE',count:2}],attestedCount:2,entries:[],

@@ -67,9 +67,9 @@ test('real adapter -> durable PostgreSQL receipt/intake -> truth/memory/analysis
  assert.ok(Number((await issuer.query('SELECT count(*) FROM cigo.source_receipts')).rows[0].count)>0);assert.ok(Number((await issuer.query('SELECT count(*) FROM cigo.evidence')).rows[0].count)>0);
 });
 test('HTTP 200 without durable authority, partial page and current receipt revocation fail closed',async()=>{
- await assert.rejects(loadStagingSnapshot(input({pool:{connect:async()=>{throw Error('PostgreSQL unavailable');}}})),/UNAVAILABLE/);
- await assert.rejects(loadStagingSnapshot(input({partial:true})),/UNAVAILABLE/);
- await assert.rejects(loadStagingSnapshot(input({beforeResponse:async resource=>{if(resource==='finance_summary')await admin.query('INSERT INTO cigo.source_receipt_revocations(workspace_id,receipt_id) SELECT workspace_id,receipt_id FROM cigo.source_receipts WHERE workspace_id=$1 ON CONFLICT DO NOTHING',[A]);}})),/UNTRUSTED_SOURCE_PROVENANCE/);
+ await assert.rejects(loadStagingSnapshot(input({pool:{connect:async()=>{throw Error('PostgreSQL unavailable');}}})),e=>e.stagingStage==='SOURCE_READ'&&e.stagingResource==='lead'&&/UNAVAILABLE/.test(e.message));
+ await assert.rejects(loadStagingSnapshot(input({partial:true})),e=>e.stagingStage==='SOURCE_READ'&&e.stagingResource==='business_profile'&&/UNAVAILABLE/.test(e.message));
+ await assert.rejects(loadStagingSnapshot(input({beforeResponse:async resource=>{if(resource==='finance_summary')await admin.query('INSERT INTO cigo.source_receipt_revocations(workspace_id,receipt_id) SELECT workspace_id,receipt_id FROM cigo.source_receipts WHERE workspace_id=$1 ON CONFLICT DO NOTHING',[A]);}})),e=>e.stagingStage==='SOURCE_RECEIPT'&&e.stagingResource==='lead'&&/UNTRUSTED_SOURCE_PROVENANCE/.test(e.message));
 });
 test('actual durable stale/future observations and bounded continuation never expose a guessed complete metric',async()=>{
  for(const options of [{observedAt:new Date(Date.now()-172800000).toISOString()},{observedAt:new Date(Date.now()+3600000).toISOString()},{cursor:true}]){

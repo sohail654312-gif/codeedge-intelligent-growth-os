@@ -6,6 +6,15 @@ const pools=new Map();
 export const CSP="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
 export const SAFE_HEADERS={'Cache-Control':'private, no-store, max-age=0','Vary':'Cookie','Content-Type':'application/json; charset=utf-8',
  'X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','Content-Security-Policy':CSP};
+// Only fixed server-owned diagnostic identifiers enter runtime logs. Never log error
+// objects, incoming URLs, tenant IDs, tokens, DB details, source records or headers.
+const FAILURE_STAGES=new Set(['SERVER_CONFIGURATION','TENANT_POOL','SOURCE_READ','SOURCE_RECEIPT','DURABLE_INTAKE','SESSION_RECHECK']);
+const FAILURE_RESOURCES=new Set(['business_profile','service','lead','customer','crm_activity','booking','inbox_summary','finance_summary']);
+export function safeSnapshotFailureMarker(error){
+ const stage=FAILURE_STAGES.has(error?.stagingStage)?error.stagingStage:'SNAPSHOT';
+ const resource=FAILURE_RESOURCES.has(error?.stagingResource)?error.stagingResource:'none';
+ return 'CIGO_STAGING_SNAPSHOT_FAILURE stage='+stage+' resource='+resource;
+}
 /** Trusted server configuration only. The optional private artifact is injected by the
  * deployment owner outside Git, under dist (function includeFiles), never static output.
  * No URL/body/header can choose this path or supply a configuration override. */
@@ -53,7 +62,14 @@ export async function handleStaging(request,config,dependencies={}){
   const transport=async(target,init)=>{
    const address=new URL(target);if(address.origin!==config.businessOsOrigin||Date.now()>deadline)throw Error('STAGING_SOURCE_UNAVAILABLE');
    const outgoing=new Headers(init.headers);outgoing.set('cookie',config.businessOsProtectionCookie);
-   outgoing.set('x-vercel-skip-toolbar','1');return fetch(target,{...init,headers:outgoing});
+   outgoing.set('x-vercel-skip-toolbar','1');
+   const response=await (dependencies.fetchImpl??fetch)(target,{...init,headers:outgoing});
+   if(!response.ok){
+    // Fixed status allowlist only. Never log upstream body, URL, headers, credentials or tenant.
+    const status=[401,403,404,429,500,502,503,504].includes(response.status)?String(response.status):'other';
+    try{(dependencies.logFailure??console.error)('CIGO_STAGING_UPSTREAM_HTTP_FAILURE status='+status);}catch{/* best-effort telemetry */}
+   }
+   return response;
   };
   const tenantPools=dependencies.tenantPools??{resolveServerHeldTenantPool:async id=>{
    if(!Object.hasOwn(config.workspaces,id))return undefined;return poolFor(config.workspaces[id].databaseUrl,config.databaseCa);}};
@@ -62,6 +78,11 @@ export async function handleStaging(request,config,dependencies={}){
   return reply(200,snapshot);
  }catch(error){
   const denied=/UNAUTHORIZED|AUTHORITY_CHANGED|WORKSPACE_IDENTITY/.test(error?.message??'');
+  if(path.endsWith('snapshot')&&!denied){
+   // A diagnostics sink is injectable in tests only; HTTP input never selects it.
+   // Reporter failures must never change fail-closed responses.
+   try{(dependencies.logFailure??console.error)(safeSnapshotFailureMarker(error));}catch{/* no telemetry dependency may authorize reads */}
+  }
   return reply(denied?403:503,{error:denied?'Session or workspace unavailable':'Staging observations unavailable',mode:'AUTHENTICATED_STAGING'});
  }
 }

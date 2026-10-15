@@ -11,31 +11,47 @@ import {createHash} from 'node:crypto';
 import {projectStagingSnapshot} from './presentation.mjs';
 
 export const RESOURCES=Object.freeze(['business_profile','service','lead','customer','crm_activity','booking','inbox_summary','finance_summary']);
+function atStage(error,stage,resource){
+ // Preserve the fail-closed reason, but attach only fixed server-owned context
+ // for the log marker. No raw exception data is ever emitted by the HTTP layer.
+ const result=error instanceof Error?error:Error('STAGING_SOURCE_UNAVAILABLE');
+ Object.defineProperties(result,{stagingStage:{value:stage},stagingResource:{value:resource}});
+ return result;
+}
 /** Only this server composition accepts infrastructure dependencies, never HTTP JSON.
  * One complete bounded page/resource. Continuation is coverage unavailable, never a guessed total.
  * No caches, polling, operational writes, action ports or reviewer authority exist. */
 export async function loadStagingSnapshot({workspaceId,label,authority,tenantPools,env,transport,now=()=>new Date()}){
  const identity=createStagingIdentity(authority,workspaceId,now),context=await identity.authorize();
- const pool=await tenantPools.resolveServerHeldTenantPool(workspaceId);
+ let pool;
+ try{pool=await tenantPools.resolveServerHeldTenantPool(workspaceId);}catch(error){throw atStage(error,'TENANT_POOL','none');}
  if(!pool)throw Error('UNAUTHORIZED_STAGING');
- const server=createAttestedBusinessOsHttpReader({workspaceId,env,receiptPool:pool,
+ let server;
+ try{server=createAttestedBusinessOsHttpReader({workspaceId,env,receiptPool:pool,
   authorization:{assertAuthorized:async input=>{if(input.actorId!==context.actorId||input.workspaceId!==workspaceId||!RESOURCES.includes(input.resourceKind))throw Error('UNAUTHORIZED_STAGING');await identity.authorize();}},
-  dependencies:transport?{fetch:transport}:undefined});
+  dependencies:transport?{fetch:transport}:undefined});}
+ catch(error){throw atStage(error,'SERVER_CONFIGURATION','none');}
  const ledger=new InMemoryEvidenceLedger(workspaceId,()=>now().toISOString());
  const memory=new InMemoryBusinessMemory(workspaceId,ledger,()=>now().toISOString());
  const storeForWorkspace=createTenantBoundEvidenceStoreFactory(tenantPools);
  const pages=[],attested=[],coverage=[];
  for(const resourceKind of RESOURCES){
-  const page=await server.reader.read({context,sourceSystem:'BUSINESS_OS',resourceKind,limit:100});
-  if(page.completeness!=='COMPLETE'||page.errors.length)throw Error('STAGING_SOURCE_UNAVAILABLE');
+  let page;
+  try{page=await server.reader.read({context,sourceSystem:'BUSINESS_OS',resourceKind,limit:100});}
+  catch(error){throw atStage(error,'SOURCE_READ',resourceKind);}
+  if(page.completeness!=='COMPLETE'||page.errors.length)throw atStage(Error('STAGING_SOURCE_UNAVAILABLE'),'SOURCE_READ',resourceKind);
   pages.push(page);
   coverage.push({resource:resourceKind,status:page.nextCursor?'BOUNDED_PARTIAL':page.records.length?'COMPLETE':'EMPTY',count:page.records.length});
   // Receipt validation is mandatory before any durable intake, truth or memory use.
-  for(const record of page.records)attested.push({page,record,receipt:await server.attestationFor(page,record)});
+  for(const record of page.records){
+   try{attested.push({page,record,receipt:await server.attestationFor(page,record)});}
+   catch(error){throw atStage(error,'SOURCE_RECEIPT',resourceKind);}
+  }
   if(page.records.length){
    await identity.authorize();
    const key='staging-v1:'+createHash('sha256').update(JSON.stringify(page.records)).digest('hex');
-   await ingestWithTrustedIdentity({...identity,storeForWorkspace,now},{workspaceId,idempotencyKey:key,records:page.records});
+   try{await ingestWithTrustedIdentity({...identity,storeForWorkspace,now},{workspaceId,idempotencyKey:key,records:page.records});}
+   catch(error){throw atStage(error,'DURABLE_INTAKE',resourceKind);}
    const report=await ledger.ingest(context,page,'BUSINESS_OS');if(report.errors.length)throw Error('STAGING_EVIDENCE_UNAVAILABLE');
   }
  }
@@ -61,9 +77,14 @@ export async function loadStagingSnapshot({workspaceId,label,authority,tenantPoo
   unit:'COUNT',numerator:eligible.length,evidenceFingerprints:leadEvidence.map(e=>e.fingerprint),coverage:leadPage.nextCursor?'PARTIAL':'COMPLETE',verification:'UNVERIFIED'}]:[];
  const metrics=analyzeBusinessMetrics(context,metricInputs,{asOf,maxEvidenceAgeMs:86400000});
  // Re-read durable revocations/expiry after analysis; then reverify provider + membership.
- for(const {page,record} of attested)await server.attestationFor(page,record);
- if(authority.refreshServerVerification)await authority.refreshServerVerification();
- await identity.authorize();
+ for(const {page,record} of attested){
+  try{await server.attestationFor(page,record);}
+  catch(error){throw atStage(error,'SOURCE_RECEIPT',record.resourceKind);}
+ }
+ try{
+  if(authority.refreshServerVerification)await authority.refreshServerVerification();
+  await identity.authorize();
+ }catch(error){throw atStage(error,'SESSION_RECHECK','none');}
  return projectStagingSnapshot({label,asOf,coverage,metrics:metrics.insights,analysis,attestedCount:attested.length,
   period:month.toISOString().slice(0,7)+' UTC',entries});
 }
