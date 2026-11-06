@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "project": "CIGO — Codeedge Intelligent Growth OS",
   "repository": "sohail654312-gif/codeedge-intelligent-growth-os",
-  "updatedOn": "2026-10-15",
+  "updatedOn": "2026-11-06",
   "timezone": "Asia/Karachi",
   "snapshotAtUtc": "2026-10-14T19:21:17.545Z",
   "status": "SYNCHRONIZED_ENGINEERING_PUBLICATION_PRODUCTION_NOT_READY",
@@ -1103,5 +1103,31 @@
     "otherReposChanged": false,
     "productionEffects": false,
     "merged": false
+  },
+  "engineeringIncrement20261106": {
+    "baselineBranch": "engineering/cigo-render-isolated-staging-20261015",
+    "baselineCommit": "dd8bd496b94863b02b9e116f662a1f42a1c0ab3e",
+    "baselineExactHeadCi": [
+      {
+        "name": "CIGO CI",
+        "id": 38692187033,
+        "conclusion": "success"
+      },
+      {
+        "name": "R4 disposable PostgreSQL acceptance",
+        "id": 38692187173,
+        "conclusion": "success"
+      }
+    ],
+    "draftBranch": "engineering/cigo-v1-staging-reader-preflight-20261106",
+    "exactChildCommit": "SEE_DRAFT_PR_AND_GITHUB_ACTIONS_NO_SELF_REFERENTIAL_SHA",
+    "sourceScope": "Fail-closed reader credential, exact eight-resource coverage, and canonical 256-bit cursor-keyring validation before provider or database work",
+    "tests": "Synthetic additions to existing mandatory staging-console test cases; do not reduce baseline 31",
+    "exactHeadCi": "PENDING_FRESH_RUN",
+    "hostedAuthenticatedSnapshot": "UNVERIFIED_HISTORICAL_HTTP_503",
+    "independentReview": "PENDING",
+    "productionGateAcceptance": "NONE",
+    "noEffectsOrProductionChanges": true,
+    "note": "Historical checkpoint fields and 2026-10-15 CI evidence below are archival; they are not acceptance of the current draft head."
   }
 }

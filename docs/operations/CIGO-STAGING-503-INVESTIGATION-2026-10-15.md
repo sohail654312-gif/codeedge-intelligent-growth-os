@@ -44,3 +44,11 @@ Then, on the exact deployed CIGO commit and inside Vercel's live log retention w
 6. Record deployment ID, Git commit, statuses, redacted evidence and two successful exact-head GitHub Actions workflows.
 
 All 18 independent review findings and production G1–G8 are still OPEN. No release, merge or effects are authorized.
+
+## 2026-11-06 CIGO-only source-level follow-up (separate draft branch)
+
+A comparative read of `apps/staging/runtime.mjs` and `src/integration/business-os-http-adapter.ts` found that private preflight formerly checked only a reader's upstream origin, while the actual adapter also requires its server-held key ID, bearer secret (length at least 32), exact eight resource scopes, bounds on optional timeout/retries, and a canonical active 256-bit AEAD cursor key. Misconfigured server JSON could therefore pass static preflight and only fail when a logged-in user requested the snapshot.
+
+The next isolated CIGO patch validates these existing contracts before any provider/database work, using fixed `category=source` diagnostics and no secret reflection. Existing session, RLS, read-only and durable receipt boundaries remain unchanged. The unit fixtures are intentionally synthetic; no live provider config was examined. See the child draft PR against `engineering/cigo-render-isolated-staging-20261015` for exact SHA, test results and review.
+
+**Hosted HTTP 503 remains unverified and is not claimed fixed.** A dedicated authorised private host and owner-installed configuration, real synthetic tenant A success/tenant B denial and independent sign-off are still required. Do not deploy, merge or enable external effects from this note.
