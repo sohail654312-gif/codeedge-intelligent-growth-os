@@ -1129,5 +1129,19 @@
     "productionGateAcceptance": "NONE",
     "noEffectsOrProductionChanges": true,
     "note": "Historical checkpoint fields and 2026-10-15 CI evidence below are archival; they are not acceptance of the current draft head."
+  },
+  "stagingDeploymentAttempt20261106": {
+    "exactCandidateCommit": "81928e24fd1ec7b703a41d39be8e628a8fcfd9dc",
+    "scope": "CIGO V1 isolated protected staging only",
+    "deployedPublicHost": false,
+    "vercel": "BLOCKED_PERMISSION_403",
+    "renderFree": "BLOCKED_PAYMENT_INFORMATION_402",
+    "railwayFree": "BLOCKED_RESOURCE_PROVISION_LIMIT",
+    "noPaidUpgrade": true,
+    "noSharedOrProductionChanges": true,
+    "fallback": "Exact child CI synthetic real Node loopback HTTP smoke; must not be called hosted acceptance",
+    "targetAuthenticatedTenantA200": "NOT_VERIFIED",
+    "targetTenantBDenial": "NOT_VERIFIED",
+    "productionAccepted": false
   }
 }

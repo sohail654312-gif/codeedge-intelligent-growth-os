@@ -1,3 +1,7 @@
+## 2026-11-06 — Isolated staging deployment attempt (external blockers)
+
+Exact CIGO V1 candidate `81928e24fd1ec7b703a41d39be8e628a8fcfd9dc` passed mandatory source/disposable-PostgreSQL workflows in PR #21. Isolated Vercel project creation failed 403, free Render web service 402 requiring payment info, and Railway free personal workspace provisioning failed at resource limit. No project/service, external credentials, payments, migrations, existing shared host, live effects or production configuration changed. **No public staged deployment or authenticated HTTP 200 is claimed.** Separate child review adds a real loopback Node host HTTP smoke gate with synthetic config; this is NOT hosted acceptance. Detail: [isolated staging investigation](../docs/operations/CIGO-ISOLATED-STAGING-2026-11-06.md).
+
 ## 2026-11-06 additive engineering checkpoint — source preflight, not a hosted fix
 
 - **Baseline:** [draft PR #20](https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/20), exact parent `dd8bd496b94863b02b9e116f662a1f42a1c0ab3e`, with CIGO CI [38692187033](https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38692187033) and R4 PostgreSQL [38692187173](https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38692187173) **SUCCESS** on that parent. No parent CI result is inherited by this child.
