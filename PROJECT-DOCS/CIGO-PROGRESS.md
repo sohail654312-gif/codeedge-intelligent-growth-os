@@ -1,3 +1,15 @@
+## 2026-11-06 additive engineering checkpoint — source preflight, not a hosted fix
+
+- **Baseline:** [draft PR #20](https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/20), exact parent `dd8bd496b94863b02b9e116f662a1f42a1c0ab3e`, with CIGO CI [38692187033](https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38692187033) and R4 PostgreSQL [38692187173](https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38692187173) **SUCCESS** on that parent. No parent CI result is inherited by this child.
+- **Change under review:** preflight complete per-workspace Business OS reader credentials/capabilities and canonical 256-bit cursor keyring before any provider/DB activity. Existing source transport, tenant grants, session verification, durable receipts and effects-deny remain unchanged. Synthetic regression cases cover malformed/missing source fields, wrong/missing cursor keys, all eight required resource scopes and a missing second-tenant reader.
+- **Branch:** `engineering/cigo-v1-staging-reader-preflight-20261106`. Exact new commit and GitHub Actions evidence belong in the draft PR and should be checked live; no CI success or deployment is claimed by this pre-commit document.
+- **Hosted root cause:** historical authenticated HTTP 503 is **UNVERIFIED**. Rejecting malformed configuration earlier reduces ambiguous late failures; it is not evidence of repair in a protected live host.
+- **Acceptance:** production G1–G8 still unaccepted, G5 intentional deny-only; independent review, isolated hosting/private secrets, protected tenant A HTTP 200 and cross-tenant B denial are still required. No merge, other-repository edits, DB migration or live effects.
+
+The October 15 inventory and provenance below remain a historical engineering snapshot, not current-head acceptance.
+
+---
+
 # CIGO progress — 2026-10-15 (Asia/Karachi)
 
 GitHub repository: [sohail654312-gif/codeedge-intelligent-growth-os](https://github.com/sohail654312-gif/codeedge-intelligent-growth-os). Snapshot UTC: 2026-10-14T19:21:17.545Z.

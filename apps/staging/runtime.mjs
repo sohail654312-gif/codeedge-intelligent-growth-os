@@ -70,8 +70,34 @@ export function validateStagingPrivateConfiguration(config){
   !config.readerEnv||typeof config.readerEnv!=='object'||Array.isArray(config.readerEnv)||
   !['CIGO_BUSINESS_OS_READERS_JSON','CIGO_BUSINESS_OS_CURSOR_KEYS_JSON','CIGO_BUSINESS_OS_CURSOR_ACTIVE_KEY_ID']
    .every(key=>typeof config.readerEnv[key]==='string'&&config.readerEnv[key].trim()))fail('source');
+ // Match the exact server-only reader and cursor contracts before provider or
+ // database work. Origin-only validation otherwise permits a sign-in shell whose
+ // authenticated snapshot fails later with an opaque 503.
+ const plain=value=>!!value&&typeof value==='object'&&!Array.isArray(value);
+ let readers,cursorKeys;
+ try{
+  readers=JSON.parse(config.readerEnv.CIGO_BUSINESS_OS_READERS_JSON);
+  cursorKeys=JSON.parse(config.readerEnv.CIGO_BUSINESS_OS_CURSOR_KEYS_JSON);
+ }catch{fail('source');}
+ if(!plain(readers)||!plain(cursorKeys)||!Object.keys(cursorKeys).length)fail('source');
+ const activeKey=config.readerEnv.CIGO_BUSINESS_OS_CURSOR_ACTIVE_KEY_ID;
+ if(!Object.hasOwn(cursorKeys,activeKey)||!Object.entries(cursorKeys).every(([id,value])=>{
+  if(!/^[A-Za-z0-9_-]{1,32}$/.test(id)||typeof value!=='string')return false;
+  try{
+   const key=Buffer.from(value,'base64url');
+   return key.length===32&&key.toString('base64url')===value;
+  }catch{return false;}
+ }))fail('source');
  for(const id of Object.keys(workspaces)){
   try{validateStagingUpstream(config,id);}catch{fail('source');}
+  const reader=readers[id];
+  if(!plain(reader)||typeof reader.keyId!=='string'||!/^[A-Za-z0-9_-]{1,64}$/.test(reader.keyId)||
+   typeof reader.secret!=='string'||reader.secret.length<32||
+   !Array.isArray(reader.resourceKinds)||reader.resourceKinds.length!==FAILURE_RESOURCES.size||
+   reader.resourceKinds.some(kind=>!FAILURE_RESOURCES.has(kind))||
+   new Set(reader.resourceKinds).size!==FAILURE_RESOURCES.size||
+   (reader.timeoutMs!==undefined&&(!Number.isSafeInteger(reader.timeoutMs)||reader.timeoutMs<250||reader.timeoutMs>10000))||
+   (reader.retries!==undefined&&(!Number.isSafeInteger(reader.retries)||reader.retries<0||reader.retries>2)))fail('source');
  }
  return true;
 }

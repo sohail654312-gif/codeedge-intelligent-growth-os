@@ -6,6 +6,9 @@ import {projectStagingSnapshot} from '../apps/staging/presentation.mjs';
 import {createRenderRequestHandler} from '../apps/staging/render-server.mjs';
 const NOW='2026-10-07T12:00:00.000Z',FUTURE='2026-10-07T12:30:00.000Z';
 const actor='11111111-1111-4111-8111-111111111111',A='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',B='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',sid='22222222-2222-4222-8222-222222222222';
+const syntheticResources=['business_profile','service','lead','customer','crm_activity','booking','inbox_summary','finance_summary'];
+const syntheticReader=baseUrl=>({baseUrl,keyId:'synthetic',secret:'S'.repeat(48),resourceKinds:[...syntheticResources]});
+const syntheticCursorKey=Buffer.alloc(32,7).toString('base64url');
 const session=()=>({actorId:actor,sessionId:sid,expiresAt:FUTURE});
 const member=()=>({active:true,revoked:false,role:'OWNER',version:'1',expiresAt:FUTURE});
 function fixture(overrides={}){let s=session(),m=member();return {
@@ -187,8 +190,8 @@ test('staging entry is separate and never imports demo data or silently falls ba
   authDatabaseUrl:url('cigo_stage_gateway'),
   workspaces:{[A]:{label:'Synthetic A',databaseUrl:url('cigo_stage_tenant_a')}},
   businessOsOrigin:sourceOrigin,businessOsProtectionCookie:'__vercel_protection_bypass=synthetic',
-  readerEnv:{CIGO_BUSINESS_OS_READERS_JSON:JSON.stringify({[A]:{baseUrl:sourceOrigin}}),
-   CIGO_BUSINESS_OS_CURSOR_KEYS_JSON:'{"synthetic":"placeholder"}',
+  readerEnv:{CIGO_BUSINESS_OS_READERS_JSON:JSON.stringify({[A]:syntheticReader(sourceOrigin)}),
+   CIGO_BUSINESS_OS_CURSOR_KEYS_JSON:JSON.stringify({synthetic:syntheticCursorKey}),
    CIGO_BUSINESS_OS_CURSOR_ACTIVE_KEY_ID:'synthetic'}
  })}});
  const stage=await probe(enabled,'/staging');
@@ -218,11 +221,15 @@ test('Vercel empty or forged GET body never substitutes for a session or breaks 
   authDatabaseUrl:dbUrl('cigo_stage_gateway'),
   workspaces:{[A]:{label:'Synthetic A',databaseUrl:dbUrl('cigo_stage_tenant_a')}},
   businessOsOrigin:sourceOrigin,businessOsProtectionCookie:'__vercel_protection_bypass=synthetic',
-  readerEnv:{CIGO_BUSINESS_OS_READERS_JSON:JSON.stringify({[A]:{baseUrl:sourceOrigin,secret:'private_synthetic_secret'}}),
-   CIGO_BUSINESS_OS_CURSOR_KEYS_JSON:'{"synthetic":"not-a-real-key"}',
+  readerEnv:{CIGO_BUSINESS_OS_READERS_JSON:JSON.stringify({[A]:syntheticReader(sourceOrigin)}),
+   CIGO_BUSINESS_OS_CURSOR_KEYS_JSON:JSON.stringify({synthetic:syntheticCursorKey}),
    CIGO_BUSINESS_OS_CURSOR_ACTIVE_KEY_ID:'synthetic'}};
  assert.equal(validateStagingPrivateConfiguration(complete),true);
  assert.equal(validateStagingPrivateConfiguration({enabled:false}),false);
+ // In a two-tenant config every workspace needs its own valid scoped reader.
+ assert.throws(()=>validateStagingPrivateConfiguration({...complete,workspaces:{
+  ...complete.workspaces,[B]:{label:'Synthetic B',databaseUrl:dbUrl('cigo_stage_tenant_b')}}}),
+  error=>safeConfigurationPreflightMarker(error)==='CIGO_STAGING_CONFIG_PREFLIGHT_FAILURE category=source');
  // Disable must not need any absent private DB URL, reader key or HTTP origin.
  let disabledStatus,disabledBody,disabledHeaders;
  const savedDisabledConfig=process.env.CIGO_STAGING_SERVER_JSON;
@@ -239,6 +246,10 @@ test('Vercel empty or forged GET body never substitutes for a session or breaks 
  assert.equal(disabledStatus,503);
  assert.deepEqual(JSON.parse(disabledBody),{status:'DISABLED',effectsEnabled:false});
  assert.match(disabledHeaders['Cache-Control'],/no-store/);
+ const badReader=overrides=>({...complete,readerEnv:{...complete.readerEnv,
+  CIGO_BUSINESS_OS_READERS_JSON:JSON.stringify({[A]:{...syntheticReader(sourceOrigin),...overrides}})}});
+ const badKeys=(keys,active='synthetic')=>({...complete,readerEnv:{...complete.readerEnv,
+  CIGO_BUSINESS_OS_CURSOR_KEYS_JSON:JSON.stringify(keys),CIGO_BUSINESS_OS_CURSOR_ACTIVE_KEY_ID:active}});
  const scenarios=[
   ['shape',{...complete,enabled:'true'}],
   ['origin',{...complete,origin:'http://unsafe.example'}],
@@ -246,7 +257,17 @@ test('Vercel empty or forged GET body never substitutes for a session or breaks 
   ['database',{...complete,authDatabaseUrl:'postgresql://postgres:private@localhost/postgres'}],
   ['workspace',{...complete,workspaces:{[B]:{label:'',databaseUrl:dbUrl('cigo_stage_tenant_b')}}}],
   ['source',{...complete,businessOsOrigin:'https://wrong.example'}],
-  ['source',{...complete,businessOsProtectionCookie:''}]
+  ['source',{...complete,businessOsProtectionCookie:''}],
+  ['source',badReader({keyId:undefined})],
+  ['source',badReader({secret:'too-short'})],
+  ['source',badReader({resourceKinds:syntheticResources.slice(1)})],
+  ['source',badReader({resourceKinds:[...syntheticResources.slice(1),'service']})],
+  ['source',badReader({timeoutMs:10001})],
+  ['source',badReader({retries:3})],
+  ['source',badKeys({synthetic:'not-a-real-key'})],
+  ['source',badKeys({other:syntheticCursorKey})],
+  ['source',badKeys({synthetic:syntheticCursorKey+'='})],
+  ['source',{...complete,readerEnv:{...complete.readerEnv,CIGO_BUSINESS_OS_READERS_JSON:'not-json'}}]
  ];
  for(const [category,invalid] of scenarios){
   assert.throws(()=>validateStagingPrivateConfiguration(invalid),error=>
