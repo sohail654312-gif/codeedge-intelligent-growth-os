@@ -1177,5 +1177,72 @@
     "independentReview": "PENDING",
     "productionGates": "G1_G8_OPEN_G5_EXECUTION_DISABLED",
     "disposition": "PARTIALLY_VERIFIED"
+  },
+  "releaseCandidate20261119": {
+    "baseline": "c517fdd08e70f3852564f67438ae1847e2bfb324",
+    "branch": "engineering/cigo-v1-verification-20261119",
+    "pr": 23,
+    "scope": [
+      "Shared planning and simulation view composed through existing engines",
+      "Read-only evidence-linked strategist view through composeCopilotResponse",
+      "Search business memory with bounded input and empty state",
+      "Pakistani clinic PKR and UK trades GBP synthetic journeys"
+    ],
+    "consolidation": "All remote engineering refs are ancestors; separate PR16 deployment-only branch deliberately excluded; correct CIGO isolated host configuration already present",
+    "localTests": {
+      "engine": 270,
+      "preview": 8,
+      "staging": 31,
+      "closure": 15,
+      "httpSmoke": 3,
+      "failures": 0,
+      "skips": 0,
+      "dependencyAudit": "PASS_ZERO",
+      "provenance": "PASS_15",
+      "sbom": "PASS_15"
+    },
+    "browser": {
+      "widths": [
+        390,
+        768,
+        1440
+      ],
+      "domainNavigations": 30,
+      "regionalJourneys": 36,
+      "pageOverflow": false,
+      "evidenceDialog": "PASS",
+      "limitedStrategyUnavailable": "PASS",
+      "memorySearchAndEmpty": "PASS"
+    },
+    "exactHeadCI": "SEE_PR23_FINAL_HEAD_WORKFLOWS_NOT_BASELINE",
+    "parts": {
+      "foundation": "TESTED",
+      "readIntegration": "SYNTHETIC_AND_DISPOSABLE_TESTED_HOSTED_OPEN",
+      "memory": "TESTED_SEARCH_VERIFIED",
+      "analysis": "TESTED",
+      "recommendations": "TESTED",
+      "planning": "ENGINE_AND_SYNTHETIC_UI_TESTED",
+      "copilot": "ENGINE_AND_SYNTHETIC_UI_TESTED_NO_LIVE_MODEL",
+      "controlledActions": "DENY_ONLY_TESTED",
+      "security": "REGRESSION_TESTED_INDEPENDENT_18_FINDINGS_PENDING",
+      "demoPilot": "SYNTHETIC_BROWSER_TESTED_REAL_PILOT_OPEN"
+    },
+    "staging": "BLOCKED_EXTERNAL_NO_VERIFIED_HOSTED_200",
+    "productionGates": {
+      "G1": "OPEN",
+      "G2": "OPEN",
+      "G3": "OPEN",
+      "G4": "OPEN",
+      "G5": "OPEN_EXECUTION_DISABLED",
+      "G6": "OPEN",
+      "G7": "OPEN",
+      "G8": "OPEN"
+    },
+    "ownerActions": [
+      "Supply isolated protected CIGO host and private synthetic config; Vercel 403/Railway expired trial observed today; Render workspace confirmation needed",
+      "Execute authenticated hosted two-tenant outage/revocation/rollback/monitoring acceptance using existing runbook",
+      "Independent reviewer reconciles all 18 findings; owners accept G1-G8; no autonomous merge/release"
+    ],
+    "disposition": "PARTIALLY_VERIFIED_PENDING_FINAL_HEAD_CI_AND_HOSTED_ACCEPTANCE"
   }
 }

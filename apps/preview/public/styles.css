@@ -14,3 +14,5 @@ footer{display:flex;justify-content:space-between;align-items:center;gap:20px;pa
 
 .topbar-wordmark{display:none}
 @media(max-width:1050px){.topbar-wordmark{display:block;width:128px;height:32px}.topbar-title>span{display:none}.metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:24px}.metric-tile:nth-child(3){border-left:0;padding-left:0}}
+
+.plan-steps{padding-left:24px}.plan-steps li{padding:14px 0;border-bottom:1px solid #214164}.plan-steps h3{font-size:14px}.strategy-sources{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0}.panel details{margin-top:18px}.panel summary{cursor:pointer;color:#82c8ff}.sidebar{overflow-y:auto}

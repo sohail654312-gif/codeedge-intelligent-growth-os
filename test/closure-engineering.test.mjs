@@ -6,7 +6,7 @@ import {emitSafeSecurityEvent} from '../dist/src/security/safe-event.js';
 import {HumanApprovalBoundary} from '../dist/src/action/trusted-human-approval.js';import {InMemoryApprovalLedger} from '../dist/src/action/in-memory-approval-ledger.js';
 import {handleStaging} from '../apps/staging/runtime.mjs';import {createSupabaseSession} from '../apps/staging/supabase-session.mjs';
 for(const vertical of ['CLINIC','TRADES'])for(const mode of ['DEMO','SANDBOX'])test(vertical+' '+mode+' complete enquiry, booking, invoice, call and owner-handoff journeys',async()=>{
- for(const scenario of ['STANDARD','CANCELLED','MISSING_HANDOFF']){const x=await runSyntheticJourney({vertical,mode,scenario});
+ for(const scenario of ['STANDARD','CANCELLED','MISSING_HANDOFF']){const x=await runSyntheticJourney({vertical,mode,scenario});assert.ok(x.title.includes(vertical==='CLINIC'?'Pakistani':'UK'));if(scenario==='STANDARD')assert.ok(x.stages[2].observation.includes(vertical==='CLINIC'?'PKR':'GBP'));
   assert.equal(x.evidenceCount,4);assert.equal(x.memory.length,4);assert.equal(x.stages.length,4);assert.equal(x.sourceContract,'cigo-synthetic-workflow:v1');
   assert.ok(x.stages.every(s=>s.evidence==='UNVERIFIED'&&s.actionable===false));assert.ok(x.memory.every(m=>m.verifiedFact===false&&m.actionable===false));
   assert.deepEqual([x.providerCalls,x.financialEffects,x.performedEffects,x.handoff.approved,x.handoff.executable],[0,0,0,false,false]);

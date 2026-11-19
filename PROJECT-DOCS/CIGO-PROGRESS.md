@@ -1,3 +1,19 @@
+## 2026-11-19 — CIGO V1 product release candidate, existing PR #23
+
+New implementation: shared Planning & goals and AI strategist views now compose the existing recommendation → draft plan → milestone → simulation → copilot engines at build time. Source observation links, uncertainty, blocked dependencies and unestablished achievement remain explicit. No raw fingerprints, authority records, provider clients or live model calls enter the browser. Limited observations and authenticated staging without eligible strategy context show unavailable, never Demo fallback. Business memory search bounds input and preserves source links with a no-results state. Regional journeys identify fictional Pakistani clinic (PKR) and UK trades (GBP).
+
+Consolidation: all fetched remote engineering branches are ancestors of baseline c517fdd; only PR #16 deployment-only branch differs. Its separate Vercel deployment packaging is not required by the existing isolated Node host and is not blindly merged. PRs #2–#23 implementation lineage remains intact. No frozen history, main or other repo changed. Continue PR #23, no duplicate preparatory PR.
+
+Local verification: 270 engine, 8 preview, 31 staging, 15 closure, 3 HTTP smoke; no failures/skips. Dependency audit zero advisories; provenance and CycloneDX cover all 15 packages. Preview/staging asset budgets remain enforced. Browser: all 10 domains at 390/768/1440 (30 navigations, no page horizontal overflow), 12 regional journeys at each width (36), observation dialog, limited-data strategy suppression and memory search/no-results verified. Screenshot is a local output, not published customer data. PostgreSQL/recovery requires both exact final-head GitHub workflows; see PR #23 head and final verification comment, never inherit baseline green results.
+
+Ten-part disposition: foundation, metrics/analysis, recommendation/review and deny-only controls retain passing engine evidence; integration has synthetic HTTP/durable PostgreSQL acceptance; memory now has searched UI; planning/copilot now have engine-backed synthetic UI; Demo journeys have responsive regional acceptance. Authenticated staging deliberately exposes only eligible read DTOs; unsupported cohorts, predictions and strategy remain unavailable. Independent security acceptance and hosted/pilot/operations acceptance remain OPEN. The 18-finding matrix remains at ops/remediation/ENGINEERING-CLOSURE-2026-10-14.md; no AI self-approval.
+
+G1 OPEN (production identity); G2 OPEN (semantic authority); G3 OPEN (hosted integration); G4 OPEN (human policy); G5 OPEN / execution intentionally disabled; G6 OPEN (managed recovery); G7 OPEN (hosted monitoring/rollback); G8 OPEN (real pilot). No production readiness or percentage claimed.
+
+Operator handoff: provide a dedicated protected CIGO host and private synthetic configuration using docs/operations/ENGINEERING-CLOSURE-RUNBOOK.md and docs/operations/CIGO-ISOLATED-STAGING-2026-11-06.md. Vercel 403 and Railway expired trial were observed today; Render requires workspace confirmation. Verify exact source, anonymous denial, tenant-A 200, tenant-B denial, expiry/revocation, eight reads/receipts, outage, rollback/monitoring and zero effects before hosted acceptance. Historical 503 remains unverified. Final classification remains PARTIALLY_VERIFIED until all scoped acceptance completes; external G1–G8 approvals are separate.
+
+---
+
 ## 2026-11-19 — verification and local SBOM repair
 
 Baseline PR #22 remains the newest coherent implementation at `25e5879de867783ef950dd7330958dd5ecf04d27`; both exact-head workflows (42168872712 / 42168872710) are successful. This child does not inherit those results.

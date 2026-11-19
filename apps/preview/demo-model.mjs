@@ -1,3 +1,7 @@
+import {draftGoalPlan} from '../../dist/src/planning/draft-goal.js';
+import {observeDraftProgress} from '../../dist/src/planning/draft-progress.js';
+import {simulateDraftOrchestration} from '../../dist/src/planning/draft-simulation.js';
+import {composeCopilotResponse} from '../../dist/src/copilot/read-only-response.js';
 // Build-time presentation composition. No live adapter, credentials, receipts or effect APIs.
 import {analyzeBusinessMetrics} from '../../dist/src/analysis/business-metrics.js';
 import {analyzeCrossDomain} from '../../dist/src/analysis/cross-domain.js';
@@ -68,10 +72,25 @@ export async function createDemoSnapshot(scenario='balanced'){
   {title:'Review unanswered enquiries',rationale:'The seed contains unanswered enquiries alongside new lead demand. A staff-led review could clarify coverage gaps.',assumptions:['Consent and staff availability need independent confirmation.'],next:'Review the unanswered cohort with an owner before deciding whether a workflow change is appropriate.'},
   {title:scenario==='capacity'?'Review demand against limited capacity':'Review appointment capacity',rationale:'Demand and available slots can be compared, but this does not establish that more promotion would improve outcomes.',assumptions:['Actual staffing and bookable availability are unverified.'],next:'Confirm the schedule before considering promotion or reallocating staff time.'},
  ];
+ let strategy=null;
  const recommendations=comparison.status==='AVAILABLE'?candidates.map((candidate,i)=>{
   const proposal=proposeRecommendation(context,comparison,{proposalId:'demo-proposal-'+i,asOf:SNAPSHOT,title:candidate.title,rationale:candidate.rationale,assumptions:candidate.assumptions,
    alternatives:[{id:'review',description:'Review the evidence with the business owner',tradeOffs:['Requires owner time']},{id:'observe',description:'Gather additional observations first',tradeOffs:['Defers the decision']}],supportingEvidenceFingerprints:comparison.evidenceFingerprints});
   const evaluation=evaluateRecommendation(context,comparison,proposal,{review:['Owner availability'],observe:['Comparable cohort and complete coverage']});
+  if(i===0){
+   const plan=draftGoalPlan(context,evaluation,{goalId:'demo-goal',planId:'demo-plan',asOf:SNAPSHOT,
+    objective:'Review enquiry coverage before changing follow-up',outcomeMeasure:'Owner-reviewed eligible enquiry observations',
+    assumptions:candidate.assumptions,constraints:['No live changes','Owner review required'],
+    steps:[{id:'observe',description:'Review the unanswered enquiry cohort',dependencyIds:[]},{id:'compare',description:'Compare coverage options with available capacity',dependencyIds:['observe']}]});
+   const progress=observeDraftProgress(context,plan,{asOf:SNAPSHOT,milestones:[{id:'review',stepId:'observe',measure:'Reviewed observations',target:12,observed:null,observedAt:null,evidenceFingerprints:[]}]});
+   const simulation=simulateDraftOrchestration(context,plan,progress);
+   const response=composeCopilotResponse(context,evaluation,plan,{questionId:'demo-strategy',question:'What should the owner review next?',asOf:SNAPSHOT});
+   strategy={objective:plan.objective,outcomeMeasure:plan.outcomeMeasure,assumptions:plan.assumptions,constraints:plan.constraints,
+    steps:plan.steps.map((step,n)=>({description:step.description,assessment:simulation.steps[n].assessment,dependencies:step.dependencyIds})),
+    milestone:{target:progress.milestones[0].target,observed:progress.milestones[0].observed,achievement:progress.achievement},
+    sections:response.sections.map(section=>({category:section.category,content:section.content,verifiedFact:section.verifiedFact})),
+    evidenceIds:definitions.map(d=>'DEMO-'+d[0]),uncertainty:response.uncertainty,executable:simulation.executable,scheduled:simulation.scheduled,approved:response.approved};
+  }
   const packet=prepareDecisionReview(context,evaluation,{recordId:'demo-review-'+i,asOf:SNAPSHOT,expiresAt:'2026-10-08T12:00:00.000Z',purpose:'Illustrative owner review only',reviewerRoleRequired:'OWNER'});
   return {id:proposal.proposalId,title:proposal.title,rationale:proposal.rationale,assumptions:[...proposal.assumptions],confidence:proposal.confidence,status:proposal.status,
    approved:proposal.approved,actionable:proposal.actionable,verifiedFact:proposal.verifiedFact,authority:packet.authority,executable:packet.executable,
@@ -86,7 +105,7 @@ export async function createDemoSnapshot(scenario='balanced'){
   connection:{status:'DEMO_CONNECTED',lastObservation:SNAPSHOT,freshness:scenario==='limited'?'PARTIAL_STALE':'AT_DEMO_SNAPSHOT',
    evidenceStatus:'UNVERIFIED',provenanceStatus:'SYNTHETIC_NOT_ATTESTED',liveConnection:false,
    resources:['business_profile','service','lead','customer','crm_activity','booking','inbox_summary','finance_summary']},
-  metrics:metrics.insights.map((x,i)=>projectMetric(x,definitions[i])),recommendations,
+  metrics:metrics.insights.map((x,i)=>projectMetric(x,definitions[i])),recommendations,strategy,
   memory:knowledge.items.map((x,i)=>({title:x.memory.key,kind:x.memory.kind,status:x.memory.status,observation:analysis.insights[i].observation,
    confidence:analysis.insights[i].confidence,actionable:analysis.insights[i].actionable,evidenceId:'DEMO-'+definitions[[3,7,4][i]][0],freshness:x.evidence[0].freshness})),
   confidence:comparison.confidence,sourceCoverage:comparison.sourceCoverage,verifiedFact:false,actionable:false,

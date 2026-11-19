@@ -22,7 +22,7 @@ export async function runSyntheticJourney(input:{vertical:Vertical;mode:Mode;sce
  const definitions=[
   {resource:'lead',label:'Lead enquiry',state:'SYNTHETIC_RECEIVED',summary:clinic?'Fictional consultation enquiry':'Fictional inspection enquiry'},
   {resource:'booking',label:'Booking projection',state:cancelled?'CANCELLED_LOCAL':'PROVISIONAL_LOCAL',summary:cancelled?'Local fixture cancelled; no provider booking exists.':'A fictional local slot is provisional; no provider booking was created.'},
-  {resource:'invoice_projection',label:'Invoice projection',state:cancelled?'VOID_DRAFT':'DRAFT_ONLY',summary:cancelled?'Draft fixture voided; no credit, invoice or payment issued.':`Illustrative draft: ${clinic?'65':'120'} GBP. No invoice was issued or money moved.`},
+  {resource:'invoice_projection',label:'Invoice projection',state:cancelled?'VOID_DRAFT':'DRAFT_ONLY',summary:cancelled?'Draft fixture voided; no credit, invoice or payment issued.':`Illustrative draft: ${clinic?'18000 PKR':'120 GBP'}. No invoice was issued or money moved.`},
   {resource:'call_summary',label:'Call handoff',state:missing?'MISSING_CONTEXT':'NOT_PLACED',summary:missing?'The fixture has no call context. No contact or recording is invented.':'A staff review is proposed. No number, recording, customer message or outbound call exists.'},
  ];
  const records:OperationalRecord[]=definitions.map((d,i)=>({workspaceId,reference:{sourceSystem:'CIGO',externalReference:'synthetic:'+d.resource,version:'synthetic-workflow:v1'},
@@ -40,7 +40,7 @@ export async function runSyntheticJourney(input:{vertical:Vertical;mode:Mode;sce
  if(!truth.ok||analysis.insights.some(i=>i.actionable||i.verifiedFact))throw Error('UNSAFE_SYNTHETIC_JOURNEY');
  // Public DTO allowlist: no identities, private records, receipts or infrastructure.
  return {kind:'SYNTHETIC_WORKFLOW_JOURNEY' as const,vertical,mode,scenario,synthetic:true,asOf:stamp,
-  title:clinic?'Fictional clinic journey':'Fictional trades journey',sourceContract:'cigo-synthetic-workflow:v1',
+  title:clinic?'Fictional Pakistani clinic journey':'Fictional UK trades journey',sourceContract:'cigo-synthetic-workflow:v1',
   stages:definitions.map(d=>({label:d.label,state:d.state,observation:d.summary,evidence:'UNVERIFIED',actionable:false})),
   handoff:{status:cancelled?'CANCELLED':missing?'UNAVAILABLE':'PROPOSED_ONLY',summary:cancelled?'Review cancellation locally.':missing?'Gather missing context before making a proposal.':'Owner may review the linked fictional observations.',approved:false,executable:false},
   memory:analysis.insights.map(i=>({kind:i.sourceKind,observation:String(i.observation),confidence:i.confidence,verifiedFact:false,actionable:false})),
