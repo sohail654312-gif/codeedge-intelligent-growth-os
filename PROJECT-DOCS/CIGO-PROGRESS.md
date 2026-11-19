@@ -1,3 +1,11 @@
+## 2026-11-19 — protected remote Demo browser acceptance
+
+Owner completed the email-PIN sign-in. The actual Cloudflare HTTPS tunnel rendered the synthetic CIGO dashboard. Verified all ten domains at 390/768/1440 (30 remote navigations, no horizontal page overflow), all 12 clinic/trades × Demo/Sandbox × scenario journeys at each width (36 remote journeys), disabled execution and limited-evidence strategy suppression. Screenshot retained as a local user output; no cookies, codes or private runtime values published. Platform URL remains shared only in chat.
+
+This closes protected remote SYNTHETIC DEMO browser acceptance only. It does not certify CIGO staging-session cookies, Business OS credentials, tenant-A hosted 200, tenant-B hosted denial, expiry/revocation or source outage in an approved runtime. Those remain externally dependent. Codespaces quota/spending verification still awaits GitHub sign-in. Free temporary tunnel lifetime depends on the local process and connectivity, not permanent hosting. G1–G8 and independent audit findings remain OPEN; G5 disabled.
+
+---
+
 ## 2026-11-19 — verified disposable runner and protected temporary Demo fallback
 
 Engineering source 79dad9aaecb66c3b473671d572a28fa9c35980b7 passed CIGO CI 44468775471 and PostgreSQL CI 44468775499. The latter passed both the original 14/7/8 groups and the new isolated runner's fresh 14/7/8 groups. Node container/Codespaces build still requires actual acceptance; no Codespace was created because account quota/spending verification needs browser sign-in.

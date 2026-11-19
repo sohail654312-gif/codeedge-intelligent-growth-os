@@ -1267,10 +1267,20 @@
       "mode": "SYNTHETIC_DEMO_ONLY",
       "anonymousGate": "BROWSER_VERIFIED_CLOUDFLARE_EMAIL_PIN",
       "allowedRecipients": 1,
-      "authenticatedBrowser": "WAITING_OWNER_PIN",
+      "authenticatedBrowser": "PASS_OWNER_PIN_BROWSER_SIGN_IN_AND_RENDER",
       "url": "RETURNED_BY_PLATFORM_SHARED_PRIVATELY_IN_CHAT_NOT_COMMITTED",
       "expiry": "PROCESS_LIFETIME_NO_UPTIME_GUARANTEE",
-      "paidResources": false
+      "paidResources": false,
+      "remoteDomainNavigations": 30,
+      "remoteRegionalJourneys": 36,
+      "widths": [
+        390,
+        768,
+        1440
+      ],
+      "pageOverflow": false,
+      "limitedStrategySuppression": "PASS",
+      "zeroEffects": "DISABLED_CONTROLS_VERIFIED"
     },
     "authenticatedStaging": "NOT_ACCEPTED_ADAPTER_DISABLED_NO_PRIVATE_SOURCE_CREDENTIALS"
   }
