@@ -1,3 +1,17 @@
+## 2026-11-19 — verification and local SBOM repair
+
+Baseline PR #22 remains the newest coherent implementation at `25e5879de867783ef950dd7330958dd5ecf04d27`; both exact-head workflows (42168872712 / 42168872710) are successful. This child does not inherit those results.
+
+Reproduced INVALID_SBOM_HEADER in a checkout named cigo. Accept the trusted local folder alias only when npm bom-ref, package URL and version exactly identify the validated manifest. All 15 locked components remain mandatory. Negative tests reject wrong identities, folder names and incomplete inventory. No product, authority or effect boundary changed.
+
+Local checks: 270 engine, 8 preview, 31 staging, 15 closure, 3 real loopback HTTP smoke; zero failures/skips. Dependency audit zero advisories, provenance and SBOM inventory pass. Node 24.20.0 / npm 11.19.0 differs from CI pinned Node 24.21.0. Local PostgreSQL and Docker are unavailable; final child PostgreSQL acceptance must run in GitHub. Exact final-head CI is pending; inspect this branch PR and workflows, not the parent result.
+
+Hosting rechecked: isolated Vercel creation still 403; Railway now trial expired. Render could not inspect services without a confirmed workspace, so its historical 402 is not a fresh observation. No host created, no billing change, no hosted authenticated 200 or cross-tenant acceptance claimed.
+
+Gap disposition: SBOM reproducibility DEFECT repaired; core ten-part implementation has existing source/synthetic evidence, not a new exhaustive acceptance audit; responsive browser acceptance and hosted operational/security acceptance remain unverified. Independent 18-finding review and G1–G8 remain OPEN; G5 execution stays disabled. No merge/release. Next owner action: provide isolated protected hosting/private synthetic config and independent reviewer; then complete hosted journeys and operational acceptance. Final disposition PARTIALLY_VERIFIED.
+
+---
+
 ## 2026-11-06 — Isolated staging deployment attempt (external blockers)
 
 Exact CIGO V1 candidate `81928e24fd1ec7b703a41d39be8e628a8fcfd9dc` passed mandatory source/disposable-PostgreSQL workflows in PR #21. Isolated Vercel project creation failed 403, free Render web service 402 requiring payment info, and Railway free personal workspace provisioning failed at resource limit. No project/service, external credentials, payments, migrations, existing shared host, live effects or production configuration changed. **No public staged deployment or authenticated HTTP 200 is claimed.** Separate child review adds a real loopback Node host HTTP smoke gate with synthetic config; this is NOT hosted acceptance. Detail: [isolated staging investigation](../docs/operations/CIGO-ISOLATED-STAGING-2026-11-06.md).

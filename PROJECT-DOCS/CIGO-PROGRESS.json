@@ -1143,5 +1143,39 @@
     "targetAuthenticatedTenantA200": "NOT_VERIFIED",
     "targetTenantBDenial": "NOT_VERIFIED",
     "productionAccepted": false
+  },
+  "verification20261119": {
+    "date": "2026-11-19",
+    "baseline": "25e5879de867783ef950dd7330958dd5ecf04d27",
+    "branch": "engineering/cigo-v1-verification-20261119",
+    "change": "Fix local npm SBOM checkout alias using exact manifest bom-ref, purl and version plus trusted local folder name; dependency inventory unchanged",
+    "baselineExactHeadCI": [
+      42168872712,
+      42168872710
+    ],
+    "local": {
+      "engine": 270,
+      "preview": 8,
+      "staging": 31,
+      "closure": 15,
+      "httpSmoke": 3,
+      "failures": 0,
+      "skips": 0,
+      "dependencies": "PASS_ZERO_ADVISORIES",
+      "provenance": "PASS_15_PACKAGES",
+      "sbom": "PASS_15_COMPONENTS",
+      "toolchain": "Node 24.20.0 npm 11.19.0; CI pinned Node 24.21.0",
+      "postgres": "NOT_RUN_NO_LOCAL_POSTGRES_OR_DOCKER"
+    },
+    "finalHeadCI": "PENDING_NEW_PR",
+    "hosting": {
+      "vercel": "RECHECKED_403_PROJECT_CREATION",
+      "railway": "RECHECKED_TRIAL_EXPIRED",
+      "render": "NOT_RECHECKED_WORKSPACE_CONFIRMATION_REQUIRED",
+      "hostedAcceptance": "BLOCKED_EXTERNAL"
+    },
+    "independentReview": "PENDING",
+    "productionGates": "G1_G8_OPEN_G5_EXECUTION_DISABLED",
+    "disposition": "PARTIALLY_VERIFIED"
   }
 }
