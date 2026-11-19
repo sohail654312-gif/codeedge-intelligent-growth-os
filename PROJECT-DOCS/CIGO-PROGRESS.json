@@ -1244,5 +1244,17 @@
       "Independent reviewer reconciles all 18 findings; owners accept G1-G8; no autonomous merge/release"
     ],
     "disposition": "PARTIALLY_VERIFIED_PENDING_FINAL_HEAD_CI_AND_HOSTED_ACCEPTANCE"
+  },
+  "privateDevelopmentEnvironment20261119": {
+    "baseline": "5e348d2bb7c84251dad8b6229e8783c8c556671b",
+    "scope": "Two-core devcontainer Node24.21.0 with automatic forwarding disabled and existing staging adapter disabled; disposable Docker PostgreSQL runner reuses exact migrations and 14/7/8 groups",
+    "codespaces": "BLOCKED_ACCOUNT_BROWSER_SIGN_IN_FREE_QUOTA_AND_SPENDING_PROTECTION_UNVERIFIED",
+    "provisioned": false,
+    "privateUrl": null,
+    "containerBuild": "NOT_YET_EXERCISED_IN_CODESPACES",
+    "postgresRunner": "REQUIRES_FINAL_HEAD_CI_FRESH_CONTAINER_ACCEPTANCE",
+    "sourceCI": "SEE_PR23_EXACT_FINAL_HEAD_WORKFLOWS",
+    "productionGates": "G1_G8_OPEN_G5_DISABLED",
+    "noPaidResources": true
   }
 }

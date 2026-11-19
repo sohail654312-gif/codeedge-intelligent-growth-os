@@ -1,3 +1,11 @@
+## 2026-11-19 — private development-container engineering
+
+Continues existing PR #23 from verified 5e348d2. Added a two-core Node 24.21.0 devcontainer, Docker tooling, disabled staging config and no automatically forwarded ports. Added a Linux-only explicitly confirmed disposable PostgreSQL runner: fresh pinned PG16 on random loopback-only port, exact reviewed migrations/roles, all 14/7/8 existing tests with non-skip summary checks, cleanup only of the container it creates. PostgreSQL workflow now exercises this runner in addition to every existing mandatory gate; no thresholds reduced.
+
+Codespaces account quota, eligibility and zero-spend protection cannot yet be verified: browser requires GitHub sign-in, and connector has no Codespaces/billing capability. No Codespace was provisioned and no private URL is claimed. Container build remains unverified until actual Codespaces acceptance. Final-head source/runner workflow results belong in PR #23 verification comment. Runbook covers private-only manual forwarding and temporary lifecycle; authentication and source credentials are not replaced by demo fixtures. All hosted and independent G1–G8 gates remain open, G5 effects disabled. No billing, Supabase project, merge, production or other-repository changes.
+
+---
+
 ## 2026-11-19 — CIGO V1 product release candidate, existing PR #23
 
 New implementation: shared Planning & goals and AI strategist views now compose the existing recommendation → draft plan → milestone → simulation → copilot engines at build time. Source observation links, uncertainty, blocked dependencies and unestablished achievement remain explicit. No raw fingerprints, authority records, provider clients or live model calls enter the browser. Limited observations and authenticated staging without eligible strategy context show unavailable, never Demo fallback. Business memory search bounds input and preserves source links with a no-results state. Regional journeys identify fictional Pakistani clinic (PKR) and UK trades (GBP).
