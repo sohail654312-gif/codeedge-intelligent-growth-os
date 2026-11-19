@@ -1,3 +1,15 @@
+## 2026-11-19 — verified disposable runner and protected temporary Demo fallback
+
+Engineering source 79dad9aaecb66c3b473671d572a28fa9c35980b7 passed CIGO CI 44468775471 and PostgreSQL CI 44468775499. The latter passed both the original 14/7/8 groups and the new isolated runner's fresh 14/7/8 groups. Node container/Codespaces build still requires actual acceptance; no Codespace was created because account quota/spending verification needs browser sign-in.
+
+Free fallback: official cloudflared 2026.11.1 verified against release SHA256 and valid Cloudflare Authenticode signature. Created an email-protected temporary Quick Tunnel serving only the synthetic Demo/Sandbox preview. The genuine platform URL is supplied to the owner in chat, not published in repository history. Anonymous browser redirects to Cloudflare Access email PIN; one owner address allowlisted. Authenticated browser awaits the owner's emailed PIN. This is NOT CIGO authenticated tenant-A staging acceptance. No generic public tunnel or public Codespaces port was opened.
+
+Existing Node staging adapter separately started locally with enabled:false: liveness 200, staging/API unavailable, strict allowlist and no-store preserved. No source/session/database production credentials supplied, no new Supabase or paid resources. Tunnel has no uptime guarantee, consumes local-machine resources, changes hostname on recreation and expires when cloudflared stops or connectivity ends. Back4app advertises a 256MB free container, but account eligibility/protected runtime was not established, so no container was provisioned there.
+
+Owner handoff: enter Cloudflare PIN in browser to complete protected Demo acceptance; sign in to GitHub to verify included Codespaces compute/storage and zero-spend protection before any two-core provisioning. Provide separately approved least-privilege synthetic staging config for real hosted tenant/session/source acceptance. G1–G8 and 18 independent findings remain OPEN, G5 execution disabled. Disposition PARTIALLY_VERIFIED. New tracking head requires its own workflow results; consult PR #23 final verification comment.
+
+---
+
 ## 2026-11-19 — private development-container engineering
 
 Continues existing PR #23 from verified 5e348d2. Added a two-core Node 24.21.0 devcontainer, Docker tooling, disabled staging config and no automatically forwarded ports. Added a Linux-only explicitly confirmed disposable PostgreSQL runner: fresh pinned PG16 on random loopback-only port, exact reviewed migrations/roles, all 14/7/8 existing tests with non-skip summary checks, cleanup only of the container it creates. PostgreSQL workflow now exercises this runner in addition to every existing mandatory gate; no thresholds reduced.

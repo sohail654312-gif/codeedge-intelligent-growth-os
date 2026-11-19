@@ -1253,8 +1253,25 @@
     "privateUrl": null,
     "containerBuild": "NOT_YET_EXERCISED_IN_CODESPACES",
     "postgresRunner": "REQUIRES_FINAL_HEAD_CI_FRESH_CONTAINER_ACCEPTANCE",
-    "sourceCI": "SEE_PR23_EXACT_FINAL_HEAD_WORKFLOWS",
+    "sourceCI": {
+      "cigo": 44468775471,
+      "postgres": 44468775499,
+      "result": "SUCCESS_BOTH_INCLUDING_FRESH_RUNNER"
+    },
     "productionGates": "G1_G8_OPEN_G5_DISABLED",
-    "noPaidResources": true
+    "noPaidResources": true,
+    "verifiedEngineeringSha": "79dad9aaecb66c3b473671d572a28fa9c35980b7",
+    "temporaryFallback": {
+      "provider": "CLOUDFLARE_EMAIL_PROTECTED_QUICK_TUNNEL",
+      "client": "2026.11.1_OFFICIAL_SHA256_AND_AUTHENTICODE_VERIFIED",
+      "mode": "SYNTHETIC_DEMO_ONLY",
+      "anonymousGate": "BROWSER_VERIFIED_CLOUDFLARE_EMAIL_PIN",
+      "allowedRecipients": 1,
+      "authenticatedBrowser": "WAITING_OWNER_PIN",
+      "url": "RETURNED_BY_PLATFORM_SHARED_PRIVATELY_IN_CHAT_NOT_COMMITTED",
+      "expiry": "PROCESS_LIFETIME_NO_UPTIME_GUARANTEE",
+      "paidResources": false
+    },
+    "authenticatedStaging": "NOT_ACCEPTED_ADAPTER_DISABLED_NO_PRIVATE_SOURCE_CREDENTIALS"
   }
 }
