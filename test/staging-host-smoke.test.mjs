@@ -1,3 +1,4 @@
+import {codespacesBrowserOrigin} from '../apps/staging/render-server.mjs';
 // CIGO-only loopback integration acceptance: starts the real Node host.
 // This is NOT an authenticated hosted tenant or a deployed public endpoint.
 import test from 'node:test';
@@ -15,10 +16,11 @@ async function unusedLoopbackPort(){
  await new Promise((resolve,reject)=>s.close(error=>error?reject(error):resolve()));
  return port;
 }
-async function launch(config,t){
+async function launch(config,t,platform=false){
  const port=await unusedLoopbackPort();
+ if(platform)config={...config,origin:'https://synthetic-test-123-'+port+'.app.github.dev'};
  const child=spawn(process.execPath,['apps/staging/render-server.mjs'],{
-  cwd:process.cwd(),env:{...process.env,PORT:String(port),CIGO_STAGING_SERVER_JSON:JSON.stringify(config)},
+  cwd:process.cwd(),env:{...process.env,...(platform?{CODESPACES:"true",CODESPACE_NAME:"synthetic-test-123",GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:"app.github.dev"}:{}),PORT:String(port),CIGO_STAGING_SERVER_JSON:JSON.stringify(config)},
   stdio:['ignore','pipe','pipe']
  });
  // Consume streams without printing private configuration or server diagnostics.
@@ -49,6 +51,15 @@ const json=response=>JSON.parse(response.body);
 const assertNoStore=response=>assert.match(response.headers.get('cache-control')??'',/no-store/);
 
 test('real Node host: disabled mode has liveness but no staging surface',async t=>{
+ const platform={CODESPACES:'true',CODESPACE_NAME:'synthetic-test-123',GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:'app.github.dev'};
+ const cfg={enabled:true,origin:'https://synthetic-test-123-10000.app.github.dev'};
+ const request={headers:{origin:'http://localhost:10000',host:'attacker.example','x-forwarded-host':'attacker.example'},socket:{localPort:10000,remoteAddress:'127.0.0.1'}};
+ assert.equal(codespacesBrowserOrigin(request,cfg,platform),cfg.origin);
+ for(const bad of [{...platform,CODESPACES:'false'},{...platform,CODESPACE_NAME:'other'},{...platform,GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:'attacker.example'}])assert.equal(codespacesBrowserOrigin(request,cfg,bad),request.headers.origin);
+ for(const patch of [{origin:'https://other.example'},{enabled:false}])assert.equal(codespacesBrowserOrigin(request,{...cfg,...patch},platform),request.headers.origin);
+ for(const socket of [{localPort:10001,remoteAddress:'127.0.0.1'},{localPort:10000,remoteAddress:'192.0.2.1'},{localPort:0,remoteAddress:'127.0.0.1'}])assert.equal(codespacesBrowserOrigin({...request,socket},cfg,platform),request.headers.origin);
+ for(const origin of ['https://attacker.example','null','http://localhost:10001',undefined])assert.equal(codespacesBrowserOrigin({...request,headers:{origin}},cfg,platform),origin);
+
  const origin=await launch({enabled:false},t);
  const live=await get(origin,'/__cigo_host_liveness');
  assert.equal(live.status,200);
@@ -76,6 +87,11 @@ test('real Node host: valid synthetic configuration permits shell but denies ano
   }}),CIGO_BUSINESS_OS_CURSOR_KEYS_JSON:JSON.stringify({synthetic:Buffer.alloc(32,7).toString('base64url')}),
   CIGO_BUSINESS_OS_CURSOR_ACTIVE_KEY_ID:'synthetic'}};
  const origin=await launch(cfg,t);
+ const forwarded=await launch(cfg,t,true),port=new URL(forwarded).port;
+ const loginOptions=origin=>({method:'POST',headers:{Origin:origin,'Content-Type':'application/json','x-forwarded-host':'synthetic-test-123-'+port+'.app.github.dev'},body:'{}'});
+ assert.equal((await get(forwarded,'/api/staging/session',loginOptions('http://localhost:'+port))).status,400);
+ assert.equal((await get(forwarded,'/api/staging/session',loginOptions('https://attacker.example'))).status,403);
+ assert.equal((await get(forwarded,'/api/staging/session',loginOptions('http://localhost:1'))).status,403);
  const shell=await get(origin,'/staging');
  assert.equal(shell.status,200);assertNoStore(shell);
  assert.match(shell.body,/Authenticated staging/);
