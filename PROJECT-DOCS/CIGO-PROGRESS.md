@@ -1,3 +1,15 @@
+## 2026-11-20 — Codespaces origin adapter correction
+
+Source 16ec786fbfe3af1dee0f27c0aa7f1442065e848b passed exact-head CIGO CI 44683967996 and PostgreSQL CI 44683967981. Existing mandatory counts and zero-skip thresholds remain intact. Real HTTP regressions exercise accepted trusted forwarding versus rejected foreign origins and wrong ports; helper regressions additionally reject wrong/missing platform metadata, configured hostname, peer and port.
+
+Verified defect: the Codespaces proxy rewrites a valid browser HTTPS Origin to a loopback origin, causing strict CIGO POST authorization to return403. The adapter restores the configured HTTPS origin only when server-owned Codespaces metadata, exact public hostname, accepted socket port, loopback peer and exact localhost Origin all agree. Host and X-Forwarded headers carry no authority. No generic HTTP-origin relaxation, caller tenant/role trust or effect path added. This security-sensitive correction still needs independent review.
+
+Yesterday the two-core container build and fresh 14/7/8 PostgreSQL runner passed in actual Codespaces. Its two forwarded ports were verified private. Protected Demo browser passed 30 domain checks; the full provider-backed loopback login/session/snapshot reached HTTP200 with no-store, but Codespaces browser staging had403 before this patch. The prior unhealthy source database recovered before any restart was issued. The owner approved existing synthetic runtime secret transfer and a two-hour renewal of only two existing unrevoked grants; today's renewal expires 20 November at 12:54 PM Pakistan time. No role/tenant/production permissions were added.
+
+Patched hosted acceptance remains pending deployment to the resumed Codespace; the editor/terminal reconnection is being recovered. Neither an authenticated Codespaces snapshot200 nor hosted cross-tenant acceptance is claimed yet. G1–G8 and independent findings remain OPEN; G5 execution disabled. Tracking head workflows must be read separately from source CI.
+
+---
+
 ## 2026-11-19 — protected remote Demo browser acceptance
 
 Owner completed the email-PIN sign-in. The actual Cloudflare HTTPS tunnel rendered the synthetic CIGO dashboard. Verified all ten domains at 390/768/1440 (30 remote navigations, no horizontal page overflow), all 12 clinic/trades × Demo/Sandbox × scenario journeys at each width (36 remote journeys), disabled execution and limited-evidence strategy suppression. Screenshot retained as a local user output; no cookies, codes or private runtime values published. Platform URL remains shared only in chat.

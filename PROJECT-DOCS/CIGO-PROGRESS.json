@@ -1283,5 +1283,29 @@
       "zeroEffects": "DISABLED_CONTROLS_VERIFIED"
     },
     "authenticatedStaging": "NOT_ACCEPTED_ADAPTER_DISABLED_NO_PRIVATE_SOURCE_CREDENTIALS"
+  },
+  "codespacesOriginFix20261120": {
+    "sourceSha": "16ec786fbfe3af1dee0f27c0aa7f1442065e848b",
+    "sourceCi": {
+      "cigo": 44683967996,
+      "postgres": 44683967981,
+      "result": "SUCCESS"
+    },
+    "defect": "Codespaces rewrites a same-origin HTTPS browser Origin to loopback; strict CIGO origin check returned403",
+    "fix": "Normalize only with Codespaces platform flags, exact configured HTTPS hostname derived from platform name/domain and socket port, loopback peer and exact localhost origin. Never trust Host/X-Forwarded headers. Other origins retain denial.",
+    "tests": {
+      "engine": 270,
+      "realHttpSmoke": 3,
+      "foreignOrigins": "DENIED",
+      "wrongPortAndPeer": "DENIED",
+      "missingOrWrongPlatform": "DENIED"
+    },
+    "hostedAcceptance": "PENDING_PATCHED_RUNTIME_DEPLOYMENT",
+    "grantRenewal": {
+      "ownerApproved": true,
+      "scope": "ONLY_TWO_EXISTING_UNREVOKED_SYNTHETIC_GRANTS",
+      "expiresAtUtc": "2026-11-20T07:54:08.999701Z"
+    },
+    "gates": "G1_G8_OPEN_G5_DISABLED"
   }
 }
