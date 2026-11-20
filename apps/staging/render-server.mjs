@@ -29,6 +29,19 @@ function stagingEnabled(env){
   return validateStagingPrivateConfiguration(config)===true;
  }catch{return false;}
 }
+// Codespaces forwards same-origin browser requests with a loopback Origin.
+// Trust only platform configuration and the accepted socket, never Host or X-Forwarded-*.
+export function codespacesBrowserOrigin(req,config,env=process.env){
+ const original=req.headers?.origin;
+ const port=req.socket?.localPort,peer=req.socket?.remoteAddress;
+ if(env.CODESPACES!=='true'||env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN!=='app.github.dev'||
+  !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(env.CODESPACE_NAME??'')||
+  !Number.isSafeInteger(port)||port<1||port>65535||
+  !['127.0.0.1','::1','::ffff:127.0.0.1'].includes(peer))return original;
+ const expected='https://'+env.CODESPACE_NAME+'-'+port+'.'+env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN;
+ if(config.enabled!==true||config.origin!==expected)return original;
+ return ['http://localhost:'+port,'http://127.0.0.1:'+port].includes(original)?expected:original;
+}
 export function createRenderRequestHandler({env=process.env,staticFiles=root}={}){
  return async (req,res)=>{
   let path;
@@ -40,6 +53,12 @@ export function createRenderRequestHandler({env=process.env,staticFiles=root}={}
   if(path.startsWith('/api/staging/')){
    // Production authentication, tenant grants, no-store and full snapshot
    // pipeline are owned by the exact same existing Vercel nodeHandler.
+   if(env.CODESPACES==='true'){
+    try{const config=loadServerConfiguration(env);validateStagingPrivateConfiguration(config);
+     const origin=codespacesBrowserOrigin(req,config,env);
+     if(origin!==req.headers.origin)req.headers={...req.headers,origin};
+    }catch{/* normal entrypoint still fails closed with its fixed diagnostics */}
+   }
    return nodeHandler(req,res);
   }
   if(!assets.has(path))return json(res,404,{error:'Unavailable route'});

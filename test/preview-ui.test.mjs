@@ -11,6 +11,15 @@ const read=file=>fs.readFileSync(new URL(file,root),'utf8');
 test('preview composes eight domains through existing engines without FACT or authority',async()=>{
  const x=await createDemoSnapshot();assert.equal(x.mode,'SYNTHETIC_DEMO');assert.equal(x.metrics.length,8);assert.equal(x.memory.length,3);assert.equal(x.recommendations.length,2);
  assert.deepEqual(x,await createDemoSnapshot());
+ assert.equal(x.strategy.executable,false);assert.equal(x.strategy.scheduled,false);assert.equal(x.strategy.approved,false);
+ assert.equal(x.strategy.milestone.observed,null);assert.equal(x.strategy.milestone.achievement,'NOT_ESTABLISHED');
+ assert.equal(x.strategy.steps[1].assessment,'BLOCKED_UNVERIFIED_DEPENDENCY');
+ assert.deepEqual(x.strategy.sections.map(s=>s.category),['ASSUMPTION','ANALYSIS','RECOMMENDATION','DRAFT_PLAN']);
+ assert.ok(x.strategy.sections.every(s=>s.verifiedFact===false));
+ assert.deepEqual(x.strategy.evidenceIds,x.metrics.map(m=>m.evidenceId));
+ assert.ok(!JSON.stringify(x.strategy).includes('fingerprint'));
+ assert.ok(read('public/index.html').includes('data-view="planning"'));
+ assert.ok(read('public/index.html').includes('data-view="strategist"'));
  for(const item of [...x.metrics,...x.memory,...x.recommendations]){assert.equal(item.actionable,false);assert.equal(item.confidence,'INSUFFICIENT');}
  for(const r of x.recommendations){assert.equal(r.approved,false);assert.equal(r.verifiedFact,false);assert.equal(r.executable,false);assert.equal(r.authority,'NONE');assert.equal(r.reviewStatus,'AWAITING_INDEPENDENT_HUMAN_REVIEW');}
  assert.ok(x.memory.every(m=>m.kind==='ASSUMPTION'&&m.status==='UNVERIFIED'));
@@ -20,7 +29,7 @@ test('preview only selects fixed synthetic scenarios and preserves no-effect inv
  for(const input of ['production','workspace:other',{secret:'caller-secret'},'https://attacker.example'])await assert.rejects(createDemoSnapshot(input),/INVALID_DEMO_SCENARIO/);
 });
 test('stale and partial observations suppress values and grounded proposals',async()=>{
- const x=await createDemoSnapshot('limited');assert.equal(x.recommendations.length,0);assert.equal(x.connection.freshness,'PARTIAL_STALE');
+ const x=await createDemoSnapshot('limited');assert.equal(x.strategy,null);assert.equal(x.recommendations.length,0);assert.equal(x.connection.freshness,'PARTIAL_STALE');
  for(const m of x.metrics.filter(m=>['REVENUE_COST','MARKETING','RETENTION','CAPACITY','MISSED_ENQUIRIES'].includes(m.id))){assert.equal(m.status,'UNAVAILABLE');assert.equal(m.value,null);assert.ok(m.limitations.includes('STALE_EVIDENCE')||m.limitations.includes('PARTIAL_COVERAGE'));}
  assert.equal(x.memory.find(m=>m.title==='Finance interpretation').freshness,'STALE');
 });

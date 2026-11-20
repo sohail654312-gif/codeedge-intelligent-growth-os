@@ -1,3 +1,89 @@
+## 2026-11-20 — private authenticated Codespaces acceptance
+
+**ENGINEERING_READY_FOR_REVIEW** for the scoped CIGO engineering package. This is not independent security approval or PRODUCTION_READY. Source 16ec786fbfe3af1dee0f27c0aa7f1442065e848b; previously verified tracking head a11edbe547c132d5575e4121c1b845f6330a5bf9, CIGO CI 44684755286 and disposable PostgreSQL CI 44684755101 both SUCCESS. This publication's own final head must pass both workflows; its exact SHA/results are recorded in PR #23's final verification comment.
+
+The actual free two-core Node24.21.0 Codespace rebuilt the patched adapter. Both platform-returned HTTPS ports (Demo4173 and staging10000) remain PRIVATE. Existing zero-dollar spending protection and included account eligibility were verified before provisioning. No paid resource, new Supabase project, production configuration or other repository was changed. URLs are shared privately in chat, not public Git. This is temporary compute, not permanent production hosting.
+
+Real hosted browser acceptance: provider login/session and authorized tenant-A snapshot HTTP200 through the existing eight-resource Business OS/durable PostgreSQL pipeline; six durable source attestations and one profile observation displayed. Tenant A requesting configured tenant B returns403; logout followed by session access returns401. Temporarily expiring and separately revoking only existing synthetic grant A each immediately denied the live browser and cleared data. Both grants restored to their exact owner-approved two-hour expiries (12:54 PM PKT today), with no additional duration, role, tenant or effect authority. Natural provider-JWT expiry was not waited out in the hosted browser; controlled expiry regressions remain passing.
+
+Temporary invalid source protection cookie produced HTTP503 and a UI unavailable state with no previous or Demo values. Original private configuration restored; retry recovered HTTP200. Actual outgoing response markers confirm no-store and Secure/HttpOnly/SameSite=Strict cookie issuance. Initial getHeader telemetry after writeHead was non-authoritative and was corrected before header acceptance. No cookies, passwords or private configuration were logged/published. Approved runtime config stays ignored and mode0600; local transfer copy and temporary remote backup removed.
+
+Hosted responsive acceptance: nine main navigation views at390/768/1440, 27 checks, no horizontal page overflow. Earlier synthetic Demo acceptance retains 30 domain navigations and36 journeys. Stale/incomplete business metrics and unsupported strategy correctly remain unavailable. The staging suite passed31/31, zero failures/skips, in a separate clean Codespaces worktree; the running private artifact was preserved. Final CI retains270 engine,8 preview,31 staging,15 closure,3 HTTP smoke,14/7/8 PostgreSQL and a second fresh14/7/8 runner, dependency/provenance/SBOM enforcement.
+
+All18 findings remain pending distinct human review; G1–G8 are OPEN, G5/R7 execution disabled. Owner must supply the original audit, nominate an independent reviewer, prove enforceable branch review/check/no-bypass/scanning controls, approve production IAM/semantic governance/credential lifecycle/protected runtime, managed recovery RPO/RTO, monitoring/on-call and real pilot. Any merge/release needs separate authorization. No self-approval or merge performed. Historical entries below retain their dates and are superseded by this current checkpoint where applicable.
+
+---
+
+## 2026-11-20 — Codespaces origin adapter correction
+
+Source 16ec786fbfe3af1dee0f27c0aa7f1442065e848b passed exact-head CIGO CI 44683967996 and PostgreSQL CI 44683967981. Existing mandatory counts and zero-skip thresholds remain intact. Real HTTP regressions exercise accepted trusted forwarding versus rejected foreign origins and wrong ports; helper regressions additionally reject wrong/missing platform metadata, configured hostname, peer and port.
+
+Verified defect: the Codespaces proxy rewrites a valid browser HTTPS Origin to a loopback origin, causing strict CIGO POST authorization to return403. The adapter restores the configured HTTPS origin only when server-owned Codespaces metadata, exact public hostname, accepted socket port, loopback peer and exact localhost Origin all agree. Host and X-Forwarded headers carry no authority. No generic HTTP-origin relaxation, caller tenant/role trust or effect path added. This security-sensitive correction still needs independent review.
+
+Yesterday the two-core container build and fresh 14/7/8 PostgreSQL runner passed in actual Codespaces. Its two forwarded ports were verified private. Protected Demo browser passed 30 domain checks; the full provider-backed loopback login/session/snapshot reached HTTP200 with no-store, but Codespaces browser staging had403 before this patch. The prior unhealthy source database recovered before any restart was issued. The owner approved existing synthetic runtime secret transfer and a two-hour renewal of only two existing unrevoked grants; today's renewal expires 20 November at 12:54 PM Pakistan time. No role/tenant/production permissions were added.
+
+Patched hosted acceptance remains pending deployment to the resumed Codespace; the editor/terminal reconnection is being recovered. Neither an authenticated Codespaces snapshot200 nor hosted cross-tenant acceptance is claimed yet. G1–G8 and independent findings remain OPEN; G5 execution disabled. Tracking head workflows must be read separately from source CI.
+
+---
+
+## 2026-11-19 — protected remote Demo browser acceptance
+
+Owner completed the email-PIN sign-in. The actual Cloudflare HTTPS tunnel rendered the synthetic CIGO dashboard. Verified all ten domains at 390/768/1440 (30 remote navigations, no horizontal page overflow), all 12 clinic/trades × Demo/Sandbox × scenario journeys at each width (36 remote journeys), disabled execution and limited-evidence strategy suppression. Screenshot retained as a local user output; no cookies, codes or private runtime values published. Platform URL remains shared only in chat.
+
+This closes protected remote SYNTHETIC DEMO browser acceptance only. It does not certify CIGO staging-session cookies, Business OS credentials, tenant-A hosted 200, tenant-B hosted denial, expiry/revocation or source outage in an approved runtime. Those remain externally dependent. Codespaces quota/spending verification still awaits GitHub sign-in. Free temporary tunnel lifetime depends on the local process and connectivity, not permanent hosting. G1–G8 and independent audit findings remain OPEN; G5 disabled.
+
+---
+
+## 2026-11-19 — verified disposable runner and protected temporary Demo fallback
+
+Engineering source 79dad9aaecb66c3b473671d572a28fa9c35980b7 passed CIGO CI 44468775471 and PostgreSQL CI 44468775499. The latter passed both the original 14/7/8 groups and the new isolated runner's fresh 14/7/8 groups. Node container/Codespaces build still requires actual acceptance; no Codespace was created because account quota/spending verification needs browser sign-in.
+
+Free fallback: official cloudflared 2026.11.1 verified against release SHA256 and valid Cloudflare Authenticode signature. Created an email-protected temporary Quick Tunnel serving only the synthetic Demo/Sandbox preview. The genuine platform URL is supplied to the owner in chat, not published in repository history. Anonymous browser redirects to Cloudflare Access email PIN; one owner address allowlisted. Authenticated browser awaits the owner's emailed PIN. This is NOT CIGO authenticated tenant-A staging acceptance. No generic public tunnel or public Codespaces port was opened.
+
+Existing Node staging adapter separately started locally with enabled:false: liveness 200, staging/API unavailable, strict allowlist and no-store preserved. No source/session/database production credentials supplied, no new Supabase or paid resources. Tunnel has no uptime guarantee, consumes local-machine resources, changes hostname on recreation and expires when cloudflared stops or connectivity ends. Back4app advertises a 256MB free container, but account eligibility/protected runtime was not established, so no container was provisioned there.
+
+Owner handoff: enter Cloudflare PIN in browser to complete protected Demo acceptance; sign in to GitHub to verify included Codespaces compute/storage and zero-spend protection before any two-core provisioning. Provide separately approved least-privilege synthetic staging config for real hosted tenant/session/source acceptance. G1–G8 and 18 independent findings remain OPEN, G5 execution disabled. Disposition PARTIALLY_VERIFIED. New tracking head requires its own workflow results; consult PR #23 final verification comment.
+
+---
+
+## 2026-11-19 — private development-container engineering
+
+Continues existing PR #23 from verified 5e348d2. Added a two-core Node 24.21.0 devcontainer, Docker tooling, disabled staging config and no automatically forwarded ports. Added a Linux-only explicitly confirmed disposable PostgreSQL runner: fresh pinned PG16 on random loopback-only port, exact reviewed migrations/roles, all 14/7/8 existing tests with non-skip summary checks, cleanup only of the container it creates. PostgreSQL workflow now exercises this runner in addition to every existing mandatory gate; no thresholds reduced.
+
+Codespaces account quota, eligibility and zero-spend protection cannot yet be verified: browser requires GitHub sign-in, and connector has no Codespaces/billing capability. No Codespace was provisioned and no private URL is claimed. Container build remains unverified until actual Codespaces acceptance. Final-head source/runner workflow results belong in PR #23 verification comment. Runbook covers private-only manual forwarding and temporary lifecycle; authentication and source credentials are not replaced by demo fixtures. All hosted and independent G1–G8 gates remain open, G5 effects disabled. No billing, Supabase project, merge, production or other-repository changes.
+
+---
+
+## 2026-11-19 — CIGO V1 product release candidate, existing PR #23
+
+New implementation: shared Planning & goals and AI strategist views now compose the existing recommendation → draft plan → milestone → simulation → copilot engines at build time. Source observation links, uncertainty, blocked dependencies and unestablished achievement remain explicit. No raw fingerprints, authority records, provider clients or live model calls enter the browser. Limited observations and authenticated staging without eligible strategy context show unavailable, never Demo fallback. Business memory search bounds input and preserves source links with a no-results state. Regional journeys identify fictional Pakistani clinic (PKR) and UK trades (GBP).
+
+Consolidation: all fetched remote engineering branches are ancestors of baseline c517fdd; only PR #16 deployment-only branch differs. Its separate Vercel deployment packaging is not required by the existing isolated Node host and is not blindly merged. PRs #2–#23 implementation lineage remains intact. No frozen history, main or other repo changed. Continue PR #23, no duplicate preparatory PR.
+
+Local verification: 270 engine, 8 preview, 31 staging, 15 closure, 3 HTTP smoke; no failures/skips. Dependency audit zero advisories; provenance and CycloneDX cover all 15 packages. Preview/staging asset budgets remain enforced. Browser: all 10 domains at 390/768/1440 (30 navigations, no page horizontal overflow), 12 regional journeys at each width (36), observation dialog, limited-data strategy suppression and memory search/no-results verified. Screenshot is a local output, not published customer data. PostgreSQL/recovery requires both exact final-head GitHub workflows; see PR #23 head and final verification comment, never inherit baseline green results.
+
+Ten-part disposition: foundation, metrics/analysis, recommendation/review and deny-only controls retain passing engine evidence; integration has synthetic HTTP/durable PostgreSQL acceptance; memory now has searched UI; planning/copilot now have engine-backed synthetic UI; Demo journeys have responsive regional acceptance. Authenticated staging deliberately exposes only eligible read DTOs; unsupported cohorts, predictions and strategy remain unavailable. Independent security acceptance and hosted/pilot/operations acceptance remain OPEN. The 18-finding matrix remains at ops/remediation/ENGINEERING-CLOSURE-2026-10-14.md; no AI self-approval.
+
+G1 OPEN (production identity); G2 OPEN (semantic authority); G3 OPEN (hosted integration); G4 OPEN (human policy); G5 OPEN / execution intentionally disabled; G6 OPEN (managed recovery); G7 OPEN (hosted monitoring/rollback); G8 OPEN (real pilot). No production readiness or percentage claimed.
+
+Operator handoff: provide a dedicated protected CIGO host and private synthetic configuration using docs/operations/ENGINEERING-CLOSURE-RUNBOOK.md and docs/operations/CIGO-ISOLATED-STAGING-2026-11-06.md. Vercel 403 and Railway expired trial were observed today; Render requires workspace confirmation. Verify exact source, anonymous denial, tenant-A 200, tenant-B denial, expiry/revocation, eight reads/receipts, outage, rollback/monitoring and zero effects before hosted acceptance. Historical 503 remains unverified. Final classification remains PARTIALLY_VERIFIED until all scoped acceptance completes; external G1–G8 approvals are separate.
+
+---
+
+## 2026-11-19 — verification and local SBOM repair
+
+Baseline PR #22 remains the newest coherent implementation at `25e5879de867783ef950dd7330958dd5ecf04d27`; both exact-head workflows (42168872712 / 42168872710) are successful. This child does not inherit those results.
+
+Reproduced INVALID_SBOM_HEADER in a checkout named cigo. Accept the trusted local folder alias only when npm bom-ref, package URL and version exactly identify the validated manifest. All 15 locked components remain mandatory. Negative tests reject wrong identities, folder names and incomplete inventory. No product, authority or effect boundary changed.
+
+Local checks: 270 engine, 8 preview, 31 staging, 15 closure, 3 real loopback HTTP smoke; zero failures/skips. Dependency audit zero advisories, provenance and SBOM inventory pass. Node 24.20.0 / npm 11.19.0 differs from CI pinned Node 24.21.0. Local PostgreSQL and Docker are unavailable; final child PostgreSQL acceptance must run in GitHub. Exact final-head CI is pending; inspect this branch PR and workflows, not the parent result.
+
+Hosting rechecked: isolated Vercel creation still 403; Railway now trial expired. Render could not inspect services without a confirmed workspace, so its historical 402 is not a fresh observation. No host created, no billing change, no hosted authenticated 200 or cross-tenant acceptance claimed.
+
+Gap disposition: SBOM reproducibility DEFECT repaired; core ten-part implementation has existing source/synthetic evidence, not a new exhaustive acceptance audit; responsive browser acceptance and hosted operational/security acceptance remain unverified. Independent 18-finding review and G1–G8 remain OPEN; G5 execution stays disabled. No merge/release. Next owner action: provide isolated protected hosting/private synthetic config and independent reviewer; then complete hosted journeys and operational acceptance. Final disposition PARTIALLY_VERIFIED.
+
+---
+
 ## 2026-11-06 — Isolated staging deployment attempt (external blockers)
 
 Exact CIGO V1 candidate `81928e24fd1ec7b703a41d39be8e628a8fcfd9dc` passed mandatory source/disposable-PostgreSQL workflows in PR #21. Isolated Vercel project creation failed 403, free Render web service 402 requiring payment info, and Railway free personal workspace provisioning failed at resource limit. No project/service, external credentials, payments, migrations, existing shared host, live effects or production configuration changed. **No public staged deployment or authenticated HTTP 200 is claimed.** Separate child review adds a real loopback Node host HTTP smoke gate with synthetic config; this is NOT hosted acceptance. Detail: [isolated staging investigation](../docs/operations/CIGO-ISOLATED-STAGING-2026-11-06.md).

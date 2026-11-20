@@ -1,0 +1,15 @@
+{
+  "name": "CIGO V1 isolated synthetic engineering",
+  "image": "node:24.21.0-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:4.1.3": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "hostRequirements": { "cpus": 2 },
+  "forwardPorts": [],
+  "portsAttributes": { "10000": { "label": "CIGO private staging", "onAutoForward": "ignore" } },
+  "otherPortsAttributes": { "onAutoForward": "ignore" },
+  "containerEnv": { "CIGO_STAGING_SERVER_JSON": "{\"enabled\":false}" },
+  "postCreateCommand": "npm ci --ignore-scripts && npm run staging:build",
+  "customizations": { "vscode": { "settings": { "remote.autoForwardPorts": false } } }
+}

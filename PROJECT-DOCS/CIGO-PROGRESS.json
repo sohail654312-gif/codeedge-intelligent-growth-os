@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "project": "CIGO — Codeedge Intelligent Growth OS",
   "repository": "sohail654312-gif/codeedge-intelligent-growth-os",
-  "updatedOn": "2026-11-06",
+  "updatedOn": "2026-11-20",
   "timezone": "Asia/Karachi",
-  "snapshotAtUtc": "2026-10-14T19:21:17.545Z",
-  "status": "SYNCHRONIZED_ENGINEERING_PUBLICATION_PRODUCTION_NOT_READY",
+  "snapshotAtUtc": "2026-11-20T06:13:09.430Z",
+  "status": "ENGINEERING_READY_FOR_REVIEW",
   "scope": {
     "definition": "All CIGO-owned conceptual capabilities in the Product Constitution, supported by current implementation Parts 1–9, R0–R9 remediation, read integration, dashboard/console, bounded Demo/Sandbox, and separate G1–G8 production acceptance. This inventory is not an approved exhaustive weighted product backlog.",
     "sources": [
@@ -22,10 +22,10 @@
     "gateCount": 8
   },
   "checkpoints": {
-    "latestVerifiedGitHubCommit": "79e49220f31394d5b00fc9b1d9e0b69e22f5c338",
-    "commitUrl": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/commit/8be7d7df254c9aa07a7cc2b81484d265538270fd",
-    "meaning": "Latest tracking checkpoint verified present on GitHub before this follow-up record; runtime engineering content remains at 8be7d7df254c9aa07a7cc2b81484d265538270fd. Tracking files identify their own final envelope through PR head/file history.",
-    "lastExactHeadGreenCiCommit": "8626a2acc118e20838d2a4737fcc4209c2e1197c",
+    "latestVerifiedGitHubCommit": "a11edbe547c132d5575e4121c1b845f6330a5bf9",
+    "commitUrl": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/commit/a11edbe547c132d5575e4121c1b845f6330a5bf9",
+    "meaning": "Final PR #23 head and its verification comment identify this publication and exact-head workflows; preceding green checks are not inherited.",
+    "lastExactHeadGreenCiCommit": "a11edbe547c132d5575e4121c1b845f6330a5bf9",
     "parentCi": [
       {
         "id": 37670695702,
@@ -44,42 +44,30 @@
         "conclusion": "success"
       }
     ],
-    "trackingBranch": "codex/cigo-progress-sync-20261015",
-    "trackingBase": "closure/final-engineering-2026-10-14",
-    "trackingPr": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/11",
+    "trackingBranch": "engineering/cigo-v1-verification-20261119",
+    "trackingBase": "engineering/cigo-v1-staging-host-smoke-20261106",
+    "trackingPr": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/pull/23",
     "frozenMain": "4aa62846bff8a6fe550879f12f19f7fc8e6edfb0",
     "featureGovernanceTask": "CIGO-P9-BLOCK2",
     "stateAndHandoffModified": false,
-    "latestPublishedEngineeringCommit": "8be7d7df254c9aa07a7cc2b81484d265538270fd",
+    "latestPublishedEngineeringCommit": "16ec786fbfe3af1dee0f27c0aa7f1442065e848b",
     "verifiedTrackingCheckpoint": "79e49220f31394d5b00fc9b1d9e0b69e22f5c338",
     "trackingCi": [
       {
-        "id": 38622777627,
-        "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38622777627",
-        "name": "R4 disposable PostgreSQL acceptance",
-        "sha": "79e49220f31394d5b00fc9b1d9e0b69e22f5c338",
+        "id": 44684755286,
+        "name": "CIGO CI",
+        "sha": "a11edbe547c132d5575e4121c1b845f6330a5bf9",
         "status": "completed",
-        "conclusion": "failure",
-        "annotations": [
-          {
-            "job": 116054234420,
-            "message": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings"
-          }
-        ]
+        "conclusion": "success",
+        "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/44684755286"
       },
       {
-        "id": 38622777595,
-        "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/38622777595",
-        "name": "CIGO CI",
-        "sha": "79e49220f31394d5b00fc9b1d9e0b69e22f5c338",
+        "id": 44684755101,
+        "name": "R4 disposable PostgreSQL acceptance",
+        "sha": "a11edbe547c132d5575e4121c1b845f6330a5bf9",
         "status": "completed",
-        "conclusion": "failure",
-        "annotations": [
-          {
-            "job": 116054233546,
-            "message": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings"
-          }
-        ]
+        "conclusion": "success",
+        "url": "https://github.com/sohail654312-gif/codeedge-intelligent-growth-os/actions/runs/44684755101"
       }
     ],
     "syncEvidence": "PROJECT-DOCS/evidence/2026-10-15/sync-checkpoint-79e4922.json"
@@ -1143,5 +1131,267 @@
     "targetAuthenticatedTenantA200": "NOT_VERIFIED",
     "targetTenantBDenial": "NOT_VERIFIED",
     "productionAccepted": false
+  },
+  "verification20261119": {
+    "date": "2026-11-19",
+    "baseline": "25e5879de867783ef950dd7330958dd5ecf04d27",
+    "branch": "engineering/cigo-v1-verification-20261119",
+    "change": "Fix local npm SBOM checkout alias using exact manifest bom-ref, purl and version plus trusted local folder name; dependency inventory unchanged",
+    "baselineExactHeadCI": [
+      42168872712,
+      42168872710
+    ],
+    "local": {
+      "engine": 270,
+      "preview": 8,
+      "staging": 31,
+      "closure": 15,
+      "httpSmoke": 3,
+      "failures": 0,
+      "skips": 0,
+      "dependencies": "PASS_ZERO_ADVISORIES",
+      "provenance": "PASS_15_PACKAGES",
+      "sbom": "PASS_15_COMPONENTS",
+      "toolchain": "Node 24.20.0 npm 11.19.0; CI pinned Node 24.21.0",
+      "postgres": "NOT_RUN_NO_LOCAL_POSTGRES_OR_DOCKER"
+    },
+    "finalHeadCI": "PENDING_NEW_PR",
+    "hosting": {
+      "vercel": "RECHECKED_403_PROJECT_CREATION",
+      "railway": "RECHECKED_TRIAL_EXPIRED",
+      "render": "NOT_RECHECKED_WORKSPACE_CONFIRMATION_REQUIRED",
+      "hostedAcceptance": "BLOCKED_EXTERNAL"
+    },
+    "independentReview": "PENDING",
+    "productionGates": "G1_G8_OPEN_G5_EXECUTION_DISABLED",
+    "disposition": "PARTIALLY_VERIFIED"
+  },
+  "releaseCandidate20261119": {
+    "baseline": "c517fdd08e70f3852564f67438ae1847e2bfb324",
+    "branch": "engineering/cigo-v1-verification-20261119",
+    "pr": 23,
+    "scope": [
+      "Shared planning and simulation view composed through existing engines",
+      "Read-only evidence-linked strategist view through composeCopilotResponse",
+      "Search business memory with bounded input and empty state",
+      "Pakistani clinic PKR and UK trades GBP synthetic journeys"
+    ],
+    "consolidation": "All remote engineering refs are ancestors; separate PR16 deployment-only branch deliberately excluded; correct CIGO isolated host configuration already present",
+    "localTests": {
+      "engine": 270,
+      "preview": 8,
+      "staging": 31,
+      "closure": 15,
+      "httpSmoke": 3,
+      "failures": 0,
+      "skips": 0,
+      "dependencyAudit": "PASS_ZERO",
+      "provenance": "PASS_15",
+      "sbom": "PASS_15"
+    },
+    "browser": {
+      "widths": [
+        390,
+        768,
+        1440
+      ],
+      "domainNavigations": 30,
+      "regionalJourneys": 36,
+      "pageOverflow": false,
+      "evidenceDialog": "PASS",
+      "limitedStrategyUnavailable": "PASS",
+      "memorySearchAndEmpty": "PASS"
+    },
+    "exactHeadCI": "SEE_PR23_FINAL_HEAD_WORKFLOWS_NOT_BASELINE",
+    "parts": {
+      "foundation": "TESTED",
+      "readIntegration": "SYNTHETIC_AND_DISPOSABLE_TESTED_HOSTED_OPEN",
+      "memory": "TESTED_SEARCH_VERIFIED",
+      "analysis": "TESTED",
+      "recommendations": "TESTED",
+      "planning": "ENGINE_AND_SYNTHETIC_UI_TESTED",
+      "copilot": "ENGINE_AND_SYNTHETIC_UI_TESTED_NO_LIVE_MODEL",
+      "controlledActions": "DENY_ONLY_TESTED",
+      "security": "REGRESSION_TESTED_INDEPENDENT_18_FINDINGS_PENDING",
+      "demoPilot": "SYNTHETIC_BROWSER_TESTED_REAL_PILOT_OPEN"
+    },
+    "staging": "BLOCKED_EXTERNAL_NO_VERIFIED_HOSTED_200",
+    "productionGates": {
+      "G1": "OPEN",
+      "G2": "OPEN",
+      "G3": "OPEN",
+      "G4": "OPEN",
+      "G5": "OPEN_EXECUTION_DISABLED",
+      "G6": "OPEN",
+      "G7": "OPEN",
+      "G8": "OPEN"
+    },
+    "ownerActions": [
+      "Supply isolated protected CIGO host and private synthetic config; Vercel 403/Railway expired trial observed today; Render workspace confirmation needed",
+      "Execute authenticated hosted two-tenant outage/revocation/rollback/monitoring acceptance using existing runbook",
+      "Independent reviewer reconciles all 18 findings; owners accept G1-G8; no autonomous merge/release"
+    ],
+    "disposition": "PARTIALLY_VERIFIED_PENDING_FINAL_HEAD_CI_AND_HOSTED_ACCEPTANCE"
+  },
+  "privateDevelopmentEnvironment20261119": {
+    "baseline": "5e348d2bb7c84251dad8b6229e8783c8c556671b",
+    "scope": "Two-core devcontainer Node24.21.0 with automatic forwarding disabled and existing staging adapter disabled; disposable Docker PostgreSQL runner reuses exact migrations and 14/7/8 groups",
+    "codespaces": "BLOCKED_ACCOUNT_BROWSER_SIGN_IN_FREE_QUOTA_AND_SPENDING_PROTECTION_UNVERIFIED",
+    "provisioned": false,
+    "privateUrl": null,
+    "containerBuild": "NOT_YET_EXERCISED_IN_CODESPACES",
+    "postgresRunner": "REQUIRES_FINAL_HEAD_CI_FRESH_CONTAINER_ACCEPTANCE",
+    "sourceCI": {
+      "cigo": 44468775471,
+      "postgres": 44468775499,
+      "result": "SUCCESS_BOTH_INCLUDING_FRESH_RUNNER"
+    },
+    "productionGates": "G1_G8_OPEN_G5_DISABLED",
+    "noPaidResources": true,
+    "verifiedEngineeringSha": "79dad9aaecb66c3b473671d572a28fa9c35980b7",
+    "temporaryFallback": {
+      "provider": "CLOUDFLARE_EMAIL_PROTECTED_QUICK_TUNNEL",
+      "client": "2026.11.1_OFFICIAL_SHA256_AND_AUTHENTICODE_VERIFIED",
+      "mode": "SYNTHETIC_DEMO_ONLY",
+      "anonymousGate": "BROWSER_VERIFIED_CLOUDFLARE_EMAIL_PIN",
+      "allowedRecipients": 1,
+      "authenticatedBrowser": "PASS_OWNER_PIN_BROWSER_SIGN_IN_AND_RENDER",
+      "url": "RETURNED_BY_PLATFORM_SHARED_PRIVATELY_IN_CHAT_NOT_COMMITTED",
+      "expiry": "PROCESS_LIFETIME_NO_UPTIME_GUARANTEE",
+      "paidResources": false,
+      "remoteDomainNavigations": 30,
+      "remoteRegionalJourneys": 36,
+      "widths": [
+        390,
+        768,
+        1440
+      ],
+      "pageOverflow": false,
+      "limitedStrategySuppression": "PASS",
+      "zeroEffects": "DISABLED_CONTROLS_VERIFIED"
+    },
+    "authenticatedStaging": "NOT_ACCEPTED_ADAPTER_DISABLED_NO_PRIVATE_SOURCE_CREDENTIALS",
+    "supersededBy": "privateAuthenticatedAcceptance20261120"
+  },
+  "codespacesOriginFix20261120": {
+    "sourceSha": "16ec786fbfe3af1dee0f27c0aa7f1442065e848b",
+    "sourceCi": {
+      "cigo": 44683967996,
+      "postgres": 44683967981,
+      "result": "SUCCESS"
+    },
+    "defect": "Codespaces rewrites a same-origin HTTPS browser Origin to loopback; strict CIGO origin check returned403",
+    "fix": "Normalize only with Codespaces platform flags, exact configured HTTPS hostname derived from platform name/domain and socket port, loopback peer and exact localhost origin. Never trust Host/X-Forwarded headers. Other origins retain denial.",
+    "tests": {
+      "engine": 270,
+      "realHttpSmoke": 3,
+      "foreignOrigins": "DENIED",
+      "wrongPortAndPeer": "DENIED",
+      "missingOrWrongPlatform": "DENIED"
+    },
+    "hostedAcceptance": "PASS_SCOPED_REAL_PROVIDER_BROWSER_ACCEPTANCE_SEE_CURRENT_CHECKPOINT",
+    "grantRenewal": {
+      "ownerApproved": true,
+      "scope": "ONLY_TWO_EXISTING_UNREVOKED_SYNTHETIC_GRANTS",
+      "expiresAtUtc": "2026-11-20T07:54:08.999701Z"
+    },
+    "gates": "G1_G8_OPEN_G5_DISABLED"
+  },
+  "privateAuthenticatedAcceptance20261120": {
+    "date": "2026-11-20",
+    "status": "ENGINEERING_READY_FOR_REVIEW",
+    "meaning": "Scoped engineering package ready for independent review; not production approval, independent audit closure, or a permanent hosting claim.",
+    "sourceSha": "16ec786fbfe3af1dee0f27c0aa7f1442065e848b",
+    "verifiedTrackingSha": "a11edbe547c132d5575e4121c1b845f6330a5bf9",
+    "trackingEnvelope": "Final PR #23 head and its verification comment identify this publication and exact-head workflows; preceding green checks are not inherited.",
+    "verifiedTrackingCi": {
+      "cigo": 44684755286,
+      "postgres": 44684755101,
+      "result": "SUCCESS_BOTH"
+    },
+    "sourceCi": {
+      "cigo": 44683967996,
+      "postgres": 44683967981,
+      "result": "SUCCESS_BOTH"
+    },
+    "tests": {
+      "engine": 270,
+      "preview": 8,
+      "staging": 31,
+      "closure": 15,
+      "realHttpSmoke": 3,
+      "postgres": [
+        14,
+        7,
+        8
+      ],
+      "additionalFreshPostgres": [
+        14,
+        7,
+        8
+      ],
+      "failures": 0,
+      "skipped": 0,
+      "dependencyAdvisories": 0,
+      "sbomPackages": 15
+    },
+    "actualCodespaces": {
+      "cores": 2,
+      "node": "24.21.0",
+      "privatePorts": [
+        4173,
+        10000
+      ],
+      "paidResources": false,
+      "spendingProtection": "Existing zero-dollar Codespaces budget blocks paid usage; included account eligibility verified before creation",
+      "url": "PLATFORM_RETURNED_SHARED_PRIVATELY_IN_CHAT_NOT_COMMITTED",
+      "lifecycle": "Temporary; unavailable while stopped, auto-stopped or deleted. Included compute/storage quota still applies.",
+      "privateConfiguration": "Owner-approved synthetic-only server config; ignored dist file mode0600; local upload copy removed; temporary source-test backup restored and removed"
+    },
+    "hostedAcceptance": {
+      "runtimeCommit": "a11edbe547c132d5575e4121c1b845f6330a5bf9",
+      "providerSession": "PASS_REAL_PROVIDER_BROWSER_SIGN_IN",
+      "tenantA": "HTTP200_REAL_EIGHT_RESOURCE_PIPELINE",
+      "foreignTenantB": "HTTP403",
+      "anonymousAfterLogout": "HTTP401",
+      "grantExpiry": "PASS_LIVE_BROWSER_DENIAL",
+      "grantRevocation": "PASS_LIVE_BROWSER_DENIAL",
+      "restoration": "Both existing grants restored to exact owner-approved expiry, roles and versions unchanged during tests",
+      "providerJwtNaturalExpiry": "NOT_WAITED_IN_HOSTED_BROWSER; existing controlled expiry regressions pass",
+      "sourceFailure": "HTTP503_UI_CLEARS_PRIOR_VALUES_NO_DEMO_FALLBACK",
+      "sourceRecovery": "HTTP200_AFTER_RESTORING_ORIGINAL_CONFIG",
+      "headers": "Actual outgoing HTTP200/401/403 response no-store and cookie Secure/HttpOnly/SameSite=Strict markers verified; first telemetry used getHeader after writeHead and was non-authoritative, corrected to outgoing headers",
+      "durableAttestations": 6,
+      "profileObservations": 1,
+      "metricSemantics": "Stale or unsupported cohorts remain unavailable, not fabricated numbers",
+      "responsive": {
+        "widths": [
+          390,
+          768,
+          1440
+        ],
+        "navigationChecks": 27,
+        "pageOverflow": false
+      },
+      "cleanCodespaceStagingSuite": "31_PASS_0_FAIL_0_SKIP_IN_SEPARATE_CLEAN_WORKTREE; existing private runtime artifact never removed to satisfy tests"
+    },
+    "grantsExpireAtUtc": [
+      "2026-11-20T07:54:08.999701Z",
+      "2026-11-20T07:54:09.005642Z"
+    ],
+    "independentAcceptance": {
+      "findings": 18,
+      "disposition": "ALL_PENDING_DISTINCT_HUMAN_REVIEW",
+      "productionGatesAccepted": 0,
+      "gates": "G1_G8_OPEN_G5_EXECUTION_DISABLED",
+      "mainProtection": "Previously unprotected/403 detail reads; enforceable review/check/no-bypass policy remains owner dependency"
+    },
+    "ownerActions": [
+      "Nominate independent reviewer and provide original audit Library source; review all 18 findings including the Codespaces origin trust boundary on final SHA",
+      "Prove enforceable PR/review/required-check/no-bypass and scanning policy",
+      "Approve production IAM, semantic governance, least-privilege credential lifecycle, protected runtime, managed recovery RPO/RTO, monitoring/on-call and pilot",
+      "Renew synthetic grants only with explicit duration approval if more testing is needed; stop temporary Codespace when unused",
+      "Separately authorize any merge/release after independent acceptance; do not enable R7 effects"
+    ]
   }
 }

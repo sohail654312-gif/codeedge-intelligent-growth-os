@@ -46,6 +46,15 @@ test("L-02 npm private repo root alias must match exact known checkout identity 
  const base={bomFormat:"CycloneDX",specVersion:"1.5",components};
  const alias={...base,metadata:{component:{type:"library",name:"codeedge-intelligent-growth-os",version:inventory.rootVersion}}};
  assert.equal(inspectSbom(alias,inventory).coveredLockedPackages,inventory.components.length);
+ const local={...base,metadata:{component:{name:"local-checkout",version:inventory.rootVersion,
+  "bom-ref":inventory.root+"@"+inventory.rootVersion,purl:"pkg:npm/"+encodeURIComponent(inventory.root).replace("%2F","/")+"@"+inventory.rootVersion}}};
+ assert.equal(inspectSbom(local,inventory,"local-checkout").coveredLockedPackages,inventory.components.length);
+ assert.throws(()=>inspectSbom(local,inventory),/INVALID_SBOM_HEADER/);
+ assert.throws(()=>inspectSbom(local,inventory,"different-checkout"),/INVALID_SBOM_HEADER/);
+ for(const key of ["bom-ref","purl","version"]){
+  assert.throws(()=>inspectSbom({...local,metadata:{component:{...local.metadata.component,[key]:"wrong"}}},inventory,"local-checkout"),/INVALID_SBOM_HEADER/);
+ }
+ assert.throws(()=>inspectSbom({...local,components:[]},inventory,"local-checkout"),/SBOM_LOCK_MISMATCH/);
  assert.throws(()=>inspectSbom({...alias,metadata:{component:{...alias.metadata.component,name:"another-repo"}}},inventory),/INVALID_SBOM_HEADER/);
  assert.throws(()=>inspectSbom({...alias,metadata:{component:{...alias.metadata.component,version:"0.0.0"}}},inventory),/INVALID_SBOM_HEADER/);
 });
