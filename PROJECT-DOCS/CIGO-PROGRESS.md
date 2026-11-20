@@ -1,3 +1,19 @@
+## 2026-11-20 — private authenticated Codespaces acceptance
+
+**ENGINEERING_READY_FOR_REVIEW** for the scoped CIGO engineering package. This is not independent security approval or PRODUCTION_READY. Source 16ec786fbfe3af1dee0f27c0aa7f1442065e848b; previously verified tracking head a11edbe547c132d5575e4121c1b845f6330a5bf9, CIGO CI 44684755286 and disposable PostgreSQL CI 44684755101 both SUCCESS. This publication's own final head must pass both workflows; its exact SHA/results are recorded in PR #23's final verification comment.
+
+The actual free two-core Node24.21.0 Codespace rebuilt the patched adapter. Both platform-returned HTTPS ports (Demo4173 and staging10000) remain PRIVATE. Existing zero-dollar spending protection and included account eligibility were verified before provisioning. No paid resource, new Supabase project, production configuration or other repository was changed. URLs are shared privately in chat, not public Git. This is temporary compute, not permanent production hosting.
+
+Real hosted browser acceptance: provider login/session and authorized tenant-A snapshot HTTP200 through the existing eight-resource Business OS/durable PostgreSQL pipeline; six durable source attestations and one profile observation displayed. Tenant A requesting configured tenant B returns403; logout followed by session access returns401. Temporarily expiring and separately revoking only existing synthetic grant A each immediately denied the live browser and cleared data. Both grants restored to their exact owner-approved two-hour expiries (12:54 PM PKT today), with no additional duration, role, tenant or effect authority. Natural provider-JWT expiry was not waited out in the hosted browser; controlled expiry regressions remain passing.
+
+Temporary invalid source protection cookie produced HTTP503 and a UI unavailable state with no previous or Demo values. Original private configuration restored; retry recovered HTTP200. Actual outgoing response markers confirm no-store and Secure/HttpOnly/SameSite=Strict cookie issuance. Initial getHeader telemetry after writeHead was non-authoritative and was corrected before header acceptance. No cookies, passwords or private configuration were logged/published. Approved runtime config stays ignored and mode0600; local transfer copy and temporary remote backup removed.
+
+Hosted responsive acceptance: nine main navigation views at390/768/1440, 27 checks, no horizontal page overflow. Earlier synthetic Demo acceptance retains 30 domain navigations and36 journeys. Stale/incomplete business metrics and unsupported strategy correctly remain unavailable. The staging suite passed31/31, zero failures/skips, in a separate clean Codespaces worktree; the running private artifact was preserved. Final CI retains270 engine,8 preview,31 staging,15 closure,3 HTTP smoke,14/7/8 PostgreSQL and a second fresh14/7/8 runner, dependency/provenance/SBOM enforcement.
+
+All18 findings remain pending distinct human review; G1–G8 are OPEN, G5/R7 execution disabled. Owner must supply the original audit, nominate an independent reviewer, prove enforceable branch review/check/no-bypass/scanning controls, approve production IAM/semantic governance/credential lifecycle/protected runtime, managed recovery RPO/RTO, monitoring/on-call and real pilot. Any merge/release needs separate authorization. No self-approval or merge performed. Historical entries below retain their dates and are superseded by this current checkpoint where applicable.
+
+---
+
 ## 2026-11-20 — Codespaces origin adapter correction
 
 Source 16ec786fbfe3af1dee0f27c0aa7f1442065e848b passed exact-head CIGO CI 44683967996 and PostgreSQL CI 44683967981. Existing mandatory counts and zero-skip thresholds remain intact. Real HTTP regressions exercise accepted trusted forwarding versus rejected foreign origins and wrong ports; helper regressions additionally reject wrong/missing platform metadata, configured hostname, peer and port.
