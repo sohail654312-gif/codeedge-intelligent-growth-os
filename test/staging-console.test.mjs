@@ -70,6 +70,16 @@ test('unknown workspace, effect routes and non-read snapshot methods cannot run'
 });
 test('cross-origin session changes denied; tokens never returned in JSON',async()=>{
  const request=req('/api/staging/session','POST',{email:'a@example.invalid',password:'password'});request.headers.origin='https://attacker.example';assert.equal((await handleStaging(request,cfg,deps)).status,403);
+ for(const method of ['POST','DELETE']){
+  for(const origin of [undefined,'null','https://other.example']){
+   const denied=req('/api/staging/session',method,request.body);
+   denied.headers={...denied.headers,origin,host:'staging.example','x-forwarded-host':'staging.example','x-forwarded-proto':'https'};
+   let authorityCreated=false;
+   const response=await handleStaging(denied,cfg,{sessionFactory:()=>{authorityCreated=true;throw Error('unexpected authority');}});
+   assert.equal(response.status,403);assert.equal(authorityCreated,false);
+   assert.equal(Object.hasOwn(response.headers,'Set-Cookie'),false);
+  }
+ }
  request.headers.origin=cfg.origin;const result=await handleStaging(request,cfg,deps);assert.equal(result.status,200);assert.ok(!JSON.stringify(result.body).includes('session-secret'));assert.match(result.headers['Set-Cookie'],/HttpOnly/);
 });
 test('no cache reuse or tenant crossover on sequential workspace responses',async()=>{
