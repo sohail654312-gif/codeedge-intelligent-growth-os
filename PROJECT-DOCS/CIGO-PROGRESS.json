@@ -1393,5 +1393,13 @@
       "Renew synthetic grants only with explicit duration approval if more testing is needed; stop temporary Codespace when unused",
       "Separately authorize any merge/release after independent acceptance; do not enable R7 effects"
     ]
+  },
+  "securityReview20261122": {
+    "date": "2026-11-22",
+    "sourceSha": "a99682a6ef467833171daa29c94f76e4eea3d2b7",
+    "scope": "Staging CSRF regression only; no runtime or workflow threshold change",
+    "exactHeadVerification": "See candidate PR checks; parent results are historical",
+    "independentReview": "PENDING",
+    "productionGates": "G1_G8_OPEN_G5_EXECUTION_DISABLED"
   }
 }

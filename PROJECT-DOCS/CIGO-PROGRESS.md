@@ -1,3 +1,9 @@
+## 2026-11-22 — Phase 2 security review checkpoint
+
+Test-only engineering source $src extends the staging CSRF regression to cover POST and DELETE with missing, null or foreign Origin, matching forwarded headers, and denial before authority construction or cookie issuance. No production code or workflow thresholds changed. Local and remote verification evidence for the published candidate belongs to the exact head; previous PR #23 CI does not transfer. GitHub rules/scanning enforcement and distinct review remain owner dependencies. G1–G8 remain open and G5 execution is disabled.
+
+---
+
 ## 2026-11-20 — private authenticated Codespaces acceptance
 
 **ENGINEERING_READY_FOR_REVIEW** for the scoped CIGO engineering package. This is not independent security approval or PRODUCTION_READY. Source 16ec786fbfe3af1dee0f27c0aa7f1442065e848b; previously verified tracking head a11edbe547c132d5575e4121c1b845f6330a5bf9, CIGO CI 44684755286 and disposable PostgreSQL CI 44684755101 both SUCCESS. This publication's own final head must pass both workflows; its exact SHA/results are recorded in PR #23's final verification comment.
